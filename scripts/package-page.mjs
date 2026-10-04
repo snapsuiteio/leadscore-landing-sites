@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { cp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 // Explicit compiled export only. No private repository files or history are copied.
@@ -20,10 +20,12 @@ async function copyFiles(directory, prefix = '') {
     else {
       const destination = path.join(target, relative);
       await mkdir(path.dirname(destination), { recursive: true });
-      if (relative === 'index.html') {
-        const html = (await readFile(path.join(directory, entry.name), 'utf8')).replaceAll('/antigua/', route);
-        await writeFile(destination, html);
-      } else await cp(path.join(directory, entry.name), destination);
+      const bytes = await readFile(path.join(directory, entry.name));
+      if (['.html', '.css', '.js', '.mjs', '.txt', '.svg'].includes(path.extname(relative).toLowerCase())) {
+        let text = bytes.toString('utf8').replaceAll('\r\n', '\n');
+        if (relative === 'index.html') text = text.replaceAll('/antigua/', route);
+        await writeFile(destination, text);
+      } else await writeFile(destination, bytes);
       files[relative] = createHash('sha256').update(await readFile(destination)).digest('hex');
     }
   }
