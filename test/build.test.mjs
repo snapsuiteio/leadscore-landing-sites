@@ -57,6 +57,15 @@ test('unlisted files cannot enter the public output', async t => {
   await writeFile(path.join(f.source, '.env'), 'private');
   await assert.rejects(f.run(), /unreviewed or missing/);
 });
+test('reviewed plain-text resources are served without enabling capture', async t => {
+  const f = await fixture(t);
+  const content = 'A fictional worked example.\n';
+  await mkdir(path.join(f.source, 'resources'));
+  await writeFile(path.join(f.source, 'resources/checklist.txt'), content);
+  f.page.files['resources/checklist.txt'] = digest(content); await f.save();
+  const result = await f.run();
+  assert.equal(await readFile(path.join(result.output, 'p/tenant-one/seminar/resources/checklist.txt'), 'utf8'), content);
+});
 test('reviewed source maps still cannot enter public output', async t => {
   const f = await fixture(t);
   await writeFile(path.join(f.source, 'app.js.map'), '{}');

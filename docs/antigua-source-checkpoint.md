@@ -1,40 +1,13 @@
-# Approved Antigua source checkpoint
+# Antigua public visual release
 
-The approved Mac page is now materialized in `source-packets/antigua/` from
-source commit `4289819523553a027a10eb3e33471f57edb6879b`, without private repository
-history. `source-receipt.json` records the SHA-256 of all 13 imported files.
-All ten served HTML, CSS, JavaScript, resource and image files matched the
-existing local preview byte-for-byte at transfer time. No application edits,
-unused advertising artwork, credentials or customer records were imported.
+This reviewed export preserves the approved three openings, portrait, biography,
+video, workshop content, price placement and seminar illustration. Phone and the
+business-improvement question are required. Signup remains unavailable: the form
+only checks entries locally, sends nothing and does not claim a registration.
 
-Build with Bun: `cd source-packets/antigua && bun build.ts`. There are no package
-dependencies. The original `dev.ts` serves loopback only; it is not a deployment
-server. The three current openings use `?angle=seminar`, `?angle=snapsuite` and
-`?angle=ai`. Preserve the approved copy and layout during route packaging.
+The venue photograph is omitted because publication permission is unresolved.
+The planned venue remains unbooked. No seat reservation or payment occurs here.
 
-The user authorized production publication and functioning production LeadScore
-capture on October 4, 2026. This source checkpoint alone is not a deployment or
-a working intake. The original page still validates locally without submission.
-Do not represent this inactive page as the completed production request.
-
-Continue using the existing private `leadscore-static-host-deploy.yml` workflow,
-its existing Cloudflare credentials, and the exact public release pointer.
-The workflow and its authentication behavior are documented in the private
-deployment handoff. Do not create a duplicate host or new credentials.
-
-Before deployment, resolve the canonical production tenant and registered page
-route, published form revision, allowed origins, consent, Turnstile and routing
-through the existing shared headless service. Verify a synthetic submission
-in the backend with downstream communications inactive and scoped cleanup.
-Do not publish private tenant IDs, owner routing or administrative configuration.
-
-The original hotel's photograph remains in this exact source packet; reuse
-permission has not been independently verified. Publication approval is not a
-claim of hotel rights clearance. The existing packager's rights gate remains
-unresolved; do not mark it cleared without evidence or an approved substitution.
-No DNS/custom-domain purchase or security change is authorized by this checkpoint.
-
-The static export has absolute `/antigua/` references. Adapt only the route base
-to the verified tenant/page path during packaging. The existing host allowlist
-also needs to accept the two approved plain-text resources. Production intake
-requires the reviewed shared public form contract; do not duplicate its backend.
+The public source packet origin is `f75a00dd739435e8493fe6dcba79172e6a635206`.
+Current file hashes are recorded in the packet receipt and publication manifest.
+Only reviewed public source and assets are present; backend routing is excluded.

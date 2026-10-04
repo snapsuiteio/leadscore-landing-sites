@@ -4,12 +4,12 @@ Sanitized static hosting for approved LeadScore landing pages on Cloudflare Work
 This repository has its own fresh history. It contains no private application code,
 backend credentials, customer records, or intake implementation.
 
-The exact approved Antigua source is saved in `source-packets/antigua/`;
-see [the source checkpoint](docs/antigua-source-checkpoint.md). It is available
-to the hosting executor without the original Mac or private monorepo history.
-Production publication and capture integration remain pending their verified gates.
-`sites/manifest.json` deliberately contains no pages, and building it fails.
-This repository is hosting infrastructure, not a published Antigua website.
+The reviewed Antigua visual export and three openings are packaged under
+`/p/snapsuite-antigua/antigua/`; see [the source checkpoint](docs/antigua-source-checkpoint.md).
+Signup is unavailable until the shared form integration is verified. The form
+checks entries locally and sends nothing. No tracking providers, payments or
+outbound automations are activated. Deployment status comes from the actual
+production receipt.
 
 Run `node --test test/build.test.mjs` to validate the packager and
 `node scripts/build.mjs` to package reviewed exports. No dependencies are needed.

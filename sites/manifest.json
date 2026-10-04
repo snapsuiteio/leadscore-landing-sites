@@ -1,4 +1,25 @@
 {
   "version": 1,
-  "pages": []
+  "pages": [
+    {
+      "tenantSlug": "snapsuite-antigua",
+      "pageSlug": "antigua",
+      "sourceCommit": "f75a00dd739435e8493fe6dcba79172e6a635206",
+      "publicationApproved": true,
+      "rightsCleared": true,
+      "captureDisabledReviewed": true,
+      "capture": "disabled",
+      "files": {
+        "assets/dwain-browne.JPG": "9f86d825ceb98ca0f06907e94e69703f9351cbfe0ca35358d732612a23e49c17",
+        "assets/flag.svg": "d0bdf3de0f99f44e641768b7aee10ff14ec6b57893ab41b4c0a4cb6814456c35",
+        "assets/seminar-preview.png": "3336d381e3c9fd99434f551eea101d34dac00d4de30ef5ac3454dc1feb816133",
+        "campaign.mjs": "6e14c5f64f39424709cd59d5998c72cc0189fcc70720653f1fc34bc5c332df74",
+        "index.html": "9fd7c988c9eb5041d5697325c2acefc311224b24676256baf99522b6f4a5e157",
+        "page.mjs": "02162a307f5775ad4ee640d89b6d0912de3a7f8a76a87ea80ea35d69b1bd8594",
+        "resources/job-to-invoice.txt": "63bf4a301edfcf0ea117f95f7f9231c8aeca957d24b955b03ad6bc47a6ade42f",
+        "resources/practical-ai.txt": "b77ba36141b3b69c8b5b71a53508d7e277ffc5bf5fe6bd88b1e95974fd7a2cec",
+        "styles.css": "48853511522cad0e6af61cc5058ae6f2eabd4eb58e18a713b303139cd2eb76cc"
+      }
+    }
+  ]
 }

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const slug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const sha256 = /^[a-f0-9]{64}$/;
-const extensions = new Set(['.html', '.css', '.js', '.mjs', '.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif', '.svg', '.ico', '.woff', '.woff2', '.mp4', '.webm']);
+const extensions = new Set(['.html', '.css', '.js', '.mjs', '.txt', '.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif', '.svg', '.ico', '.woff', '.woff2', '.mp4', '.webm']);
 const secret = /-----BEGIN [A-Z ]*PRIVATE KEY-----|\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-(?:proj-)?[A-Za-z0-9_-]{20,}|AKIA[A-Z0-9]{16})\b|\b(?:CLOUDFLARE_API_TOKEN|x-functions-key|x-snapsuite-key|x-snapsuite-worker-key)\b/i;
 
 export const digest = data => createHash('sha256').update(data).digest('hex');

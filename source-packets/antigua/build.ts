@@ -1,12 +1,13 @@
-// Same dependency-free Bun/static HTML approach as apps/dwain-me.
+// Dependency-free static campaign export.
 import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = import.meta.dir;
+const root = fileURLToPath(new URL('.', import.meta.url));
 const source = join(root, 'src');
 const output = join(root, 'dist');
 const html = readFileSync(join(source, 'index.html'), 'utf8');
-if (!html.includes('Review preview') || /<form[^>]+action=/i.test(html)) {
+if (!html.includes('data-leadscore-capture="disabled"') || /<form[^>]+action=/i.test(html)) {
   throw new Error('Preview disclosure and inert form contract must be preserved.');
 }
 rmSync(output, { recursive: true, force: true });
@@ -15,11 +16,11 @@ writeFileSync(join(output, 'antigua/index.html'), html);
 for (const file of ['styles.css', 'page.mjs', 'campaign.mjs', 'resources']) {
   cpSync(join(source, file), join(output, 'antigua', file), { recursive: true });
 }
-// Only the flag, the two approved photos and the labelled seminar illustration are copied;
-// review ad PNGs stay in src/assets and are not served.
+// Serve only the authorized portrait, flag and approved seminar illustration.
+// Venue-photo publication permission is unresolved; review artwork stays private.
 mkdirSync(join(output, 'antigua/assets'), { recursive: true });
-for (const asset of ['flag.svg', 'dwain-browne.JPG', 'trade-winds.jpg', 'seminar-preview.png']) {
+for (const asset of ['flag.svg', 'dwain-browne.JPG', 'seminar-preview.png']) {
   cpSync(join(source, 'assets', asset), join(output, 'antigua/assets', asset));
 }
 writeFileSync(join(output, 'robots.txt'), 'User-agent: *\nDisallow: /\n');
-console.log('Built review preview: dist/antigua/index.html (capture disabled)');
+console.log('Built public visual page: dist/antigua/index.html (capture disabled)');
