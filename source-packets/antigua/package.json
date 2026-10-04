@@ -1,0 +1,11 @@
+{
+  "name": "antigua-seminar-preview",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun build.ts",
+    "dev": "bun dev.ts",
+    "check": "node --check src/campaign.mjs && node --check src/page.mjs",
+    "test": "node --test test/campaign.test.mjs"
+  }
+}

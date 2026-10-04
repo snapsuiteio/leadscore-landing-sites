@@ -4,7 +4,10 @@ Sanitized static hosting for approved LeadScore landing pages on Cloudflare Work
 This repository has its own fresh history. It contains no private application code,
 backend credentials, customer records, or intake implementation.
 
-Publication is currently blocked: no approved site export has been imported.
+The exact approved Antigua source is saved in `source-packets/antigua/`;
+see [the source checkpoint](docs/antigua-source-checkpoint.md). It is available
+to the hosting executor without the original Mac or private monorepo history.
+Production publication and capture integration remain pending their verified gates.
 `sites/manifest.json` deliberately contains no pages, and building it fails.
 This repository is hosting infrastructure, not a published Antigua website.
 
