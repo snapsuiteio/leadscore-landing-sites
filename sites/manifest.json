@@ -4,18 +4,24 @@
     {
       "tenantSlug": "snapsuite-antigua",
       "pageSlug": "antigua",
-      "sourceCommit": "f75a00dd739435e8493fe6dcba79172e6a635206",
+      "sourceCommit": "57dd63437d2ecd97d76c75eefb0259b46bc7105e",
       "publicationApproved": true,
       "rightsCleared": true,
-      "captureDisabledReviewed": true,
-      "capture": "disabled",
+      "captureReviewed": true,
+      "capture": "enabled",
+      "integration": {
+        "configUrl": "https://pages.getleadscore.ai/f/qHMd5uTiUsZdVKLjrrqePyvi/config",
+        "revision": 1,
+        "payments": "disabled",
+        "automatedOutreach": "disabled"
+      },
       "files": {
         "assets/dwain-browne.JPG": "9f86d825ceb98ca0f06907e94e69703f9351cbfe0ca35358d732612a23e49c17",
         "assets/flag.svg": "8a2341f680ac7486a110fd7fcebd46c8b51dedec97a8c1f38d4c3de6939e385f",
         "assets/seminar-preview.png": "3336d381e3c9fd99434f551eea101d34dac00d4de30ef5ac3454dc1feb816133",
         "campaign.mjs": "5704480db4dd4f6ccaaf17786e3e802390740a230395cb36b2c33e37112fc226",
-        "index.html": "19d8821d2e91583b1db64b17392821e5ef29e304f59d8274a1469e476551da54",
-        "page.mjs": "277e726095d24eb0346f1d1603e5bfaa036e34f6cd3fb29e28e1433d59c345a0",
+        "index.html": "6e2ec031c908034f17ee9713a68b5094a0c03174030e96a32ee45f8a5c8845ce",
+        "page.mjs": "8dd022a549530279746c59185772e181523b4f27267e87781d02cb5024818f39",
         "resources/job-to-invoice.txt": "0520c6c54232befc6e2b127d017f5bd98d973d83d9d0a2eff9d59fe3f0f09cd8",
         "resources/practical-ai.txt": "e8b0eb74e95d500f5828ef127d240974cba0c0770acaa301587c7a5b2dfb0726",
         "styles.css": "7f4fb6accf8fe2a2565a7c3327b1fb529be7ace1772ffcf12a350ed940b4ec72"
