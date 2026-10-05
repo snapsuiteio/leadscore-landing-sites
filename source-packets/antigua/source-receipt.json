@@ -1,6 +1,6 @@
 {
   "files": {
-    "build.ts": "00bdc8d3b03dd0be4cdd6c144b1f1c3bb40152fe4cffdac792a110d441df6bdc",
+    "build.ts": "97efe4f35e8da8ab9d1f9808c94872376935c81f66bf0be07fbef87fc5f8f52f",
     "dev.ts": "0c7cf241cda3ff920973a7611d9dd76296cbb9229d0d9e9098c7963971a90847",
     "package.json": "42b321c6590f7870f2f69b3366b4fbea6f5f51761657b92b7af9c947ca633e06",
     "src/index.html": "6029234f6d613062d07c149a448c224b1af79258a56c328b54506df41b29b60e",

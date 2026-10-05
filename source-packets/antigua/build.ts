@@ -21,6 +21,7 @@ if (configUrl) {
     .replace('<form id="interest-form"', `<form id="interest-form" data-config-url="${url.href}" data-config-revision="${revision}"`)
     .replace('Signup is not available yet. Entries stay in this page’s memory and are cleared on reload; nothing is sent or saved.', 'Your enquiry is saved in SnapSuite’s LeadScore workspace for team review. Optional marketing permission is separate. No seat is reserved or paid for.')
     .replace('Check details — no submission', 'Send my enquiry')
+    .replace('Public details · signup not yet available', 'Public details · enquiries are open')
     .replace('JavaScript is required to try this preview form. No request can be submitted here.', 'JavaScript and the security check are required to send your enquiry. Payment and booking are separate.')
     .replace('<strong>Signup is not available yet</strong><p>Try the fields with made-up information. This preview checks your entries in this browser only. It does not send or save them, create a lead or send email.</p>', '<strong>Enquiries are open</strong><p>Send your seminar interest or another request to SnapSuite. The team will review it. This does not confirm a paid registration, reserve a seat or start automated outreach.</p>')
     .replace("connect-src 'none'", `connect-src 'self' ${url.origin}`)
