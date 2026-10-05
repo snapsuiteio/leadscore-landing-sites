@@ -47,6 +47,26 @@ test('live capture cannot be activated by a manifest switch', async t => {
   const f = await fixture(t, (_, p) => { p.capture = 'enabled'; });
   await assert.rejects(f.run(), /shared headless form/);
 });
+test('reviewed headless capture permits only the published LeadScore origin and keeps payments off', async t => {
+  const f = await fixture(t);
+  const configUrl = 'https://pages.getleadscore.ai/f/SyntheticFixtureFormKey01/config';
+  const active = `<!doctype html><p data-leadscore-capture="enabled">Send an enquiry.</p><form data-config-url="${configUrl}" data-config-revision="1"></form>`;
+  await writeFile(path.join(f.source, 'index.html'), active);
+  f.page.files['index.html'] = digest(active);
+  Object.assign(f.page, { capture: 'enabled', captureReviewed: true, integration: { configUrl, revision: 1, payments: 'disabled', automatedOutreach: 'disabled' } });
+  await f.save();
+  const result = await f.run();
+  const headers = await readFile(path.join(result.output, '_headers'), 'utf8');
+  assert.match(headers, /connect-src 'self' https:\/\/pages.getleadscore.ai; form-action 'none'/);
+  assert.doesNotMatch(headers, /challenges.cloudflare.com|stripe|connect-src \*/);
+  const release = JSON.parse(await readFile(path.join(result.output, 'release.json'), 'utf8'));
+  assert.equal(release.capture, 'enabled');
+  assert.equal(release.pages[0].integration.payments, 'disabled');
+  f.page.integration.configUrl = configUrl.replace('pages.getleadscore.ai', 'wrong.test');
+  await f.save(); await assert.rejects(f.run(), /Exact published/);
+  f.page.integration.configUrl = configUrl; f.page.integration.payments = 'enabled';
+  await f.save(); await assert.rejects(f.run(), /Payment and automated outreach/);
+});
 test('edited source bytes require a fresh approved hash', async t => {
   const f = await fixture(t);
   await writeFile(path.join(f.source, 'index.html'), html + 'changed');

@@ -1,4 +1,5 @@
 import { HEROES, attributionFrom, resolveAngle, validateInterest } from './campaign.mjs';
+import { loadCapture, SUCCESS_MESSAGE } from './capture.mjs';
 
 const byId = (id) => document.getElementById(id);
 let angle = resolveAngle(location.search);
@@ -47,10 +48,20 @@ const form = byId('interest-form');
 function clearStatus() { byId('form-status').hidden = true; }
 form.addEventListener('input', clearStatus);
 form.addEventListener('change', clearStatus);
-byId('preview-submit').disabled = false;
+let capture;
+let captureError;
+if (form.dataset.configUrl) {
+  try { capture = await loadCapture(form); }
+  catch (error) { captureError = error.message; }
+}
+byId('preview-submit').disabled = Boolean(captureError);
 byId('no-script-note').hidden = true;
+if (captureError) {
+  byId('form-status').textContent = captureError;
+  byId('form-status').hidden = false;
+}
 
-form.addEventListener('submit', (event) => {
+form.addEventListener('submit', async (event) => {
   event.preventDefault();
   clearStatus();
   const input = Object.fromEntries(new FormData(form));
@@ -65,6 +76,26 @@ form.addEventListener('submit', (event) => {
   if (!valid) {
     summary.textContent = `Please check ${Object.keys(errors).length} field${Object.keys(errors).length === 1 ? '' : 's'} below. Nothing has been submitted or saved.`;
     byId(Object.keys(errors)[0]).focus();
+    return;
+  }
+  if (form.dataset.configUrl) {
+    const status = byId('form-status');
+    const button = byId('preview-submit');
+    if (!capture || button.disabled) return;
+    button.disabled = true;
+    status.textContent = 'Sending your enquiry…';
+    status.hidden = false;
+    try {
+      const touch = Object.fromEntries(Object.entries(attribution).filter(([key]) => ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid', 'gclid'].includes(key)));
+      const result = await capture.submit(validateInterest(input).values, { angle, marketing: byId('marketingConsent').checked, attribution: touch });
+      status.textContent = SUCCESS_MESSAGE;
+      status.dataset.submissionId = result.id;
+      form.querySelectorAll('input, textarea, select').forEach(control => { control.disabled = true; });
+    } catch (error) {
+      status.textContent = error.message;
+      button.disabled = false;
+    }
+    status.focus();
     return;
   }
   // Deliberately no fetch, storage, console logging, lead creation or analytics.

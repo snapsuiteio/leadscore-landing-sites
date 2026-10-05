@@ -39,8 +39,14 @@ export async function build(root, { publicCommit = process.env.PUBLIC_HOST_COMMI
   for (const page of manifest.pages) {
     requireThat(typeof page.tenantSlug === 'string' && typeof page.pageSlug === 'string' && slug.test(page.tenantSlug) && slug.test(page.pageSlug) && page.tenantSlug.length <= 80 && page.pageSlug.length <= 80, 'Invalid tenant/page slug');
     requireThat(/^[a-f0-9]{40}$/.test(page.sourceCommit || ''), 'Exact approved source commit required');
-    requireThat(page.publicationApproved === true && page.rightsCleared === true && page.captureDisabledReviewed === true, 'Publication, asset rights, and inactive capture review required');
-    requireThat(page.capture === 'disabled', 'Live capture requires the shared headless form integration; publication blocked');
+    requireThat(page.publicationApproved === true && page.rightsCleared === true, 'Publication and asset rights review required');
+    requireThat(page.capture === 'disabled' || page.capture === 'enabled', 'Unsupported capture mode');
+    requireThat(page.capture === 'disabled' ? page.captureDisabledReviewed === true : page.captureReviewed === true && page.integration?.configUrl && page.integration?.revision > 0, 'Live capture requires the shared headless form integration and completed review; publication blocked');
+    if (page.capture === 'enabled') {
+      const config = new URL(page.integration.configUrl);
+      requireThat(config.origin === 'https://pages.getleadscore.ai' && /^\/f\/[a-zA-Z0-9]{16,64}\/config$/.test(config.pathname) && !config.search && !config.hash && !config.username && !config.password, 'Exact published LeadScore configuration URL required');
+      requireThat(page.integration.payments === 'disabled' && page.integration.automatedOutreach === 'disabled', 'Payment and automated outreach must remain disabled');
+    }
     const route = `/p/${page.tenantSlug}/${page.pageSlug}/`;
     requireThat(!routes.has(route), `Duplicate route: ${route}`);
     routes.add(route);
@@ -62,7 +68,8 @@ export async function build(root, { publicCommit = process.env.PUBLIC_HOST_COMMI
       requireThat(!secret.test(bytes.toString('utf8')), `Possible credential in ${name}`);
       if (name === 'index.html') {
         const html = bytes.toString('utf8');
-        requireThat(/data-leadscore-capture\s*=\s*["']disabled["']/.test(html), 'Truthful inactive capture notice required');
+        requireThat(new RegExp(`data-leadscore-capture\\s*=\\s*["']${page.capture}["']`).test(html), `Truthful ${page.capture === 'disabled' ? 'inactive' : 'active'} capture notice required`);
+        if (page.capture === 'enabled') requireThat(html.includes(`data-config-url="${page.integration.configUrl}"`) && html.includes(`data-config-revision="${page.integration.revision}"`) && !html.includes('Signup is not available yet'), 'Active form must use the reviewed configuration URL, revision and truthful copy');
         requireThat(!/<base\b/i.test(html), 'HTML base may escape tenant path');
         for (const match of html.matchAll(/\b(?:src|href)\s*=\s*["']([^"']+)["']/gi)) {
           const ref = match[1];
@@ -86,8 +93,10 @@ export async function build(root, { publicCommit = process.env.PUBLIC_HOST_COMMI
       await mkdir(path.dirname(destination), { recursive: true });
       await writeFile(destination, bytes);
     }
-    await writeFile(path.join(staging, '_headers'), "/*\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'none'; form-action 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'\n");
-    await writeFile(path.join(staging, 'release.json'), JSON.stringify({ publicCommit, capture: 'disabled', pages: packages.map(({ page, route }) => ({ route, sourceCommit: page.sourceCommit, files: page.files })) }, null, 2) + '\n');
+    const headers = "/*\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n" + packages.map(({ page, route }) => `${route}*\n  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com${page.capture === 'enabled' ? ' https://pages.getleadscore.ai' : ''}; connect-src ${page.capture === 'enabled' ? "'self' https://pages.getleadscore.ai" : "'none'"}; form-action 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'\n`).join('');
+    await writeFile(path.join(staging, '_headers'), headers);
+    const capture = packages.every(({ page }) => page.capture === 'disabled') ? 'disabled' : packages.every(({ page }) => page.capture === 'enabled') ? 'enabled' : 'mixed';
+    await writeFile(path.join(staging, 'release.json'), JSON.stringify({ publicCommit, capture, pages: packages.map(({ page, route }) => ({ route, sourceCommit: page.sourceCommit, capture: page.capture, ...(page.integration ? { integration: page.integration } : {}), files: page.files })) }, null, 2) + '\n');
     const outputStat = await lstat(output).catch(() => null);
     requireThat(!outputStat?.isSymbolicLink(), 'Output directory symlink rejected');
     await rm(output, { recursive: true, force: true });
