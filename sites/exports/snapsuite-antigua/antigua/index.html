@@ -11,6 +11,7 @@
   <title>Antigua Business Seminar · Software and AI for jobs, follow-ups and billing · SnapSuite</title>
   <link rel="stylesheet" href="/p/snapsuite-antigua/antigua/styles.css">
   <script type="module" src="/p/snapsuite-antigua/antigua/page.mjs"></script>
+  <script type="module" src="/p/snapsuite-antigua/antigua/native-player.mjs"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -39,8 +40,9 @@
       <div class="video-slot" role="group" aria-labelledby="video-title">
         <p class="video-kicker"><span aria-hidden="true"></span>WATCH DWAIN</p>
         <div class="video-frame">
-          <iframe src="https://www.youtube-nocookie.com/embed/S_g8P2KZi8U?rel=0&amp;playsinline=1&amp;autoplay=0" title="Antigua Business - Seminar Invite" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+          <video id="seminar-video" controls muted playsinline preload="metadata" aria-labelledby="video-title" poster="/p/snapsuite-antigua/antigua/assets/antigua-seminar-poster.jpg"><source src="/p/snapsuite-antigua/antigua/assets/antigua-seminar-invite.mp4" type="video/mp4">Your browser cannot play this video. <a href="/p/snapsuite-antigua/antigua/assets/antigua-seminar-invite.mp4">Download the seminar invitation video</a>.</video>
         </div>
+        <div class="video-controls" role="group" aria-label="Video playback controls"><button id="video-playback" class="video-control" type="button" aria-controls="seminar-video">Play video</button><button id="video-sound" class="video-control" type="button" aria-controls="seminar-video" aria-pressed="false">Turn sound on</button><a class="video-download-link" href="/p/snapsuite-antigua/antigua/assets/antigua-seminar-invite.mp4">Download video</a><p class="video-playback-status" id="video-playback-status">Video paused.</p></div>
         <div class="video-caption">
           <h2 id="video-title">Antigua Business - Seminar Invite</h2>
           <p class="video-host"><strong>Dwain Browne</strong><span>Dwain: Unfinished</span></p>

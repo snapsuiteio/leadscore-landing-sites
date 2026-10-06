@@ -31,7 +31,7 @@ if (configUrl) {
 rmSync(output, { recursive: true, force: true });
 mkdirSync(join(output, 'antigua'), { recursive: true });
 writeFileSync(join(output, 'antigua/index.html'), html);
-for (const file of ['styles.css', 'campaign.mjs', 'resources']) {
+for (const file of ['styles.css', 'campaign.mjs', 'native-player.mjs', 'resources']) {
   cpSync(join(source, file), join(output, 'antigua', file), { recursive: true });
 }
 const bundle = await Bun.build({ entrypoints: [join(source, 'page.mjs')], target: 'browser', format: 'esm', minify: true });
@@ -41,7 +41,7 @@ if (/api\/workers\/|\/Users\/|sourceMappingURL/.test(script)) throw new Error('P
 writeFileSync(join(output, 'antigua/page.mjs'), script);
 // Serve only the authorized portrait, flag, approved illustration and approved official hotel exterior photo.
 mkdirSync(join(output, 'antigua/assets'), { recursive: true });
-for (const asset of ['flag.svg', 'dwain-browne.JPG', 'seminar-preview.png', 'trade-winds-hotel-exterior.jpg']) {
+for (const asset of ['flag.svg', 'dwain-browne.JPG', 'seminar-preview.png', 'trade-winds-hotel-exterior.jpg', 'antigua-seminar-invite.mp4', 'antigua-seminar-poster.jpg']) {
   cpSync(join(source, 'assets', asset), join(output, 'antigua/assets', asset));
 }
 writeFileSync(join(output, 'robots.txt'), 'User-agent: *\nDisallow: /\n');
