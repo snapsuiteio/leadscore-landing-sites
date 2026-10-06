@@ -4,7 +4,7 @@
     {
       "tenantSlug": "snapsuite-antigua",
       "pageSlug": "antigua",
-      "sourceCommit": "53649d262048d59534030f169ac727191e08af9a",
+      "sourceCommit": "9870079caa6b9779831a7e243ad2ea6856763888",
       "publicationApproved": true,
       "rightsCleared": true,
       "captureReviewed": true,
@@ -19,12 +19,13 @@
         "assets/dwain-browne.JPG": "9f86d825ceb98ca0f06907e94e69703f9351cbfe0ca35358d732612a23e49c17",
         "assets/flag.svg": "8a2341f680ac7486a110fd7fcebd46c8b51dedec97a8c1f38d4c3de6939e385f",
         "assets/seminar-preview.png": "3336d381e3c9fd99434f551eea101d34dac00d4de30ef5ac3454dc1feb816133",
+        "assets/trade-winds-conference-room.jpg": "ed3bb2a7c442f8eaa6c74d1e6bcb4238e892d0cb9ec364f4a2c4dd04cb2327c0",
         "campaign.mjs": "5704480db4dd4f6ccaaf17786e3e802390740a230395cb36b2c33e37112fc226",
-        "index.html": "b38c28aeb91c815736a133333b37ec57cd9ecd73dd7718390e561dadf9c6810e",
+        "index.html": "52c0d3ca5025288f1d9c543234d7a223faacd6fc616b0e0f77056c3ef1e9ff01",
         "page.mjs": "8dd022a549530279746c59185772e181523b4f27267e87781d02cb5024818f39",
         "resources/job-to-invoice.txt": "0520c6c54232befc6e2b127d017f5bd98d973d83d9d0a2eff9d59fe3f0f09cd8",
         "resources/practical-ai.txt": "e8b0eb74e95d500f5828ef127d240974cba0c0770acaa301587c7a5b2dfb0726",
-        "styles.css": "7f4fb6accf8fe2a2565a7c3327b1fb529be7ace1772ffcf12a350ed940b4ec72"
+        "styles.css": "1b30cb3a10ef0b8416246fb9fc7c95e854f2ea63f0e5d8ff7c270659c5587b91"
       }
     }
   ]
