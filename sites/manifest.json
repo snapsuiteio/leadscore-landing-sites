@@ -4,7 +4,7 @@
     {
       "tenantSlug": "snapsuite-antigua",
       "pageSlug": "antigua",
-      "sourceCommit": "e280c52a8998b01d43f90fb195c524bf17c5d1e6",
+      "sourceCommit": "a6acc8a98ef5d34f99cf90a2084dc227adc1b790",
       "publicationApproved": true,
       "rightsCleared": true,
       "captureReviewed": true,
@@ -16,16 +16,19 @@
         "automatedOutreach": "disabled"
       },
       "files": {
+        "assets/antigua-seminar-invite.mp4": "30cf8227966212d4049f3b5906bb1ea2dde6c569ce366ae722f096f166423529",
+        "assets/antigua-seminar-poster.jpg": "d5aad15f1d4e19ecc35e07cdf35056d9c2d6063f42e0969f49fdf1b914ab87cc",
         "assets/dwain-browne.JPG": "9f86d825ceb98ca0f06907e94e69703f9351cbfe0ca35358d732612a23e49c17",
         "assets/flag.svg": "8a2341f680ac7486a110fd7fcebd46c8b51dedec97a8c1f38d4c3de6939e385f",
         "assets/seminar-preview.png": "3336d381e3c9fd99434f551eea101d34dac00d4de30ef5ac3454dc1feb816133",
         "assets/trade-winds-hotel-exterior.jpg": "abd7002d966f76cbb4ebcae56a39ff65487119c842507cbeac0477d5c314cf8f",
         "campaign.mjs": "5704480db4dd4f6ccaaf17786e3e802390740a230395cb36b2c33e37112fc226",
-        "index.html": "4577632b32d9f9faefe212227bc481606bdeb91bdbf710b004946812ae8e8c9d",
+        "index.html": "f5ec9c47b854da2cbe55787599508dfd1a1c07e7759021c163be46f589abc2f6",
+        "native-player.mjs": "4b69f5685be1f038dfc5079061ec7102a782ba60d404fbab705b014ebbf4e836",
         "page.mjs": "8dd022a549530279746c59185772e181523b4f27267e87781d02cb5024818f39",
         "resources/job-to-invoice.txt": "0520c6c54232befc6e2b127d017f5bd98d973d83d9d0a2eff9d59fe3f0f09cd8",
         "resources/practical-ai.txt": "e8b0eb74e95d500f5828ef127d240974cba0c0770acaa301587c7a5b2dfb0726",
-        "styles.css": "eab57275303477bc9924f67ff48c6767684822ec168817ae61558c9f07430b1b"
+        "styles.css": "6fcbb8efb0ef30ea7937ea88009a0ad9ea9ff22dfe5e240994e4d3cee59c7463"
       }
     }
   ]
