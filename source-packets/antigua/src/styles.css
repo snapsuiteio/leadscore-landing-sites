@@ -1187,6 +1187,12 @@ form .fine-print {
   box-shadow:0 0 0 1px #ffffff24
 }
 
+.gallery-venue img {
+  height:auto;
+  aspect-ratio:1436/1600;
+  object-fit:contain
+}
+
 .gallery-illustration img {
   object-fit:contain
 }
@@ -2186,6 +2192,3 @@ details p {
   }
 }
 
-/* Keep the approved two-column gallery while the venue photograph is omitted. */
-.venue-photo-pending { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; width:100%; aspect-ratio:3/2; border-radius:var(--radius); background:#0a0806; box-shadow:0 0 0 1px #ffffff24; color:var(--night-muted); text-align:center; padding:12px; font-size:13px; }
-.venue-photo-pending strong { color:#fff; font-size:20px; }
