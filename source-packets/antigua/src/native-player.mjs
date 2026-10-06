@@ -8,12 +8,31 @@ let userPaused = false;
 let policyPauses = 0;
 let autoplayBlocked = false;
 let playPending = false;
+let mediaReady;
+let mediaObjectUrl;
+
+async function prepareMedia() {
+  if (!mediaReady) mediaReady = (async () => {
+    // This static host serves a complete MP4 for Range requests. A local Blob keeps
+    // native seeking available without adding a server, binding or video service.
+    const source = video.querySelector('source').src;
+    const response = await fetch(source, { credentials: 'omit', redirect: 'error' });
+    if (!response.ok || !response.headers.get('content-type')?.startsWith('video/mp4')) throw new Error('Video unavailable');
+    mediaObjectUrl = URL.createObjectURL(await response.blob());
+    video.src = mediaObjectUrl;
+    video.load();
+  })().catch(error => { mediaReady = undefined; throw error; });
+  return mediaReady;
+}
+window.addEventListener('pagehide', event => {
+  if (!event.persisted && mediaObjectUrl) URL.revokeObjectURL(mediaObjectUrl);
+});
 
 function updateControls() {
-  playback.textContent = video.paused ? 'Play video' : 'Pause video';
+  playback.textContent = playPending || !video.paused ? 'Pause video' : 'Play video';
   sound.textContent = video.muted ? 'Turn sound on' : 'Mute sound';
   sound.setAttribute('aria-pressed', String(!video.muted));
-  status.textContent = video.ended ? 'Video finished.' : video.paused
+  status.textContent = playPending ? 'Loading video.' : video.ended ? 'Video finished.' : video.paused
     ? (autoplayBlocked ? 'Press play to watch.' : 'Video paused.')
     : (video.muted ? 'Playing without sound.' : 'Playing with sound.');
 }
@@ -29,7 +48,10 @@ async function startPlayback(automatic) {
   if (playPending || !video.paused || video.ended) return;
   if (automatic && (userPaused || autoplayBlocked || reducedMotion.matches || !visible || document.hidden)) return;
   playPending = true;
+  updateControls();
   try {
+    await prepareMedia();
+    if (userPaused || !visible || document.hidden || (automatic && reducedMotion.matches)) return;
     await video.play();
     autoplayBlocked = false;
     if (!visible || document.hidden) pauseForVisibility();
@@ -47,6 +69,10 @@ function syncVisibility() {
 }
 
 playback.addEventListener('click', () => {
+  if (playPending) {
+    userPaused = true;
+    return;
+  }
   if (video.paused) {
     userPaused = false;
     if (video.ended) video.currentTime = 0;
@@ -67,7 +93,7 @@ video.addEventListener('play', () => {
 });
 video.addEventListener('pause', () => {
   if (policyPauses > 0) policyPauses -= 1;
-  else if (!video.ended) userPaused = true;
+  else if (!video.ended && !playPending) userPaused = true;
   updateControls();
 });
 for (const event of ['volumechange', 'ended', 'loadedmetadata']) video.addEventListener(event, updateControls);
