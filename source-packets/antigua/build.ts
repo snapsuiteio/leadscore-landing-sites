@@ -39,9 +39,9 @@ if (!bundle.success) throw new Error(`Campaign script could not be built: ${bund
 const script = await bundle.outputs[0].text();
 if (/api\/workers\/|\/Users\/|sourceMappingURL/.test(script)) throw new Error('Private source paths or source maps cannot enter the public campaign.');
 writeFileSync(join(output, 'antigua/page.mjs'), script);
-// Serve only the authorized portrait, flag, approved illustration and hotel-supplied conference-room photo.
+// Serve only the authorized portrait, flag, approved illustration and approved official hotel exterior photo.
 mkdirSync(join(output, 'antigua/assets'), { recursive: true });
-for (const asset of ['flag.svg', 'dwain-browne.JPG', 'seminar-preview.png', 'trade-winds-conference-room.jpg']) {
+for (const asset of ['flag.svg', 'dwain-browne.JPG', 'seminar-preview.png', 'trade-winds-hotel-exterior.jpg']) {
   cpSync(join(source, 'assets', asset), join(output, 'antigua/assets', asset));
 }
 writeFileSync(join(output, 'robots.txt'), 'User-agent: *\nDisallow: /\n');

@@ -1165,7 +1165,7 @@ form .fine-print {
   font-size:24px
 }
 
-/* Offer gallery: hotel photo (native 3:2) beside the labelled seminar illustration.
+/* Offer gallery: hotel exterior (native 16:9) beside the labelled seminar illustration.
    The illustration is contained, not cropped, so its baked-in label always shows. */
 .venue-gallery {
   display:grid;
@@ -1180,7 +1180,7 @@ form .fine-print {
 
 .venue-gallery img {
   width:100%;
-  aspect-ratio:3/2;
+  aspect-ratio:16/9;
   object-fit:cover;
   border-radius:var(--radius);
   background:#0a0806;
@@ -1189,8 +1189,8 @@ form .fine-print {
 
 .gallery-venue img {
   height:auto;
-  aspect-ratio:1436/1600;
-  object-fit:contain
+  aspect-ratio:16/9;
+  object-fit:cover
 }
 
 .gallery-illustration img {
