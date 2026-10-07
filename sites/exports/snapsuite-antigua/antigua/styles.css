@@ -2200,3 +2200,5 @@ details p {
 .video-control:focus-visible{outline:3px solid #ffd166;outline-offset:3px}
 .video-playback-status{flex-basis:100%;margin:0;color:#ffffffc0;font-size:13px}
 .video-download-link{color:#fff;font-size:13px}
+
+.tracking-choice { position:fixed;bottom:1rem;left:1rem;right:1rem;z-index:50;background:#fff;color:#171510;border:1px solid #cabfa9;border-radius:12px;padding:1rem;box-shadow:0 4px 24px #0003;max-width:760px;margin:auto;font-size:14px }.tracking-choice[hidden]{display:none}.tracking-choice button{margin:4px;padding:8px 12px;border:1px solid #776b57;border-radius:6px;cursor:pointer}

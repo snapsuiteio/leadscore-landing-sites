@@ -49,9 +49,23 @@ export function attributionFrom(search) {
   return record;
 }
 
+export function normalizePhone(value) {
+  const raw = String(value || '').trim();
+  if (!/^[+\d\s().-]+$/.test(raw)) return '';
+  const digits = raw.replace(/\D/g, '');
+  if (!raw.startsWith('+') && digits.length === 7) return '+1268' + digits;
+  if (digits.startsWith('1268') && digits.length !== 11) return '';
+  if (digits.length < 8 || digits.length > 15 || digits.startsWith('0')) return '';
+  return '+' + digits;
+}
+export function formatPhone(value) {
+  const normalized = normalizePhone(value);
+  return normalized.startsWith('+1268') ? '+1 268 ' + normalized.slice(5, 8) + ' ' + normalized.slice(8) : normalized || value;
+}
+
 export function validateInterest(input) {
   const clean = (key) => typeof input[key] === 'string' ? input[key].trim() : '';
-  const values = { name: clean('name'), email: clean('email').toLowerCase(), company: clean('company'), pain: clean('pain'), phone: clean('phone'), intent: clean('intent') };
+  const values = { name: clean('name'), email: clean('email').toLowerCase(), company: clean('company'), pain: clean('pain'), phone: normalizePhone(clean('phone')), intent: clean('intent') };
   const errors = {};
   for (const [key, label, max] of [['name', 'your name', 100], ['company', 'your company', 150]]) {
     if (!values[key]) errors[key] = `Please enter ${label}.`;

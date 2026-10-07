@@ -141,3 +141,21 @@ test('failed validation leaves the previous output intact', async t => {
   await assert.rejects(f.run(), /asset rights/);
   assert.equal(await readFile(path.join(result.output, 'p/tenant-one/seminar/index.html'), 'utf8'), html);
 });
+
+test('tracking CSP is restricted to supported providers and requires reviewed capture', async t => {
+  const f = await fixture(t);
+  f.page.integration = { tracking: 'consent-required' };
+  await f.save(); await assert.rejects(f.run(), /Tracking requires/);
+  const configUrl = 'https://pages.getleadscore.ai/f/SyntheticFixtureFormKey01/config';
+  const active = `<!doctype html><p data-leadscore-capture="enabled">Send an enquiry.</p><form data-config-url="${configUrl}" data-config-revision="2"></form>`;
+  await writeFile(path.join(f.source, 'index.html'), active);
+  f.page.files['index.html'] = digest(active);
+  Object.assign(f.page, { capture: 'enabled', captureReviewed: true, integration: { configUrl, revision: 2, payments: 'disabled', automatedOutreach: 'disabled', tracking: 'consent-required' } });
+  await f.save();
+  const result = await f.run();
+  const headers = await readFile(path.join(result.output, '_headers'), 'utf8');
+  for (const provider of ['https://pages.getleadscore.ai', 'https://connect.facebook.net', 'https://www.googletagmanager.com', 'https://www.clarity.ms', 'https://*.clarity.ms', 'https://c.bing.com']) assert.ok(headers.includes(provider));
+  assert.doesNotMatch(headers, /connect-src \*|script-src \*|unsafe-eval/);
+  f.page.integration.tracking = 'always';
+  await f.save(); await assert.rejects(f.run(), /Tracking requires/);
+});

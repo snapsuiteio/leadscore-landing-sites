@@ -6,13 +6,15 @@ backend credentials, customer records, or intake implementation.
 
 The reviewed Antigua visual export and three openings are packaged under
 `/p/snapsuite-antigua/antigua/`; see [the source checkpoint](docs/antigua-source-checkpoint.md).
-Signup is unavailable until the shared form integration is verified. The form
-checks entries locally and sends nothing. No tracking providers, payments or
-outbound automations are activated. Deployment status comes from the actual
-production receipt.
+The enquiry form uses the shared LeadScore headless intake. The prepared repair
+adds consent-controlled tracking, Antigua phone formatting and a separate signed
+confirmation page after durable save. Payments and outbound automations remain
+disabled. See the [enquiry reliability handoff](docs/antigua-enquiry-reliability.md)
+for configuration and release requirements. Source validation does not establish
+production deployment or provider receipt.
 
 Run `node --test test/build.test.mjs` to validate the packager and
-`node scripts/build.mjs` to package reviewed exports. No dependencies are needed.
+`PUBLIC_HOST_COMMIT=$(git rev-parse HEAD) node scripts/build.mjs` to package reviewed exports. No dependencies are needed.
 
 Each approved page occupies `/p/<tenant-slug>/<page-slug>/` with its own asset
 folder. The manifest owns the mapping; visitors cannot configure tenant routing.
