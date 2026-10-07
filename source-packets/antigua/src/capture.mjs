@@ -1,8 +1,8 @@
 import { CONSENT_VERSION, INTENTS, MARKETING_CONSENT, REQUEST_CONSENT } from './campaign.mjs';
 import { createHeadlessClient, connectTurnstileBridge } from './headless-form-adapter.mjs';
 
-export const FIELD_MAP = { full_name: 'name', work_email: 'email', company_name: 'company', phone: 'phone', message: 'pain', intent: 'intent', source_angle: 'source_angle' };
-const required = ['full_name', 'work_email', 'company_name', 'phone', 'message', 'intent'];
+export const FIELD_MAP = { full_name: 'name', work_email: 'email', company_name: 'company', phone: 'phone', intent: 'intent', source_angle: 'source_angle' };
+const required = ['full_name', 'work_email', 'company_name', 'phone', 'intent', 'source_angle'];
 export const SUCCESS_MESSAGE = 'Your enquiry has been received by SnapSuite. No seat has been reserved or paid for. The team will review your request; payment and booking are separate.';
 
 // Reject a different published form instead of changing the approved visible fields or wording.
@@ -11,14 +11,16 @@ export function validateCampaignConfiguration(config, configUrl, origin) {
   if (config.consent?.marketing?.required !== false || config.consent.marketing.text !== MARKETING_CONSENT || config.consent?.acknowledgement?.required !== true || config.consent.acknowledgement.text !== REQUEST_CONSENT || config.consent.acknowledgement.version !== CONSENT_VERSION) throw new Error('The published request acknowledgement does not match this form.');
   if (config.fields.length !== Object.keys(FIELD_MAP).length || config.fields.some(field => !Object.hasOwn(FIELD_MAP, field.id))) throw new Error('The published fields do not match this form.');
   if (required.some(id => !config.fields.some(field => field.id === id && field.required === true))) throw new Error('Required enquiry fields are missing.');
-  const question = config.fields.find(field => field.id === 'message');
   const intent = config.fields.find(field => field.id === 'intent');
-  if (question.label !== 'What is one task you would like to improve in your business?' || intent.options?.length !== INTENTS.size || intent.options.some(value => !INTENTS.has(value))) throw new Error('The published questions do not match this form.');
+  const opening = config.fields.find(field => field.id === 'source_angle');
+  if (intent.options?.length !== INTENTS.size || intent.options.some(value => !INTENTS.has(value)) || opening.options?.length !== 3 || ['seminar', 'snapsuite', 'ai'].some(value => !opening.options.includes(value))) throw new Error('The published seminar request does not match this form.');
+  const types = { full_name: 'text', work_email: 'email', company_name: 'text', phone: 'phone', intent: 'select', source_angle: 'select' };
+  if (config.fields.some(field => field.type !== types[field.id])) throw new Error('The published fields do not match this form.');
   return config;
 }
 
 export function enquiryAnswers(values, angle) {
-  return { full_name: values.name, work_email: values.email, company_name: values.company, phone: values.phone, message: values.pain, intent: values.intent, source_angle: angle };
+  return { full_name: values.name, work_email: values.email, company_name: values.company, phone: values.phone, intent: 'event', source_angle: angle };
 }
 
 export async function loadCapture(form, { fetcher = globalThis.fetch.bind(globalThis), origin = location.origin } = {}) {
@@ -43,9 +45,9 @@ export async function loadCapture(form, { fetcher = globalThis.fetch.bind(global
     bridge = connectTurnstileBridge(frame, config);
   }
   return {
-    async submit(values, { angle, marketing, attribution }) {
+    async submit(values, { angle, attribution }) {
       try {
-        return await client.submit({ answers: enquiryAnswers(values, angle), marketing, acknowledgement: true, acknowledgementVersion: CONSENT_VERSION, website: form.elements.namedItem('website')?.value || '', turnstileToken: bridge?.getToken(), attribution: { first: attribution, latest: attribution } });
+        return await client.submit({ answers: enquiryAnswers(values, angle), marketing: false, acknowledgement: true, acknowledgementVersion: CONSENT_VERSION, website: form.elements.namedItem('website')?.value || '', turnstileToken: bridge?.getToken(), attribution: { first: attribution, latest: attribution } });
       } finally { bridge?.reset(); }
     },
   };

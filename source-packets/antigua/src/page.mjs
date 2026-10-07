@@ -41,7 +41,6 @@ window.addEventListener('popstate', () => {
 });
 
 document.querySelectorAll('[data-intent]').forEach((link) => link.addEventListener('click', () => {
-  byId('intent').value = link.dataset.intent;
   clearStatus();
 }));
 const form = byId('interest-form');
@@ -67,7 +66,7 @@ form.addEventListener('submit', async (event) => {
   const input = Object.fromEntries(new FormData(form));
   input.requestConsent = byId('requestConsent').checked;
   const { valid, errors } = validateInterest(input);
-  for (const key of ['name', 'company', 'email', 'intent', 'pain', 'phone', 'requestConsent']) {
+  for (const key of ['name', 'company', 'email', 'phone', 'requestConsent']) {
     byId(key).setAttribute('aria-invalid', errors[key] ? 'true' : 'false');
     byId(`${key}-error`).textContent = errors[key] || '';
   }
@@ -86,8 +85,9 @@ form.addEventListener('submit', async (event) => {
     status.textContent = 'Sending your enquiry…';
     status.hidden = false;
     try {
-      const touch = Object.fromEntries(Object.entries(attribution).filter(([key]) => ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid', 'gclid'].includes(key)));
-      const result = await capture.submit(validateInterest(input).values, { angle, marketing: byId('marketingConsent').checked, attribution: touch });
+      const touch = Object.fromEntries(Object.entries(attribution).filter(([key]) => ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid', 'gclid', 'ad_id', 'source_angle'].includes(key)));
+      try { const referrer = new URL(document.referrer); if (referrer.hostname !== location.hostname) touch.referrer = referrer.hostname; } catch { /* No external referrer. */ }
+      const result = await capture.submit(validateInterest(input).values, { angle, marketing: false, attribution: touch });
       status.textContent = SUCCESS_MESSAGE;
       status.dataset.submissionId = result.id;
       form.querySelectorAll('input, textarea, select').forEach(control => { control.disabled = true; });
@@ -101,7 +101,7 @@ form.addEventListener('submit', async (event) => {
   // Deliberately no fetch, storage, console logging, lead creation or analytics.
   // Attribution is held only in memory for future verified intake wiring.
   const status = byId('form-status');
-  const intent = byId('intent').selectedOptions[0].textContent;
+  const intent = 'October 27 paid seminar details';
   status.textContent = `Details checked — nothing submitted. Your selected request is “${intent}” (source: ${attribution.source_angle}). No information was sent or saved, no email will be sent, and you have not reserved or paid for a seat.`;
   status.hidden = false;
   status.focus();

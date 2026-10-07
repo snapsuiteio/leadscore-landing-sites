@@ -15,37 +15,38 @@ test('only allowed bounded attribution fields are retained, independently of int
   assert.equal(result.source_angle, 'ai');
   assert.equal(result.utm_content.length, 200);
 });
-test('requested response requires phone and improvement while marketing stays optional', () => {
+test('requested seminar response requires four contact values and acknowledgement', () => {
   const result = validateInterest(valid);
   assert.equal(result.valid, true);
   assert.equal(result.values.email, 'sample@example.test');
   assert.equal(result.values.name, 'Sample Owner');
 });
 test('blank, whitespace-only and invalid requests expose field errors', () => {
-  assert.deepEqual(Object.keys(validateInterest({}).errors).sort(), ['company', 'email', 'intent', 'name', 'pain', 'phone', 'requestConsent']);
+  assert.deepEqual(Object.keys(validateInterest({}).errors).sort(), ['company', 'email', 'name', 'phone', 'requestConsent']);
   const result = validateInterest({ ...valid, name: ' ', email: 'x@y', phone: 'abc', requestConsent: 'true' });
   assert.deepEqual(Object.keys(result.errors).sort(), ['email', 'name', 'phone', 'requestConsent']);
 });
-test('onsite enquiries have the same validation with no price, booking or payment state', () => {
+test('caller intent cannot change the fixed seminar request', () => {
   const result = validateInterest({ ...valid, intent: 'onsite', phone: '+1 (268) 555-0123' });
   assert.equal(result.valid, true);
-  assert.equal(result.values.intent, 'onsite');
+  assert.equal(result.values.intent, 'event');
+  assert.equal(Object.hasOwn(result.values, 'pain'), false);
   assert.equal(Object.hasOwn(result.values, 'paid'), false);
 });
-test('oversized values are rejected, including required workflow improvement', () => {
+test('oversized contact values are rejected', () => {
   const result = validateInterest({ ...valid, name: 'x'.repeat(101), company: 'x'.repeat(151), pain: 'x'.repeat(1001) });
-  assert.deepEqual(Object.keys(result.errors).sort(), ['company', 'name', 'pain']);
+  assert.deepEqual(Object.keys(result.errors).sort(), ['company', 'name']);
 });
-test('blank or whitespace phone and improvement cannot pass shared validation', () => {
+test('blank or whitespace phone cannot pass shared validation', () => {
   for (const value of ['', '   ']) {
     const result = validateInterest({ ...valid, phone: value, pain: value });
-    assert.deepEqual(Object.keys(result.errors).sort(), ['pain', 'phone']);
+    assert.deepEqual(Object.keys(result.errors).sort(), ['phone']);
   }
 });
 test('published visual page exposes required fields and inactive capture without the uncleared photo', () => {
   const html = readFileSync(new URL('../src/index.html', import.meta.url), 'utf8');
-  assert.match(html, /What is one task you would like to improve in your business\?/);
-  assert.match(html, /id="pain"[^>]*required/);
+  assert.doesNotMatch(html, /id="pain"|id="intent"|id="marketingConsent"|checklist|free job-to-invoice|snapsuite-fit/i);
+  assert.match(html, /Please email me details about the paid October 27 seminar/);
   assert.match(html, /id="phone"[^>]*required/);
   assert.match(html, /data-leadscore-capture="disabled"/);
   assert.match(html, /Signup is not available yet/);
