@@ -72,6 +72,24 @@ test('edited source bytes require a fresh approved hash', async t => {
   await writeFile(path.join(f.source, 'index.html'), html + 'changed');
   await assert.rejects(f.run(), /Unapproved content change/);
 });
+test('reviewed tracking adds only analytics hosts and requires consent plus provider bindings', async t => {
+  const f = await fixture(t);
+  const configUrl = 'https://pages.getleadscore.ai/f/SyntheticFixtureFormKey01/config';
+  const active = `<!doctype html><p data-leadscore-capture="enabled">Send an enquiry.</p><form data-config-url="${configUrl}" data-config-revision="2"></form>`;
+  await writeFile(path.join(f.source, 'index.html'), active);
+  f.page.files['index.html'] = digest(active);
+  Object.assign(f.page, { capture: 'enabled', captureReviewed: true, integration: { configUrl, revision: 2, payments: 'disabled', automatedOutreach: 'disabled', tracking: 'consent-required', staticGoogleTagId: 'G-TEST12345', clarityProjectId: 'test12345', trackerSha256: 'a'.repeat(64) } });
+  await f.save();
+  const result = await f.run();
+  const headers = await readFile(path.join(result.output, '_headers'), 'utf8');
+  assert.match(headers, /script-src 'self' https:\/\/pages.getleadscore.ai https:\/\/www.googletagmanager.com https:\/\/\*.clarity.ms;/);
+  assert.match(headers, /https:\/\/\*.google-analytics.com https:\/\/\*.google.com https:\/\/\*.clarity.ms https:\/\/c.bing.com; form-action 'none'/);
+  assert.doesNotMatch(headers, /unsafe-eval|connect.facebook|doubleclick|script-src[^;]*unsafe-inline/);
+  f.page.integration.staticGoogleTagId = 'other'; await f.save();
+  await assert.rejects(f.run(), /Tracking requires/);
+  f.page.integration.staticGoogleTagId = 'G-TEST12345'; delete f.page.integration.tracking; await f.save();
+  await assert.rejects(f.run(), /Provider IDs require/);
+});
 test('unlisted files cannot enter the public output', async t => {
   const f = await fixture(t);
   await writeFile(path.join(f.source, '.env'), 'private');

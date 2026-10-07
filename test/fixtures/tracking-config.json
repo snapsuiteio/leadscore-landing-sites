@@ -1,0 +1,116 @@
+{
+  "success": true,
+  "resources": {
+    "schemaVersion": 1,
+    "pageId": "synthetic-antigua-page",
+    "revision": 3,
+    "submitUrl": "https://pages.getleadscore.ai/f/qHMd5uTiUsZdVKLjrrqePyvi",
+    "configUrl": "https://pages.getleadscore.ai/f/qHMd5uTiUsZdVKLjrrqePyvi/config",
+    "method": "POST",
+    "contentType": "application/json",
+    "contentTypes": [
+      "application/json",
+      "application/x-www-form-urlencoded",
+      "multipart/form-data"
+    ],
+    "formEncoding": {
+      "answerName": "answers[FIELD_ID]",
+      "consentName": "consent[CHOICE]",
+      "attributionName": "attribution[TOUCH][KEY]"
+    },
+    "tracking": {
+      "scriptUrl": "https://pages.getleadscore.ai/f/qHMd5uTiUsZdVKLjrrqePyvi/tracker.js",
+      "eventsUrl": "https://pages.getleadscore.ai/f/qHMd5uTiUsZdVKLjrrqePyvi/events",
+      "providers": {
+        "clarityProjectId": "yu2abnu53o",
+        "consentMode": "required"
+      },
+      "consentRequired": true
+    },
+    "fields": [
+      {
+        "id": "full_name",
+        "label": "Your name",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "work_email",
+        "label": "Email",
+        "type": "email",
+        "required": true
+      },
+      {
+        "id": "company_name",
+        "label": "Company",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "phone",
+        "label": "Phone number",
+        "type": "phone",
+        "required": true
+      },
+      {
+        "id": "intent",
+        "label": "Seminar request",
+        "type": "select",
+        "required": true,
+        "options": [
+          "event"
+        ]
+      },
+      {
+        "id": "source_angle",
+        "label": "Page opening",
+        "type": "select",
+        "required": true,
+        "options": [
+          "seminar",
+          "snapsuite",
+          "ai"
+        ]
+      }
+    ],
+    "consent": {
+      "marketing": {
+        "text": "Also send me occasional software and AI tips by email. Optional; I can unsubscribe.",
+        "required": false
+      },
+      "acknowledgement": {
+        "text": "Please email me details about the paid October 27 seminar (US$249 working standard price). This request does not reserve or pay for a seat.",
+        "version": "antigua-seminar-details-2026-10-07-v1",
+        "required": true
+      }
+    },
+    "allowedOrigins": [
+      "https://leadscore-landing-sites.snapsuite-f2f.workers.dev"
+    ],
+    "attributionKeys": [
+      "utm_source",
+      "utm_medium",
+      "utm_campaign",
+      "utm_content",
+      "utm_term",
+      "gclid",
+      "fbclid",
+      "ad_id",
+      "source_angle",
+      "referrer"
+    ],
+    "spam": {
+      "honeypotField": "website",
+      "turnstile": {
+        "required": true,
+        "siteKey": "synthetic-fixture",
+        "bridgeUrl": "https://pages.getleadscore.ai/__leadscore/turnstile?formKey=qHMd5uTiUsZdVKLjrrqePyvi"
+      }
+    },
+    "submission": {
+      "idField": "submissionId",
+      "revisionField": "revision",
+      "maxBytes": 65536
+    }
+  }
+}

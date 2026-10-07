@@ -6,13 +6,16 @@ backend credentials, customer records, or intake implementation.
 
 The reviewed Antigua visual export and three openings are packaged under
 `/p/snapsuite-antigua/antigua/`; see [the source checkpoint](docs/antigua-source-checkpoint.md).
-Signup is unavailable until the shared form integration is verified. The form
-checks entries locally and sends nothing. No tracking providers, payments or
-outbound automations are activated. Deployment status comes from the actual
-production receipt.
+The release candidate has a four-field seminar enquiry and independently consented
+GA4/Clarity tracking. Its matching intake contract and static release must be
+published together through the coordinated process; source presence is not proof
+of deployment. Payments and automated outreach remain disabled. See the
+[contract cutover and acceptance procedure](docs/antigua-contract-cutover.md).
 
-Run `node --test test/build.test.mjs` to validate the packager and
-`node scripts/build.mjs` to package reviewed exports. No dependencies are needed.
+Run `node --test test/*.test.mjs source-packets/antigua/test/*.test.mjs` for the
+unit and contract gates, then `PUBLIC_HOST_COMMIT=<exact-sha> node scripts/build.mjs`
+to package the reviewed export. See the cutover procedure for isolated browser
+checks and live preflight.
 
 Each approved page occupies `/p/<tenant-slug>/<page-slug>/` with its own asset
 folder. The manifest owns the mapping; visitors cannot configure tenant routing.

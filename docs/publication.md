@@ -1,5 +1,7 @@
 # Import and publication
 
+For the active Antigua enquiry, the reviewed [contract cutover procedure](antigua-contract-cutover.md) supersedes the initial inactive-host scaffold below. Tracking and capture require that scoped review; payments and automated outreach remain disabled.
+
 1. Obtain the exact approved source and build its static export using the
    original project's build tooling. Preserve existing components and design.
    Configure asset references for the chosen `/p/<tenant-slug>/<page-slug>/` base.

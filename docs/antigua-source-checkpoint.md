@@ -1,15 +1,20 @@
 # Antigua public enquiry source
 
-This reviewed source preserves the three openings, portrait, biography, video,
-workshop content, price placement and seminar illustration. Phone and
-“What is one task you would like to improve in your business?” are required.
+The source packet preserves the three openings, approved portrait/video/venue
+assets, workshop layout and US$249 working standard price. The revised request
+has four required visible contact fields: name, company, email and phone. A
+required acknowledgement asks for information about the paid October 27 seminar;
+it does not reserve or pay for a seat. Intent is fixed to `event`, and the source
+angle is preserved. There is no resource offer, workflow question, interest
+selector or email-marketing checkbox. The adapter always submits marketing false.
 
-The preview stays inactive. A released enquiry export must pin the published
-LeadScore form URL and revision. Marketing permission is optional. Enquiry receipt
-does not confirm paid registration or reserve a seat. Payments and automated
-outreach stay disabled. The venue photograph is omitted because publication
-permission is unresolved. The planned venue remains unbooked.
+The source preview is inactive. An enabled build pins the exact LeadScore form
+URL and published revision. The candidate expects revision 3. Independent cookie
+choices control analytics; all form answers and the confirmation are masked.
+Payments and automated outreach stay disabled. The planned venue remains unbooked.
 
-Current public source hashes are recorded in the packet receipt. The approved
-export records its public source commit in the publication manifest. Only
-reviewed browser source and assets are present; private routing is excluded.
+Current source hashes are recorded in the packet receipt. The export records its
+source commit and every asset hash. Only reviewed browser code and public assets
+are present; private routing, recipients and customer records are excluded.
+
+See [contract cutover and acceptance](antigua-contract-cutover.md).

@@ -4,20 +4,16 @@
     {
       "tenantSlug": "snapsuite-antigua",
       "pageSlug": "antigua",
-      "sourceCommit": "be9f74fa1582306c4801fc27dcc7a2132634edab",
+      "sourceCommit": "060f367a52d1898d3144bbb93fa04b4fc8bcd956",
       "publicationApproved": true,
       "rightsCleared": true,
       "captureReviewed": true,
       "capture": "enabled",
       "integration": {
         "configUrl": "https://pages.getleadscore.ai/f/qHMd5uTiUsZdVKLjrrqePyvi/config",
-        "revision": 3,
+        "revision": 2,
         "payments": "disabled",
-        "automatedOutreach": "disabled",
-        "tracking": "consent-required",
-        "staticGoogleTagId": "G-9T3RDM7NKZ",
-        "clarityProjectId": "yu2abnu53o",
-        "trackerSha256": "3a15e70855a08be9914397ffa957807807d3923831343d38db13fa9d3048a70e"
+        "automatedOutreach": "disabled"
       },
       "files": {
         "assets/antigua-seminar-invite.mp4": "30cf8227966212d4049f3b5906bb1ea2dde6c569ce366ae722f096f166423529",
@@ -26,12 +22,13 @@
         "assets/flag.svg": "8a2341f680ac7486a110fd7fcebd46c8b51dedec97a8c1f38d4c3de6939e385f",
         "assets/seminar-preview.png": "3336d381e3c9fd99434f551eea101d34dac00d4de30ef5ac3454dc1feb816133",
         "assets/trade-winds-hotel-exterior.jpg": "abd7002d966f76cbb4ebcae56a39ff65487119c842507cbeac0477d5c314cf8f",
-        "campaign.mjs": "dbf0e5e034f56a481d9ef9bbe4a10e516a0dad6489327474c43c45e75243a773",
-        "index.html": "e94bb067b597c23960873e03e8bb13c8205f9431d2e05dcc78bf2fe0eef92a2e",
+        "campaign.mjs": "5704480db4dd4f6ccaaf17786e3e802390740a230395cb36b2c33e37112fc226",
+        "index.html": "272918b018aa409b3dfb69f3006ab106ad51216282a66179b3420aae8c797b36",
         "native-player.mjs": "19f53fcedea61cc247aaa7fbcab93c2bb15b37cfcdb34eafac761cb79b43e213",
-        "page.mjs": "2ec76f7971bbb3df7a1330a4e9fb8fbebbbb2ecd46ccb59141fcf6128c757332",
-        "styles.css": "9ca2c6480563df832ffee30fa4c023490db4074a6a1c22364a31020127f12ce9",
-        "tracking.mjs": "74e53baabf8b471a10852e3da651214038e073bac2d7280c98ecb7ab0c561812"
+        "page.mjs": "8dd022a549530279746c59185772e181523b4f27267e87781d02cb5024818f39",
+        "resources/job-to-invoice.txt": "0520c6c54232befc6e2b127d017f5bd98d973d83d9d0a2eff9d59fe3f0f09cd8",
+        "resources/practical-ai.txt": "e8b0eb74e95d500f5828ef127d240974cba0c0770acaa301587c7a5b2dfb0726",
+        "styles.css": "6fcbb8efb0ef30ea7937ea88009a0ad9ea9ff22dfe5e240994e4d3cee59c7463"
       }
     }
   ]

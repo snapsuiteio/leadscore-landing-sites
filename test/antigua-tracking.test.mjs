@@ -1,0 +1,33 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+const root=new URL('../',import.meta.url);
+const path='sites/exports/snapsuite-antigua/antigua/';
+const current=name=>readFileSync(new URL(name,root),'utf8');
+test('seminar-only form keeps the same intake key, price, approved media and player',()=>{
+  const html=current(path+'index.html');
+  const form=s=>s.match(/<form\b[\s\S]*?<\/form>/)[0].replace(' data-clarity-mask="true"','');
+  assert.doesNotMatch(form(html),/id="pain"|id="intent"|id="marketingConsent"/);
+  assert.equal((form(html).match(/class="field"/g)||[]).length,4);
+  assert.match(form(html),/paid October 27 seminar/);
+  assert.match(form(html),/US\$249/);
+  const before=JSON.parse(current('test/fixtures/recovery-manifest.json')).pages[0],after=JSON.parse(current('sites/manifest.json')).pages[0];
+  assert.equal(after.integration.revision,3);assert.equal(after.integration.configUrl,before.integration.configUrl);
+  for(const [name,hash] of Object.entries(before.files))if(!['index.html','styles.css','page.mjs','campaign.mjs','resources/job-to-invoice.txt','resources/practical-ai.txt'].includes(name))assert.equal(after.files[name],hash,name);
+  assert.equal(createHash('sha256').update(current(path+'native-player.mjs')).digest('hex'),before.files['native-player.mjs']);
+  assert.match(html,/id="cookie-analytics"/);assert.match(html,/id="cookie-marketing"/);
+  assert.ok(html.indexOf('id="cookie-choices"')>html.indexOf('</form>'));
+});
+test('shared tracker is pinned to the reviewed public fixture and configured consent providers',()=>{
+  const code=current(path+'tracking.mjs');
+  const bytes=readFileSync(new URL('test/fixtures/published-tracker.js',root));
+  const hash=createHash('sha256').update(bytes).digest();
+  assert.ok(code.includes('sha256-'+hash.toString('base64')));
+  const integration=JSON.parse(current('sites/manifest.json')).pages[0].integration;
+  assert.equal(integration.trackerSha256,hash.toString('hex'));
+  assert.equal(integration.staticGoogleTagId,'G-9T3RDM7NKZ');assert.equal(integration.clarityProjectId,'yu2abnu53o');
+  assert.match(code,/shared.crossOrigin = 'anonymous'/);
+  assert.match(code,/send_page_view: false/);
+  assert.doesNotMatch(code,/\.identify\(|\buser_data\s*:|\buser_id\s*:|FormData|\.elements\b/);
+});
