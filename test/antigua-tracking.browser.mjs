@@ -61,7 +61,7 @@ async function run(name,fn,options={}){
 }
 const queue=page=>page.evaluate(()=>Array.from(window.dataLayer||[],entry=>Array.from(entry)));
 const accepts=async page=>{await page.locator('#cookie-accept-analytics').click();await page.waitForFunction(()=>window.dataLayer?.some(x=>x[0]==='event'&&x[1]==='page_view'));};
-const formReady=async page=>{assert.equal(await page.locator('#preview-submit').isEnabled(),true);assert.equal(await page.locator('#interest-form').getAttribute('data-config-revision'),'3');assert.equal(await page.locator('#requestConsent').isChecked(),false);assert.equal(await page.locator('#marketingConsent').count(),0);};
+const formReady=async page=>{assert.equal(await page.locator('#preview-submit').isEnabled(),true);assert.equal(await page.locator('#interest-form').getAttribute('data-config-revision'),'4');assert.equal(await page.locator('#requestConsent').isChecked(),false);assert.equal(await page.locator('#marketingConsent').count(),0);};
 try{
   for(const width of [1440,390])for(const angle of ['seminar','ai','snapsuite'])await run(`${angle} ${width}: no consent, opt-in, four-field request, separate cookie choices`,async({page,events,providers,submissions})=>{
     await formReady(page);assert.equal(await page.locator('#interest-form input:not([type=checkbox]):not([name=website])').count(),4);assert.equal(await page.locator('#interest-form select,#interest-form textarea').count(),0);assert.equal(providers.length,0);assert.equal(events.length,0);assert.equal((await queue(page)).length,0);
@@ -122,7 +122,7 @@ try{
     await page.locator('#name').fill('Synthetic Private Name');await page.locator('#company').fill('Synthetic Private Company');await page.locator('#email').fill('synthetic-private@example.test');await page.locator('#phone').fill('+12685550123');await page.locator('#requestConsent').check();
     assert.equal((await queue(page)).filter(x=>x[1]==='generate_lead').length,0);
     await page.locator('#preview-submit').click();await page.waitForFunction(()=>document.querySelector('#form-status').dataset.submissionId);
-    assert.equal(submissions.length,1);assert.equal(submissions[0].answers.intent,'event');assert.equal(Object.hasOwn(submissions[0].answers,'message'),false);assert.equal(submissions[0].consent.marketing,false);assert.equal(submissions[0].answers.source_angle,angle);assert.equal(submissions[0].attribution.latest.ad_id,'fixture-ad');assert.equal(submissions[0].revision,3);const q=await queue(page);assert.equal(q.filter(x=>x[1]==='generate_lead').length,1);
+    assert.equal(submissions.length,1);assert.equal(submissions[0].answers.intent,'event');assert.equal(Object.hasOwn(submissions[0].answers,'message'),false);assert.equal(submissions[0].consent.marketing,false);assert.equal(submissions[0].answers.source_angle,angle);assert.equal(submissions[0].attribution.latest.ad_id,'fixture-ad');assert.equal(submissions[0].revision,4);const q=await queue(page);assert.equal(q.filter(x=>x[1]==='generate_lead').length,1);
     const analytics=JSON.stringify({q,events});for(const value of ['Synthetic Private','synthetic-private@example.test','+12685550123','Synthetic private task'])assert.ok(!analytics.includes(value),value);
     await page.evaluate(()=>document.querySelector('#form-status').setAttribute('data-submission-id','synthetic-accepted-enquiry-001'));
     assert.equal((await queue(page)).filter(x=>x[1]==='generate_lead').length,1);
@@ -133,8 +133,8 @@ try{
     assert.equal(submissions.length,1);assert.equal(await page.locator('#form-status').getAttribute('data-submission-id'),null);assert.equal((await queue(page)).filter(x=>x[1]==='generate_lead').length,0);
   },{allowFixtureSubmit:true,rejectSubmit:true});
   for(const [reason,mutate] of [
-    ['old revision',c=>{c.revision=2;}],
-    ['future revision',c=>{c.revision=4;}],
+    ['old revision',c=>{c.revision=3;}],
+    ['future revision',c=>{c.revision=5;}],
     ['acknowledgement wording',c=>{c.consent.acknowledgement.text='Different request';}],
     ['additional required question',c=>{c.fields.push({id:'message',type:'textarea',required:true,label:'Unexpected question'});}],
     ['non-seminar intent',c=>{c.fields.find(f=>f.id==='intent').options.push('onsite');}],

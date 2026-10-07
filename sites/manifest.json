@@ -11,7 +11,7 @@
       "capture": "enabled",
       "integration": {
         "configUrl": "https://pages.getleadscore.ai/f/qHMd5uTiUsZdVKLjrrqePyvi/config",
-        "revision": 3,
+        "revision": 4,
         "payments": "disabled",
         "automatedOutreach": "disabled",
         "tracking": "consent-required",
@@ -27,7 +27,7 @@
         "assets/seminar-preview.png": "3336d381e3c9fd99434f551eea101d34dac00d4de30ef5ac3454dc1feb816133",
         "assets/trade-winds-hotel-exterior.jpg": "abd7002d966f76cbb4ebcae56a39ff65487119c842507cbeac0477d5c314cf8f",
         "campaign.mjs": "dbf0e5e034f56a481d9ef9bbe4a10e516a0dad6489327474c43c45e75243a773",
-        "index.html": "e94bb067b597c23960873e03e8bb13c8205f9431d2e05dcc78bf2fe0eef92a2e",
+        "index.html": "180d439c25ec672d4f122930dd2160b89b0d00ccc152832abe7b262e7ebdd33c",
         "native-player.mjs": "19f53fcedea61cc247aaa7fbcab93c2bb15b37cfcdb34eafac761cb79b43e213",
         "page.mjs": "2ec76f7971bbb3df7a1330a4e9fb8fbebbbb2ecd46ccb59141fcf6128c757332",
         "styles.css": "9ca2c6480563df832ffee30fa4c023490db4074a6a1c22364a31020127f12ce9",

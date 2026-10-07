@@ -13,7 +13,7 @@ test('seminar-only form keeps the same intake key, price, approved media and pla
   assert.match(form(html),/paid October 27 seminar/);
   assert.match(form(html),/US\$249/);
   const before=JSON.parse(current('test/fixtures/recovery-manifest.json')).pages[0],after=JSON.parse(current('sites/manifest.json')).pages[0];
-  assert.equal(after.integration.revision,3);assert.equal(after.integration.configUrl,before.integration.configUrl);
+  assert.equal(after.integration.revision,4);assert.equal(after.integration.configUrl,before.integration.configUrl);
   for(const [name,hash] of Object.entries(before.files))if(!['index.html','styles.css','page.mjs','campaign.mjs','resources/job-to-invoice.txt','resources/practical-ai.txt'].includes(name))assert.equal(after.files[name],hash,name);
   assert.equal(createHash('sha256').update(current(path+'native-player.mjs')).digest('hex'),before.files['native-player.mjs']);
   assert.match(html,/id="cookie-analytics"/);assert.match(html,/id="cookie-marketing"/);

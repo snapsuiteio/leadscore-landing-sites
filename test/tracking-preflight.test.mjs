@@ -13,11 +13,11 @@ function check(mutate=()=>{},script=tracker){
     return url.endsWith('/config')?Response.json(body,{headers:{'access-control-allow-origin':origin}}):new Response(script,{headers:{'access-control-allow-origin':origin}});
   }});
 }
-test('prepared revision 3 contract fixture and integrity-pinned tracker pass pre-deployment gate',async()=>{
+test('prepared revision 4 contract fixture and integrity-pinned tracker pass pre-deployment gate',async()=>{
   assert.equal((await check())[0].compatible,true);
 });
 for(const [name,mutate] of [
-  ['old revision remains published',c=>{c.revision=2;}],
+  ['old revision remains published',c=>{c.revision=3;}],
   ['old required workflow question remains',c=>{c.fields.push({id:'message',type:'textarea',required:true,label:'Old question'});}],
   ['intent broadens beyond seminar',c=>{c.fields.find(f=>f.id==='intent').options.push('onsite');}],
   ['acknowledgement text changes',c=>{c.consent.acknowledgement.text='Different purpose';}],
