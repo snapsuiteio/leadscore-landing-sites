@@ -1,6 +1,6 @@
 {
   "files": {
-    "build.ts": "bd72e8b3273eb7d3ef328e06cc15838bb6aa6efa585936b23b387ad12c5edaa1",
+    "build.ts": "b80428dce9539b158ae01fb5007f7763d2461449f8067fe362b02955e2c798f9",
     "dev.ts": "0c7cf241cda3ff920973a7611d9dd76296cbb9229d0d9e9098c7963971a90847",
     "package.json": "42b321c6590f7870f2f69b3366b4fbea6f5f51761657b92b7af9c947ca633e06",
     "src/assets/antigua-seminar-invite.mp4": "30cf8227966212d4049f3b5906bb1ea2dde6c569ce366ae722f096f166423529",
@@ -12,11 +12,11 @@
     "src/campaign.mjs": "497d068ce7b8ed6b10a5de2e5626205cd21f1fbe37ada1399f6bc47a6df0bbeb",
     "src/capture.mjs": "336a1d18a1ada03c12eed2c4421ee3978156cf01a3983e9f52069b4520787706",
     "src/headless-form-adapter.mjs": "414beafbd6ff8e4866766055364a8b5de786ca7a2771532d3ebf1df75147775b",
-    "src/index.html": "c128f6fa98cbfcbe899a514b72922683ba0bbb74ada0bfe3aead25d037c3b393",
+    "src/index.html": "802f8e714ec40dd991bb42e0412ea3f588657248aec41f1b960ad03fc80a05e7",
     "src/native-player.mjs": "19f53fcedea61cc247aaa7fbcab93c2bb15b37cfcdb34eafac761cb79b43e213",
     "src/page.mjs": "e58b35d243dba54957f21fbc9b0ef93615a934c81e258a967d7e81409a0a72a2",
-    "src/styles.css": "9ca2c6480563df832ffee30fa4c023490db4074a6a1c22364a31020127f12ce9",
-    "src/tracking.mjs": "74e53baabf8b471a10852e3da651214038e073bac2d7280c98ecb7ab0c561812",
+    "src/styles.css": "43cfb7b1a7f5e6f80a8a88e8ffbd40e3f0a7e39ab18606bc921a053deaa36966",
+    "src/tracking.mjs": "147cb08b645e7fa32c2b24940180e5d1fff3fe262553a18d776dddec4a8647b3",
     "test/campaign.test.mjs": "ad8b970a7b3a9ff2a77cd646f320b6c30742ea29e97e6bfccb3b5b3db063f6e3",
     "test/capture.test.mjs": "f7c3a400e7743d725815cb9ca3044aa557e1f746ac8956dcbf7fd51238a5b11c"
   },
@@ -32,5 +32,6 @@
   "form": "Free screened application: 11 visible fields plus fixed event intent and angle, manual review before acceptance, no guaranteed seat",
   "privateSourceCommit": "944526b8d5dc66f5b8492535d20f113b89c208e1",
   "publicSourceBaseline": "4420c628d5d3c99b287ae1499927993a2a003123",
-  "publication": "Held candidate: proposed revision5 is not yet published or real-capture verified"
+  "publication": "User-authorized screened revision6 candidate; matching preserved intake publication must precede static selection. No real capture, Sheet or email delivery claim.",
+  "privacy": "No automatic or fixed privacy prompt; optional settings closed inline. Required application acknowledgement and affirmative tracking records retained."
 }

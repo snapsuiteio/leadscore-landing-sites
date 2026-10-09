@@ -78,7 +78,7 @@
         </div>
         <p class="interest-boundary">Request a free seat. Manual review comes before seat confirmation. The venue remains provisional.</p>
       </div>
-      <form data-clarity-mask="true" id="interest-form" data-config-url="https://pages.getleadscore.ai/f/qHMd5uTiUsZdVKLjrrqePyvi/config" data-config-revision="5" novalidate aria-describedby="form-note">
+      <form data-clarity-mask="true" id="interest-form" data-config-url="https://pages.getleadscore.ai/f/qHMd5uTiUsZdVKLjrrqePyvi/config" data-config-revision="6" novalidate aria-describedby="form-note">
         <h3>Request a free seat.</h3><p id="form-note">Tell us about your business and the task you want to improve. SnapSuite reviews every application manually. Applying does not guarantee acceptance or reserve a seat.</p>
         <div id="error-summary" class="error-summary" role="alert" tabindex="-1" hidden></div>
         <div class="form-row"><div class="field"><label for="name">Your name</label><input id="name" name="name" autocomplete="given-name" maxlength="100" required aria-describedby="name-error"><span id="name-error" class="field-error"></span></div><div class="field"><label for="company">Business name</label><input id="company" name="company" autocomplete="organization" maxlength="150" required aria-describedby="company-error"><span id="company-error" class="field-error"></span></div></div>
@@ -190,15 +190,14 @@
   </main>
   <footer class="footer wrap"><div class="footer-event"><div><strong>ANTIGUA · OCTOBER 27</strong><p>A practical software and AI seminar for busy business owners.</p><p class="fine-print">Seminar image is an illustration.</p></div></div><div class="footer-brand">Presented by <strong>SnapSuite</strong><span>Free admission · screened applications</span></div></footer>
 
-  <section id="cookie-choices" class="cookie-choices" aria-labelledby="cookie-title" hidden>
-    <h2 id="cookie-title" tabindex="-1">Your privacy choices</h2>
+  <details id="cookie-choices" class="cookie-choices wrap">
+    <summary id="cookie-title">Optional privacy settings</summary>
     <p>With your permission, Google Analytics and Microsoft Clarity help us understand visits and how the page is used. Clarity records masked page interactions. Your application answers are excluded.</p>
     <label class="cookie-option"><input type="checkbox" id="cookie-analytics"><span>Allow analytics cookies and masked session recordings</span></label>
     <label class="cookie-option"><input type="checkbox" id="cookie-marketing"><span>Allow advertising cookies <small>No advertising tags are configured on this page.</small></span></label>
     <p>These cookie choices are separate from your free seat application. You can change these choices at any time. Withdrawing permission reloads the page and clears any unsent application. <a href="https://getleadscore.ai/privacy-policy/">Privacy policy</a></p>
     <div class="cookie-actions"><button type="button" id="cookie-reject">Reject optional</button><button type="button" id="cookie-accept-analytics">Accept analytics</button><button type="button" id="cookie-save">Save choices</button></div>
     <p id="cookie-note" aria-live="polite"></p>
-  </section>
-  <button type="button" id="cookie-open" class="cookie-open">Privacy choices</button>
+  </details>
 </body>
 </html>

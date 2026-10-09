@@ -60,11 +60,12 @@ async function run(name,fn,options={}){
   }finally{await context.close();}
 }
 const queue=page=>page.evaluate(()=>Array.from(window.dataLayer||[],entry=>Array.from(entry)));
-const accepts=async page=>{await page.locator('#cookie-accept-analytics').click();await page.waitForFunction(()=>window.dataLayer?.some(x=>x[0]==='event'&&x[1]==='page_view'));};
-const formReady=async page=>{assert.equal(await page.locator('#preview-submit').isEnabled(),true);assert.equal(await page.locator('#interest-form').getAttribute('data-config-revision'),'5');assert.equal(await page.locator('#requestConsent').isChecked(),false);assert.equal(await page.locator('#marketingConsent').count(),0);};
+const chooseAnalytics=async page=>{await page.locator('#cookie-title').click();await page.locator('#cookie-accept-analytics').click();};
+const accepts=async page=>{await chooseAnalytics(page);await page.waitForFunction(()=>window.dataLayer?.some(x=>x[0]==='event'&&x[1]==='page_view'));};
+const formReady=async page=>{assert.equal(await page.locator('#preview-submit').isEnabled(),true);assert.equal(await page.locator('#interest-form').getAttribute('data-config-revision'),'6');assert.equal(await page.locator('#requestConsent').isChecked(),false);assert.equal(await page.locator('#marketingConsent').count(),0);};
 try{
   for(const width of [1440,390])for(const angle of ['seminar','ai','snapsuite'])await run(`${angle} ${width}: no consent, opt-in, screened application, separate cookie choices`,async({page,events,providers,submissions})=>{
-    await formReady(page);assert.equal(await page.locator('#interest-form input:not([type=checkbox]):not([name=website])').count(),7);assert.equal(await page.locator('#interest-form select,#interest-form textarea').count(),4);assert.equal(providers.length,0);assert.equal(events.length,0);assert.equal((await queue(page)).length,0);
+    await formReady(page);assert.equal(await page.locator('#cookie-choices').getAttribute('open'),null);assert.equal(await page.locator('#interest-form input:not([type=checkbox]):not([name=website])').count(),7);assert.equal(await page.locator('#interest-form select,#interest-form textarea').count(),4);assert.equal(providers.length,0);assert.equal(events.length,0);assert.equal((await queue(page)).length,0);
     if(process.env.TRACKING_SCREENSHOT_DIR&&angle==='ai')await page.screenshot({path:process.env.TRACKING_SCREENSHOT_DIR+`/consent-${width}.png`});
     await accepts(page);await formReady(page);
     if(process.env.TRACKING_SCREENSHOT_DIR&&angle==='ai')await page.locator('#interest-form').screenshot({path:process.env.TRACKING_SCREENSHOT_DIR+`/form-${width}.png`});
@@ -75,16 +76,16 @@ try{
     assert.equal(events[0].attribution.latest.source_angle,angle);
     assert.equal(await page.locator('#interest-form').getAttribute('data-clarity-mask'),'true');
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth),true);
-    await page.locator('#cookie-open').click();await page.locator('#cookie-save').click();
+    await page.locator('#cookie-title').click();await page.locator('#cookie-save').click();
     assert.equal((await queue(page)).filter(x=>x[0]==='event'&&x[1]==='page_view').length,1);
     assert.equal(submissions.length,0);
   },{angle,width});
   await run('Reject persists across reload; enquiry remains available',async({page,providers,events})=>{
-    await page.locator('#cookie-reject').click();await page.reload();await page.evaluate(()=>window.LeadScoreTracker.ready);await formReady(page);
-    assert.equal(await page.locator('#cookie-choices').isHidden(),true);assert.equal(providers.length,0);assert.equal(events.length,0);
+    await page.locator('#cookie-title').click();await page.locator('#cookie-reject').click();await page.reload();await page.evaluate(()=>window.LeadScoreTracker.ready);await formReady(page);
+    assert.equal(await page.locator('#cookie-choices').getAttribute('open'),null);assert.equal(providers.length,0);assert.equal(events.length,0);
   });
   await run('Marketing choice alone cannot load analytics or advertising',async({page,providers,events})=>{
-    await page.locator('#cookie-marketing').check();await page.locator('#cookie-save').click();await formReady(page);assert.equal(providers.length,0);assert.equal(events.length,0);
+    await page.locator('#cookie-title').click();await page.locator('#cookie-marketing').check();await page.locator('#cookie-save').click();await formReady(page);assert.equal(providers.length,0);assert.equal(events.length,0);
   });
   await run('GPC denies marketing while explicit analytics opt-in works',async({page})=>{
     assert.equal(await page.locator('#cookie-marketing').isDisabled(),true);await accepts(page);
@@ -92,24 +93,24 @@ try{
   },{gpc:true});
   await run('Withdrawal persists before reload and removes analytics cookies',async({page,context,providers,events})=>{
     await accepts(page);await context.addCookies([{name:'_ga',value:'synthetic',url:origin},{name:'_clck',value:'synthetic',url:origin}]);
-    await page.locator('#cookie-open').click();const reload=page.waitForEvent('load');await page.locator('#cookie-reject').click();await reload;
+    await page.locator('#cookie-title').click();const reload=page.waitForEvent('load');await page.locator('#cookie-reject').click();await reload;
     await page.evaluate(()=>window.LeadScoreTracker.ready);await formReady(page);
-    const count=providers.length,eventCount=events.length;await page.locator('#name').fill('Synthetic withheld');await page.locator('#cookie-open').click();
+    const count=providers.length,eventCount=events.length;await page.locator('#name').fill('Synthetic withheld');await page.locator('#cookie-title').click();
     assert.equal(await page.locator('#cookie-analytics').isChecked(),false);assert.equal(providers.length,count);assert.equal(events.length,eventCount);
     assert.ok(!(await context.cookies()).some(c=>/^(_ga|_clck|_clsk)/.test(c.name)));
   });
   await run('Provider failures do not disable the form',async({page})=>{await accepts(page);await formReady(page);},{blockProviders:true});
   for(const failure of ['blockTracker','corruptTracker'])await run(`${failure}: optional tracker fails closed, form remains usable`,async({page,providers,events})=>{
-    await page.locator('#cookie-accept-analytics').click();await formReady(page);assert.equal(providers.length,0);assert.equal(events.length,0);assert.equal((await queue(page)).length,0);
+    await chooseAnalytics(page);await formReady(page);assert.equal(providers.length,0);assert.equal(events.length,0);assert.equal((await queue(page)).length,0);
   },{[failure]:true});
   await run('Expired saved permission does not silently grant consent',async({page,providers,events})=>{
     await formReady(page);assert.equal(await page.locator('#cookie-choices').isVisible(),true);assert.equal(await page.locator('#cookie-analytics').isChecked(),false);assert.equal(providers.length,0);assert.equal(events.length,0);
   },{stored:{version:1,analytics:true,marketing:true,savedAt:Date.now()-181*24*60*60*1000}});
   await run('Previously accepted consent loads providers once on return',async({page,providers,events})=>{
-    await page.waitForFunction(()=>window.dataLayer?.some(x=>x[1]==='page_view'));await formReady(page);assert.equal(await page.locator('#cookie-choices').isHidden(),true);assert.equal(providers.length,2);assert.equal(events.filter(e=>e.type==='page_viewed').length,1);
+    await page.waitForFunction(()=>window.dataLayer?.some(x=>x[1]==='page_view'));await formReady(page);assert.equal(await page.locator('#cookie-choices').getAttribute('open'),null);assert.equal(providers.length,2);assert.equal(events.filter(e=>e.type==='page_viewed').length,1);
   },{stored:{version:1,analytics:true,marketing:false,savedAt:Date.now()}});
   await run('Unsafe query prevents provider loading and PII in first-party events',async({page,providers,events})=>{
-    await page.locator('#cookie-accept-analytics').click();await formReady(page);assert.equal(providers.length,0);assert.ok(!JSON.stringify(events).includes('private@example.test'));
+    await chooseAnalytics(page);await formReady(page);assert.equal(providers.length,0);assert.ok(!JSON.stringify(events).includes('private@example.test'));
   },{query:'&email=private%40example.test'});
   await run('Variant navigation produces one manual pageview per change with attribution',async({page,events})=>{
     await accepts(page);await page.locator('[data-angle="seminar"]').click();await page.waitForFunction(()=>window.dataLayer.filter(x=>x[0]==='event'&&x[1]==='page_view').length===2);
@@ -134,7 +135,7 @@ try{
   },{allowFixtureSubmit:true,rejectSubmit:true});
   for(const [reason,mutate] of [
     ['old revision',c=>{c.revision=3;}],
-    ['future revision',c=>{c.revision=5;}],
+    ['future revision',c=>{c.revision=7;}],
     ['acknowledgement wording',c=>{c.consent.acknowledgement.text='Different request';}],
     ['additional required question',c=>{c.fields.push({id:'message',type:'textarea',required:true,label:'Unexpected question'});}],
     ['non-seminar intent',c=>{c.fields.find(f=>f.id==='intent').options.push('onsite');}],
@@ -142,7 +143,7 @@ try{
     assert.equal(await page.locator('#preview-submit').isDisabled(),true);assert.equal(await page.locator('#form-status').isVisible(),true);assert.equal(submissions.length,0);
   },{expectDisabled:true,mutate});
   await run('Competing configured Google ID fails tracking closed without altering capture',async({page,providers,events})=>{
-    await page.locator('#cookie-accept-analytics').click();await formReady(page);assert.equal(providers.length,0);assert.equal(events.length,0);assert.equal((await queue(page)).length,0);
+    await chooseAnalytics(page);await formReady(page);assert.equal(providers.length,0);assert.equal(events.length,0);assert.equal((await queue(page)).length,0);
   },{mutate:c=>{c.tracking.providers.googleTagId='G-OTHER12345';}});
 }finally{await browser.close();}
 const evidence={checkedAt:new Date().toISOString(),trackerSha256:createHash('sha256').update(trackerScript).digest('hex'),results,scope:'All network intercepted. Real compiled form and published tracker fixture; provider SDKs and intake are local fixtures. No production writes or provider events.'};

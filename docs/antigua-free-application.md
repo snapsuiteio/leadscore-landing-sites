@@ -18,8 +18,12 @@ hard eligibility thresholds, financial questions or demographic questions.
 Marketing consent stays false and separate tracking choices are preserved.
 Attendee payments and automated outreach remain disabled.
 
-The existing intake key is unchanged. Proposed revision 5 is an anticipated
-publication contract, not a published export or real-delivery receipt. Preserve
+The existing intake key is unchanged. Revision 6 is repinned from an actual read-only revision 5 inspection on October 9.
+Dwain explicitly authorized publication of the qualification form and removal of
+the obstructive mobile privacy popup. The popup is replaced by closed inline
+settings; an ordinary privacy-policy link remains accessible. Existing affirmative
+tracking choices remain valid, and a new visitor grants no optional tracking.
+The exact paired intake must publish before this static revision is selected. Preserve
 private routing/ownership/tag/playbook and tracking settings when applying the
 matching questions and acknowledgement; do not overwrite private configuration
 from the public export. Existing static deployment gates must still compare the
@@ -28,8 +32,9 @@ actual published contract and revision before selecting this candidate.
 Source tests and builds do not establish a real saved application, ongoing Sheet
 delivery, email delivery or seat acceptance. The private deployment owner has the
 existing designated Sheet schema/readback and a prepared paired workflow patch.
-Do not deploy this candidate until matching intake publication, persistent Sheet
-connection and real capture are coordinated and verified. The old payment
+The user-authorized form publication uses the existing intake service; no Google
+grant is required for that publication. Persistent Sheet delivery, actual saved
+capture and email delivery remain unverified and are not advertised as working. The old payment
 candidate is obsolete. No Azure or separate provider deployment is required.
 
 Public dev contains a separate staged reliability export that is not live. Keep

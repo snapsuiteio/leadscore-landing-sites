@@ -6,7 +6,7 @@ const CLARITY_PROJECT = 'yu2abnu53o';
 const STORAGE_KEY = 'antigua-cookie-choices-v1';
 const MAX_AGE = 180 * 24 * 60 * 60 * 1000;
 const form = document.getElementById('interest-form');
-if (!form?.dataset.configUrl) { document.getElementById('cookie-open')?.setAttribute('hidden', ''); return; }
+if (!form?.dataset.configUrl) { document.getElementById('cookie-choices')?.setAttribute('hidden', ''); return; }
 const panel = document.getElementById('cookie-choices');
 const analyticsInput = document.getElementById('cookie-analytics');
 const marketingInput = document.getElementById('cookie-marketing');
@@ -122,7 +122,7 @@ function save(next) {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, ...choices, savedAt: Date.now() })); } catch { /* Session choice only. */ }
   analyticsInput.checked = choices.analytics;
   marketingInput.checked = choices.marketing;
-  panel.hidden = true;
+  panel.open = false;
   if (prior.analytics && !choices.analytics && gaStarted) {
     window['ga-disable-' + GOOGLE_TAG] = true;
     window.gtag('consent', 'update', { analytics_storage: 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
@@ -136,8 +136,9 @@ choices = normalize(prior);
 analyticsInput.checked = choices.analytics;
 marketingInput.checked = choices.marketing;
 marketingInput.disabled = navigator.globalPrivacyControl === true;
-panel.hidden = Boolean(prior);
-document.getElementById('cookie-open').addEventListener('click', () => { panel.hidden = false; document.getElementById('cookie-title').focus(); });
+// Inline settings never open automatically or cover the application, even on mobile.
+// Existing affirmative choices remain valid; a new visit grants nothing.
+panel.open = false;
 document.getElementById('cookie-reject').addEventListener('click', () => save({ analytics: false, marketing: false }));
 document.getElementById('cookie-accept-analytics').addEventListener('click', () => save({ analytics: true, marketing: false }));
 document.getElementById('cookie-save').addEventListener('click', () => save({ analytics: analyticsInput.checked, marketing: marketingInput.checked }));

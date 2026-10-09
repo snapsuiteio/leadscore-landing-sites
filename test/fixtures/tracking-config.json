@@ -3,7 +3,7 @@
   "resources": {
     "schemaVersion": 1,
     "pageId": "synthetic-antigua-page",
-    "revision": 5,
+    "revision": 6,
     "submitUrl": "https://pages.getleadscore.ai/f/qHMd5uTiUsZdVKLjrrqePyvi",
     "configUrl": "https://pages.getleadscore.ai/f/qHMd5uTiUsZdVKLjrrqePyvi/config",
     "method": "POST",

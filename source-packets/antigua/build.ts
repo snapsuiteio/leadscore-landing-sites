@@ -30,6 +30,8 @@ if (configUrl) {
 }
 rmSync(output, { recursive: true, force: true });
 mkdirSync(join(output, 'antigua'), { recursive: true });
+// Live assets stay inside the existing registered tenant route.
+if (configUrl) html = html.replaceAll('"/antigua/', '"/p/snapsuite-antigua/antigua/');
 writeFileSync(join(output, 'antigua/index.html'), html);
 for (const file of ['styles.css', 'campaign.mjs', 'native-player.mjs', 'tracking.mjs']) {
   cpSync(join(source, file), join(output, 'antigua', file), { recursive: true });

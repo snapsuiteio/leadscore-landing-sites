@@ -13,7 +13,7 @@ function check(mutate=()=>{},script=tracker){
     return url.endsWith('/config')?Response.json(body,{headers:{'access-control-allow-origin':origin}}):new Response(script,{headers:{'access-control-allow-origin':origin}});
   }});
 }
-test('proposed revision 5 contract fixture and integrity-pinned tracker pass pre-deployment gate',async()=>{
+test('screened revision 6 contract fixture and integrity-pinned tracker pass pre-deployment gate',async()=>{
   assert.equal((await check())[0].compatible,true);
 });
 for(const [name,mutate] of [

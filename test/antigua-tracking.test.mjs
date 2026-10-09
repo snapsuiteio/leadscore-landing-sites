@@ -13,11 +13,24 @@ test('seminar-only form keeps the same intake key, free admission, approved medi
   assert.match(form(html),/requesting a free seat/);
   assert.doesNotMatch(form(html),/US\$249|paid October/);
   const before=JSON.parse(current('test/fixtures/recovery-manifest.json')).pages[0],after=JSON.parse(current('sites/manifest.json')).pages[0];
-  assert.equal(after.integration.revision,5);assert.equal(after.integration.configUrl,before.integration.configUrl);
-  for(const [name,hash] of Object.entries(before.files))if(!['index.html','styles.css','page.mjs','campaign.mjs','resources/job-to-invoice.txt','resources/practical-ai.txt'].includes(name))assert.equal(after.files[name],hash,name);
+  assert.equal(after.integration.revision,6);assert.equal(after.integration.configUrl,before.integration.configUrl);
+  for(const [name,hash] of Object.entries(before.files))if(!['index.html','styles.css','page.mjs','campaign.mjs','tracking.mjs','resources/job-to-invoice.txt','resources/practical-ai.txt'].includes(name))assert.equal(after.files[name],hash,name);
   assert.equal(createHash('sha256').update(current(path+'native-player.mjs')).digest('hex'),before.files['native-player.mjs']);
   assert.match(html,/id="cookie-analytics"/);assert.match(html,/id="cookie-marketing"/);
   assert.ok(html.indexOf('id="cookie-choices"')>html.indexOf('</form>'));
+});
+test('mobile and desktop privacy settings are closed inline, with no overlay or floating prompt',()=>{
+  const html=current(path+'index.html'),css=current(path+'styles.css'),code=current(path+'tracking.mjs');
+  assert.match(html,/<details id="cookie-choices" class="cookie-choices wrap">/);
+  assert.doesNotMatch(html,/<details[^>]*id="cookie-choices"[^>]*\bopen\b|id="cookie-open"/);
+  assert.match(html,/<summary id="cookie-title">Optional privacy settings<\/summary>/);
+  assert.match(html,/<a href="https:\/\/getleadscore.ai\/privacy-policy\/"[^>]*>Privacy policy<\/a>/);
+  assert.match(css,/\.cookie-choices\{position:static/);
+  assert.doesNotMatch(css,/\.cookie-(?:choices|open)\{[^}]*position:fixed/);
+  assert.match(code,/panel\.open = false/);
+  assert.doesNotMatch(code,/panel\.open = true|panel\.hidden = Boolean\(prior\)/);
+  assert.match(code,/let choices = \{ analytics: false, marketing: false \}/);
+  assert.match(code,/if \(gaStarted \|\| !choices\.analytics \|\| !safePage\(\)\) return/);
 });
 test('shared tracker is pinned to the reviewed public fixture and configured consent providers',()=>{
   const code=current(path+'tracking.mjs');
