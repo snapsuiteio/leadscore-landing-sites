@@ -1,4 +1,4 @@
-import { HEROES, attributionFrom, resolveAngle, validateInterest } from './campaign.mjs';
+import { APPLICATION_FIELDS, HEROES, attributionFrom, resolveAngle, validateInterest } from './campaign.mjs';
 import { loadCapture, SUCCESS_MESSAGE } from './capture.mjs';
 
 const byId = (id) => document.getElementById(id);
@@ -66,7 +66,7 @@ form.addEventListener('submit', async (event) => {
   const input = Object.fromEntries(new FormData(form));
   input.requestConsent = byId('requestConsent').checked;
   const { valid, errors } = validateInterest(input);
-  for (const key of ['name', 'company', 'email', 'phone', 'requestConsent']) {
+  for (const key of [...APPLICATION_FIELDS.filter(field => !['intent', 'source_angle'].includes(field.id)).map(field => field.name), 'requestConsent']) {
     byId(key).setAttribute('aria-invalid', errors[key] ? 'true' : 'false');
     byId(`${key}-error`).textContent = errors[key] || '';
   }
@@ -82,7 +82,7 @@ form.addEventListener('submit', async (event) => {
     const button = byId('preview-submit');
     if (!capture || button.disabled) return;
     button.disabled = true;
-    status.textContent = 'Sending your enquiry…';
+    status.textContent = 'Sending your application…';
     status.hidden = false;
     try {
       const touch = Object.fromEntries(Object.entries(attribution).filter(([key]) => ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid', 'gclid', 'ad_id', 'source_angle'].includes(key)));
@@ -101,8 +101,8 @@ form.addEventListener('submit', async (event) => {
   // Deliberately no fetch, storage, console logging, lead creation or analytics.
   // Attribution is held only in memory for future verified intake wiring.
   const status = byId('form-status');
-  const intent = 'October 27 paid seminar details';
-  status.textContent = `Details checked — nothing submitted. Your selected request is “${intent}” (source: ${attribution.source_angle}). No information was sent or saved, no email will be sent, and you have not reserved or paid for a seat.`;
+  const intent = 'October 27 free seat application';
+  status.textContent = `Details checked — nothing submitted. Your selected request is “${intent}” (source: ${attribution.source_angle}). No information was sent or saved, no email will be sent, and no seat is confirmed.`;
   status.hidden = false;
   status.focus();
 });

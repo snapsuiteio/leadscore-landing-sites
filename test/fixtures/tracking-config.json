@@ -3,7 +3,7 @@
   "resources": {
     "schemaVersion": 1,
     "pageId": "synthetic-antigua-page",
-    "revision": 4,
+    "revision": 5,
     "submitUrl": "https://pages.getleadscore.ai/f/qHMd5uTiUsZdVKLjrrqePyvi",
     "configUrl": "https://pages.getleadscore.ai/f/qHMd5uTiUsZdVKLjrrqePyvi/config",
     "method": "POST",
@@ -42,7 +42,7 @@
       },
       {
         "id": "company_name",
-        "label": "Company",
+        "label": "Business name",
         "type": "text",
         "required": true
       },
@@ -50,6 +50,66 @@
         "id": "phone",
         "label": "Phone number",
         "type": "phone",
+        "required": true
+      },
+      {
+        "id": "business_type",
+        "label": "Business type or industry",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "operating_status",
+        "label": "Business operating status",
+        "type": "select",
+        "required": true,
+        "options": [
+          "Operating",
+          "Preparing to launch",
+          "Temporarily paused",
+          "Other"
+        ]
+      },
+      {
+        "id": "attendee_role",
+        "label": "Your role in the business",
+        "type": "select",
+        "required": true,
+        "options": [
+          "Owner or founder",
+          "Director or manager",
+          "Employee or team member",
+          "Other"
+        ]
+      },
+      {
+        "id": "registration_status",
+        "label": "Business registration status",
+        "type": "select",
+        "required": true,
+        "options": [
+          "Registered",
+          "Registration in progress",
+          "Not registered",
+          "Unsure"
+        ]
+      },
+      {
+        "id": "years_operating",
+        "label": "Years operating (0 if not yet operating)",
+        "type": "number",
+        "required": true
+      },
+      {
+        "id": "team_size",
+        "label": "Number of people in the business, including you",
+        "type": "number",
+        "required": true
+      },
+      {
+        "id": "main_challenge",
+        "label": "What is your main operational challenge?",
+        "type": "textarea",
         "required": true
       },
       {
@@ -79,8 +139,8 @@
         "required": false
       },
       "acknowledgement": {
-        "text": "Please email me details about the paid October 27 seminar (US$249 working standard price). This request does not reserve or pay for a seat.",
-        "version": "antigua-seminar-details-2026-10-07-v1",
+        "text": "I am requesting a free seat at the October 27 seminar. SnapSuite will review my application manually. Applying does not guarantee acceptance or reserve a seat.",
+        "version": "antigua-free-application-2026-10-09-v1",
         "required": true
       }
     },

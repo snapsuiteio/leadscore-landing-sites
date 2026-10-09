@@ -1,32 +1,25 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CONSENT_VERSION, INTENTS, MARKETING_CONSENT, REQUEST_CONSENT } from '../src/campaign.mjs';
+import { APPLICATION_FIELDS, CONSENT_VERSION, INTENTS, MARKETING_CONSENT, REQUEST_CONSENT } from '../src/campaign.mjs';
 import { enquiryAnswers, loadCapture, SUCCESS_MESSAGE, validateCampaignConfiguration } from '../src/capture.mjs';
 
 const origin = 'https://leadscore-landing-sites.snapsuite-f2f.workers.dev';
 const configUrl = 'https://pages.getleadscore.ai/f/SyntheticFixtureFormKey01/config';
 function configuration() {
   return { schemaVersion: 1, revision: 3, pageId: 'synthetic-page', configUrl, submitUrl: configUrl.slice(0, -7),
-    fields: [
-      { id: 'full_name', label: 'Your name', type: 'text', required: true },
-      { id: 'work_email', label: 'Email', type: 'email', required: true },
-      { id: 'company_name', label: 'Company', type: 'text', required: true },
-      { id: 'phone', label: 'Phone', type: 'phone', required: true },
-      { id: 'intent', label: 'Interest', type: 'select', required: true, options: [...INTENTS] },
-      { id: 'source_angle', label: 'Opening', type: 'select', required: true, options: ['seminar', 'snapsuite', 'ai'] },
-    ], allowedOrigins: [origin], attributionKeys: [], consent: { marketing: { required: false, text: MARKETING_CONSENT }, acknowledgement: { required: true, text: REQUEST_CONSENT, version: CONSENT_VERSION } }, spam: { honeypotField: 'website', turnstile: { required: false } } };
+    fields: APPLICATION_FIELDS.map(({ name, ...field }) => structuredClone(field)), allowedOrigins: [origin], attributionKeys: [], consent: { marketing: { required: false, text: MARKETING_CONSENT }, acknowledgement: { required: true, text: REQUEST_CONSENT, version: CONSENT_VERSION } }, spam: { honeypotField: 'website', turnstile: { required: false } } };
 }
-const values = { name: 'Synthetic Owner', email: 'synthetic@example.test', company: 'Synthetic Capture QA', phone: '+1 268 555 0123', pain: 'SYNTHETIC TEST — verify the required business-improvement answer.', intent: 'event' };
+const values = { name: '  Sample Owner  ', company: ' Sample Business ', email: 'Sample@Example.test', intent: 'event', phone: '+1 (268) 555-0123', business_type: 'Construction', operating_status: 'Operating', attendee_role: 'Owner or founder', registration_status: 'Registered', years_operating: '0', team_size: '1', main_challenge: 'Prepare job details for billing.', requestConsent: true };
 test('maps every required answer and preserves each angle without public tenant routing', () => {
   for (const angle of ['seminar', 'snapsuite', 'ai']) {
     const answers = enquiryAnswers(values, angle);
     assert.equal(answers.phone, values.phone);
-    assert.equal(Object.hasOwn(answers, 'message'), false);
+    assert.equal(answers.main_challenge, values.main_challenge);
     assert.equal(answers.intent, 'event');
     assert.equal(answers.source_angle, angle);
     assert.deepEqual(Object.keys(answers).sort(), configuration().fields.map(field => field.id).sort());
   }
-  assert.match(SUCCESS_MESSAGE, /No seat has been reserved or paid for/);
+  assert.match(SUCCESS_MESSAGE, /Application received/);
 });
 test('rejects an unapproved origin, optional phone, wrong question or compulsory marketing', () => {
   const good = configuration();
@@ -60,10 +53,16 @@ test('sends a versioned enquiry with independent consent and reuses its ID after
   assert.equal(posts[0].submissionId, posts[1].submissionId);
   assert.equal(posts[1].revision, 3);
   assert.deepEqual(posts[1].consent, { marketing: false, acknowledgement: true, acknowledgementVersion: CONSENT_VERSION });
-  assert.equal(Object.hasOwn(posts[1].answers, 'message'), false);
+  assert.equal(posts[1].answers.main_challenge, values.main_challenge);
   assert.equal(posts[1].answers.intent, 'event');
   for (const key of ['tenant_id', 'routing', 'paid', 'campaign_id', 'owner_id']) assert.equal(Object.hasOwn(posts[1], key), false);
 });
 test('refuses a republished revision so draft routing changes cannot alter a released form', async () => {
   await assert.rejects(loadCapture({ dataset: { configUrl, configRevision: '2' } }, { origin, fetcher: async () => Response.json({ success: true, resources: configuration() }) }), /has changed/);
+});
+
+test('rejects a duplicate or missing screening field and any option or field-label change', () => {
+  for (const mutate of [c => { c.fields.pop(); }, c => { c.fields[4] = c.fields[0]; }, c => { c.fields.find(f => f.id === 'registration_status').options.push('Rejected'); }, c => { c.fields.find(f => f.id === 'main_challenge').label = 'Changed'; }]) {
+    const config = configuration(); mutate(config); assert.throws(() => validateCampaignConfiguration(config, configUrl, origin));
+  }
 });

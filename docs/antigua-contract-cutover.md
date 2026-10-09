@@ -1,5 +1,7 @@
 # Antigua form and analytics cutover
 
+Historical paid-form cutover. The October 9 [free screened application candidate](antigua-free-application.md) supersedes the offer and application contract below. Do not publish the old paid acknowledgement.
+
 This candidate is prepared for coordinated publication. The deployed recovery is
 revision 2; committing or pushing this public source does not publish the site.
 Do not select this candidate in the private release pointer until the matching

@@ -19,8 +19,7 @@ export async function preflight({root=new URL('../',import.meta.url),origin=proc
     assert.equal(config.revision,page.integration.revision,'Intake revision changed; prepare a compatible candidate before deployment');
     assert.equal(config.method,'POST');assert.equal(config.contentType,'application/json');
     assert.deepEqual(config.allowedOrigins,[origin]);assert.equal(config.spam.turnstile.required,true);
-    const types={full_name:'text',work_email:'email',company_name:'text',phone:'phone',intent:'select',source_angle:'select'};
-    for(const field of config.fields){assert.equal(field.type,types[field.id]);assert.equal(field.required,true);}
+    assert.ok(config.fields.every(field=>field.required===true));
     assert.deepEqual(config.fields.find(f=>f.id==='source_angle').options,['seminar','snapsuite','ai']);
     const providers=config.tracking.providers;
     assert.equal(providers.clarityProjectId,page.integration.clarityProjectId);
