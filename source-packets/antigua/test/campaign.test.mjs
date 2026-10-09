@@ -2,57 +2,36 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { APPLICATION_FIELDS, HEROES, REQUEST_CONSENT, attributionFrom, resolveAngle, validateInterest } from '../src/campaign.mjs';
-
-const valid = { name: '  Sample Owner  ', company: ' Sample Business ', email: 'Sample@Example.test', intent: 'event', phone: '+1 (268) 555-0123', business_type: 'Construction', operating_status: 'Operating', attendee_role: 'Owner or founder', registration_status: 'Registered', years_operating: '0', team_size: '1', main_challenge: 'Prepare job details for billing.', requestConsent: true };
-test('invalid and unknown angles fall back without reflecting URL input', () => {
+const valid = { name: ' Sample Owner ', company: ' Sample Business ', email: 'Sample@Example.test', phone: '+1 (268) 555-0123', requestConsent: true };
+test('unknown angle cannot reflect URL input', () => {
   for (const value of ['', '?angle=constructor', '?angle=__proto__', '?angle=%3Cscript%3E']) assert.equal(resolveAngle(value), 'seminar');
-  assert.equal(resolveAngle('?angle=snapsuite'), 'snapsuite');
-  assert.equal(resolveAngle('?angle=ai'), 'ai');
+  for (const angle of ['snapsuite', 'ai']) assert.equal(resolveAngle(`?angle=${angle}`), angle);
 });
-test('only allowed bounded attribution fields are retained, independently of intent', () => {
+test('bounded attribution excludes contact details and private routing', () => {
   const result = attributionFrom(`?angle=ai&utm_source=facebook&ad_id=123&utm_content=${'x'.repeat(300)}&email=ignore@example.test&tenant_id=evil`);
   assert.deepEqual(Object.keys(result).sort(), ['ad_id', 'source_angle', 'utm_content', 'utm_source']);
-  assert.equal(result.source_angle, 'ai');
   assert.equal(result.utm_content.length, 200);
 });
-test('screens applications with required business and contact answers and manual-review acknowledgement', () => {
-  const result = validateInterest(valid);
+test('interim request retains four contact inputs and two bounded internal fields', () => {
+  assert.equal(APPLICATION_FIELDS.length, 6);
+  const result = validateInterest({...valid, intent: 'onsite', main_challenge: 'Unreleased field'});
   assert.equal(result.valid, true);
-  assert.equal(result.values.email, 'sample@example.test');
-  assert.equal(result.values.name, 'Sample Owner');
   assert.equal(result.values.intent, 'event');
-  assert.equal(result.values.years_operating, '0');
-  assert.equal(Object.hasOwn(result.values, 'paid'), false);
-  assert.deepEqual(Object.keys(validateInterest({}).errors).sort(), [...APPLICATION_FIELDS.filter(field => !['intent', 'source_angle'].includes(field.id)).map(field => field.name), 'requestConsent'].sort());
+  assert.equal(result.values.email, 'sample@example.test');
+  assert.deepEqual(Object.keys(result.values).sort(), ['company', 'email', 'intent', 'name', 'phone']);
+  assert.deepEqual(Object.keys(validateInterest({}).errors).sort(), ['company', 'email', 'name', 'phone', 'requestConsent']);
 });
-test('accepts all operating and registration statuses without approval thresholds', () => {
-  for (const operating_status of APPLICATION_FIELDS.find(field => field.id === 'operating_status').options) {
-    for (const registration_status of APPLICATION_FIELDS.find(field => field.id === 'registration_status').options) assert.equal(validateInterest({ ...valid, operating_status, registration_status, years_operating: '0', team_size: '0' }).valid, true);
-  }
-  assert.equal(validateInterest({...valid, years_operating: '150', team_size: '20000', intent: 'onsite'}).valid, true);
-  assert.equal(validateInterest({...valid, intent: 'onsite'}).values.intent, 'event');
+test('invalid or oversized contact inputs and missing acknowledgement cannot pass', () => {
+  const result = validateInterest({...valid, name: 'x'.repeat(101), company: 'x'.repeat(151), phone: 'abc', email: 'x@y', requestConsent: 'true'});
+  assert.deepEqual(Object.keys(result.errors).sort(), ['company', 'email', 'name', 'phone', 'requestConsent']);
 });
-test('rejects missing challenges, invalid options, unsafe counts and oversized input', () => {
-  for (const years_operating of ['-1', '1.5', 'abc', '9007199254740992']) assert.ok(validateInterest({...valid, years_operating}).errors.years_operating);
-  for (const team_size of ['-1', '1.5', 'abc']) assert.ok(validateInterest({...valid, team_size}).errors.team_size);
-  assert.ok(validateInterest({...valid, operating_status: 'invented'}).errors.operating_status);
-  assert.ok(validateInterest({...valid, registration_status: 'invented'}).errors.registration_status);
-  assert.ok(validateInterest({...valid, main_challenge: ' '}).errors.main_challenge);
-  assert.ok(validateInterest({...valid, main_challenge: 'x'.repeat(1001)}).errors.main_challenge);
-  assert.ok(validateInterest({...valid, business_type: 'x'.repeat(151)}).errors.business_type);
-  assert.ok(validateInterest({...valid, requestConsent: 'true'}).errors.requestConsent);
-});
-test('all three angles share a free screened application with truthful provisional venue and no paid copy', () => {
+test('three angles retain free manual review, provisional venue and no delivery promise', () => {
   const html = readFileSync(new URL('../src/index.html', import.meta.url), 'utf8');
-  for (const field of APPLICATION_FIELDS.filter(field => !['intent', 'source_angle'].includes(field.id))) {
-    assert.ok(html.includes(`id="${field.name}"`));
-    assert.ok(html.includes(`id="${field.name}-error"`));
-  }
+  for (const field of APPLICATION_FIELDS.filter(field => !['intent', 'source_angle'].includes(field.id))) assert.ok(html.includes(`id="${field.name}"`));
   assert.ok(html.includes(REQUEST_CONSENT));
   assert.match(html, /Request a free seat/);
+  assert.match(html, /manual screening/);
   assert.match(html, /no confirmed hold/i);
-  assert.match(html, /data-leadscore-capture="disabled"/);
-  assert.match(html, /Signup is not available yet/);
-  assert.doesNotMatch(html, /US\$249|paid October|before payment|trade-winds\.jpg/);
+  assert.doesNotMatch(html, /id="main_challenge"|US\$249|paid October|confirmation email|Google Sheet/);
   for (const hero of Object.values(HEROES)) assert.match(hero.short, /free/);
 });

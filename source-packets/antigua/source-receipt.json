@@ -9,16 +9,16 @@
     "src/assets/flag.svg": "8a2341f680ac7486a110fd7fcebd46c8b51dedec97a8c1f38d4c3de6939e385f",
     "src/assets/seminar-preview.png": "3336d381e3c9fd99434f551eea101d34dac00d4de30ef5ac3454dc1feb816133",
     "src/assets/trade-winds-hotel-exterior.jpg": "abd7002d966f76cbb4ebcae56a39ff65487119c842507cbeac0477d5c314cf8f",
-    "src/campaign.mjs": "497d068ce7b8ed6b10a5de2e5626205cd21f1fbe37ada1399f6bc47a6df0bbeb",
+    "src/campaign.mjs": "acfc3ff9b44e1515559680086e7c84144221c20e32b67814b3b770b0a960b938",
     "src/capture.mjs": "336a1d18a1ada03c12eed2c4421ee3978156cf01a3983e9f52069b4520787706",
     "src/headless-form-adapter.mjs": "414beafbd6ff8e4866766055364a8b5de786ca7a2771532d3ebf1df75147775b",
-    "src/index.html": "c128f6fa98cbfcbe899a514b72922683ba0bbb74ada0bfe3aead25d037c3b393",
+    "src/index.html": "2c6be185e7f1601a8c7d7e5a64dc6f14e274e2d8284bfb9fa17b9ad8b0f418af",
     "src/native-player.mjs": "19f53fcedea61cc247aaa7fbcab93c2bb15b37cfcdb34eafac761cb79b43e213",
     "src/page.mjs": "e58b35d243dba54957f21fbc9b0ef93615a934c81e258a967d7e81409a0a72a2",
     "src/styles.css": "9ca2c6480563df832ffee30fa4c023490db4074a6a1c22364a31020127f12ce9",
     "src/tracking.mjs": "74e53baabf8b471a10852e3da651214038e073bac2d7280c98ecb7ab0c561812",
-    "test/campaign.test.mjs": "ad8b970a7b3a9ff2a77cd646f320b6c30742ea29e97e6bfccb3b5b3db063f6e3",
-    "test/capture.test.mjs": "f7c3a400e7743d725815cb9ca3044aa557e1f746ac8956dcbf7fd51238a5b11c"
+    "test/campaign.test.mjs": "313fb391e67b8947e97c1ceb4c0f24ba103e4ff082dc65b99afa06630a5143c6",
+    "test/capture.test.mjs": "5e8c5f622e40f9403b60f9199afbe45fed87289490490039bfcdfe8fda9a9b20"
   },
   "angles": [
     "seminar",
@@ -29,8 +29,8 @@
   "payments": "disabled",
   "automatedOutreach": "disabled",
   "venuePhoto": "Approved deployed hotel exterior preserved; Trade Winds is provisional with no confirmed hold",
-  "form": "Free screened application: 11 visible fields plus fixed event intent and angle, manual review before acceptance, no guaranteed seat",
-  "privateSourceCommit": "944526b8d5dc66f5b8492535d20f113b89c208e1",
+  "form": "Interim request: existing four contact inputs plus fixed event intent and angle, manual screening, no guaranteed seat",
+  "privateSourceCommit": "14df76ff0466938b6e7b8909a8e58987d707f8e1",
   "publicSourceBaseline": "4420c628d5d3c99b287ae1499927993a2a003123",
-  "publication": "Held candidate: proposed revision5 is not yet published or real-capture verified"
+  "publication": "Prepared interim revision5; exact live contract must pass before static deployment. No real capture, Sheet or email receipt."
 }

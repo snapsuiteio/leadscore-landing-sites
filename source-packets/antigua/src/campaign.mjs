@@ -37,112 +37,44 @@ export const MARKETING_CONSENT = 'Also send me occasional software and AI tips b
 export const APPLICATION_FIELDS = [
   {
     "id": "full_name",
-    "name": "name",
     "label": "Your name",
     "type": "text",
-    "required": true
+    "required": true,
+    "name": "name"
   },
   {
     "id": "work_email",
-    "name": "email",
     "label": "Email",
     "type": "email",
-    "required": true
+    "required": true,
+    "name": "email"
   },
   {
     "id": "company_name",
-    "name": "company",
-    "label": "Business name",
+    "label": "Company",
     "type": "text",
-    "required": true
+    "required": true,
+    "name": "company"
   },
   {
     "id": "phone",
-    "name": "phone",
     "label": "Phone number",
     "type": "phone",
-    "required": true
-  },
-  {
-    "id": "business_type",
-    "name": "business_type",
-    "label": "Business type or industry",
-    "type": "text",
-    "required": true
-  },
-  {
-    "id": "operating_status",
-    "name": "operating_status",
-    "label": "Business operating status",
-    "type": "select",
     "required": true,
-    "options": [
-      "Operating",
-      "Preparing to launch",
-      "Temporarily paused",
-      "Other"
-    ]
-  },
-  {
-    "id": "attendee_role",
-    "name": "attendee_role",
-    "label": "Your role in the business",
-    "type": "select",
-    "required": true,
-    "options": [
-      "Owner or founder",
-      "Director or manager",
-      "Employee or team member",
-      "Other"
-    ]
-  },
-  {
-    "id": "registration_status",
-    "name": "registration_status",
-    "label": "Business registration status",
-    "type": "select",
-    "required": true,
-    "options": [
-      "Registered",
-      "Registration in progress",
-      "Not registered",
-      "Unsure"
-    ]
-  },
-  {
-    "id": "years_operating",
-    "name": "years_operating",
-    "label": "Years operating (0 if not yet operating)",
-    "type": "number",
-    "required": true
-  },
-  {
-    "id": "team_size",
-    "name": "team_size",
-    "label": "Number of people in the business, including you",
-    "type": "number",
-    "required": true
-  },
-  {
-    "id": "main_challenge",
-    "name": "main_challenge",
-    "label": "What is your main operational challenge?",
-    "type": "textarea",
-    "required": true
+    "name": "phone"
   },
   {
     "id": "intent",
-    "name": "intent",
     "label": "Seminar request",
     "type": "select",
     "required": true,
     "options": [
       "event"
-    ]
+    ],
+    "name": "intent"
   },
   {
     "id": "source_angle",
-    "name": "source_angle",
     "label": "Page opening",
     "type": "select",
     "required": true,
@@ -150,7 +82,8 @@ export const APPLICATION_FIELDS = [
       "seminar",
       "snapsuite",
       "ai"
-    ]
+    ],
+    "name": "source_angle"
   }
 ];
 
@@ -170,19 +103,12 @@ export function attributionFrom(search) {
 }
 
 export function validateInterest(input) {
-  const clean = key => typeof input[key] === 'string' ? input[key].trim() : '';
-  const values = Object.fromEntries(APPLICATION_FIELDS.filter(field => !['intent', 'source_angle'].includes(field.id)).map(field => [field.name, clean(field.name)]));
-  values.email = values.email.toLowerCase();
-  values.intent = 'event';
+  const clean = (key) => typeof input[key] === 'string' ? input[key].trim() : '';
+  const values = { name: clean('name'), email: clean('email').toLowerCase(), company: clean('company'), phone: clean('phone'), intent: 'event' };
   const errors = {};
-  for (const field of APPLICATION_FIELDS.filter(field => !['intent', 'source_angle'].includes(field.id))) {
-    const value = values[field.name];
-    if (!value) errors[field.name] = `Please enter ${field.label.toLowerCase()}.`;
-    else if (field.type === 'select' && !field.options.includes(value)) errors[field.name] = 'Please choose one of the available options.';
-    else if (field.type === 'number' && (!/^\d+$/.test(value) || !Number.isSafeInteger(Number(value)))) errors[field.name] = 'Please enter a whole number of zero or more.';
-  }
-  for (const [key, max] of [['name', 100], ['company', 150], ['business_type', 150], ['main_challenge', 1000]]) {
-    if (values[key].length > max) errors[key] = `Please use ${max} characters or fewer.`;
+  for (const [key, label, max] of [['name', 'your name', 100], ['company', 'your company', 150]]) {
+    if (!values[key]) errors[key] = `Please enter ${label}.`;
+    else if (values[key].length > max) errors[key] = `Please use ${max} characters or fewer.`;
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email) || values.email.length > 254) errors.email = 'Please enter a valid email address.';
   if (!values.phone || !/^\+?[\d\s().-]+$/.test(values.phone) || values.phone.replace(/\D/g, '').length < 7 || values.phone.replace(/\D/g, '').length > 15) errors.phone = 'Please enter a valid phone number.';

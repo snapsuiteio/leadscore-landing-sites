@@ -14,7 +14,7 @@ test('maps every required answer and preserves each angle without public tenant 
   for (const angle of ['seminar', 'snapsuite', 'ai']) {
     const answers = enquiryAnswers(values, angle);
     assert.equal(answers.phone, values.phone);
-    assert.equal(answers.main_challenge, values.main_challenge);
+    assert.equal(Object.hasOwn(answers, 'main_challenge'), false);
     assert.equal(answers.intent, 'event');
     assert.equal(answers.source_angle, angle);
     assert.deepEqual(Object.keys(answers).sort(), configuration().fields.map(field => field.id).sort());
@@ -53,7 +53,7 @@ test('sends a versioned enquiry with independent consent and reuses its ID after
   assert.equal(posts[0].submissionId, posts[1].submissionId);
   assert.equal(posts[1].revision, 3);
   assert.deepEqual(posts[1].consent, { marketing: false, acknowledgement: true, acknowledgementVersion: CONSENT_VERSION });
-  assert.equal(posts[1].answers.main_challenge, values.main_challenge);
+  assert.equal(Object.hasOwn(posts[1].answers, 'main_challenge'), false);
   assert.equal(posts[1].answers.intent, 'event');
   for (const key of ['tenant_id', 'routing', 'paid', 'campaign_id', 'owner_id']) assert.equal(Object.hasOwn(posts[1], key), false);
 });
@@ -62,7 +62,7 @@ test('refuses a republished revision so draft routing changes cannot alter a rel
 });
 
 test('rejects a duplicate or missing screening field and any option or field-label change', () => {
-  for (const mutate of [c => { c.fields.pop(); }, c => { c.fields[4] = c.fields[0]; }, c => { c.fields.find(f => f.id === 'registration_status').options.push('Rejected'); }, c => { c.fields.find(f => f.id === 'main_challenge').label = 'Changed'; }]) {
+  for (const mutate of [c => { c.fields.pop(); }, c => { c.fields[4] = c.fields[0]; }, c => { c.fields.find(f => f.id === 'source_angle').options.push('other'); }, c => { c.fields.find(f => f.id === 'company_name').label = 'Changed'; }]) {
     const config = configuration(); mutate(config); assert.throws(() => validateCampaignConfiguration(config, configUrl, origin));
   }
 });

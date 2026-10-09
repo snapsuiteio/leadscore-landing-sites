@@ -18,7 +18,7 @@ test('proposed revision 5 contract fixture and integrity-pinned tracker pass pre
 });
 for(const [name,mutate] of [
   ['old revision remains published',c=>{c.revision=3;}],
-  ['old required workflow question remains',c=>{c.fields.find(f=>f.id==='main_challenge').label='Old question';}],
+  ['required business field label changes',c=>{c.fields.find(f=>f.id==='company_name').label='Old question';}],
   ['intent broadens beyond seminar',c=>{c.fields.find(f=>f.id==='intent').options.push('onsite');}],
   ['acknowledgement text changes',c=>{c.consent.acknowledgement.text='Different purpose';}],
   ['revision advances',c=>{c.revision++;}],

@@ -9,7 +9,7 @@ test('seminar-only form keeps the same intake key, free admission, approved medi
   const html=current(path+'index.html');
   const form=s=>s.match(/<form\b[\s\S]*?<\/form>/)[0].replace(' data-clarity-mask="true"','');
   assert.doesNotMatch(form(html),/id="pain"|id="intent"|id="marketingConsent"/);
-  assert.equal((form(html).match(/class="field"/g)||[]).length,11);
+  assert.equal((form(html).match(/class="field"/g)||[]).length,4);
   assert.match(form(html),/requesting a free seat/);
   assert.doesNotMatch(form(html),/US\$249|paid October/);
   const before=JSON.parse(current('test/fixtures/recovery-manifest.json')).pages[0],after=JSON.parse(current('sites/manifest.json')).pages[0];
