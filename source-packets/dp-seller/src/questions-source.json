@@ -1,0 +1,76 @@
+{
+  "source": "Approved five seller questions, October 13, 2026",
+  "questions": [
+    {
+      "id": "property_type",
+      "name": "property_type",
+      "label": "What type of property are you looking to sell?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Single-family home",
+        "2–4 family property",
+        "Multifamily (5+ units)",
+        "Condo / Co-op",
+        "Vacant land",
+        "Other"
+      ]
+    },
+    {
+      "id": "property_condition",
+      "name": "property_condition",
+      "label": "What is the current condition of the property?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Excellent – Move-in ready",
+        "Good – Minor repairs needed",
+        "Fair – Needs some renovations",
+        "Poor – Needs major renovations",
+        "Vacant or distressed"
+      ]
+    },
+    {
+      "id": "selling_timeline",
+      "name": "selling_timeline",
+      "label": "How soon are you looking to sell?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Immediately / Within 30 days",
+        "Within 1–3 months",
+        "Within 3–6 months",
+        "Just exploring my options"
+      ]
+    },
+    {
+      "id": "selling_reason",
+      "name": "selling_reason",
+      "label": "What is your reason for selling?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Relocating / Moving",
+        "Inherited property",
+        "Property needs too many repairs",
+        "Tired of managing tenants",
+        "Financial reasons",
+        "Looking to cash out equity",
+        "Other"
+      ]
+    },
+    {
+      "id": "occupancy_status",
+      "name": "occupancy_status",
+      "label": "Is the property currently occupied?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "Owner-occupied",
+        "Tenant-occupied",
+        "Vacant",
+        "Partially occupied"
+      ]
+    }
+  ]
+}
