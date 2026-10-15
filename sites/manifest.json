@@ -33,6 +33,38 @@
         "styles.css": "43cfb7b1a7f5e6f80a8a88e8ffbd40e3f0a7e39ab18606bc921a053deaa36966",
         "tracking.mjs": "147cb08b645e7fa32c2b24940180e5d1fff3fe262553a18d776dddec4a8647b3"
       }
+    },
+    {
+      "tenantSlug": "dp-value-partners",
+      "pageSlug": "sell-as-is",
+      "sourceCommit": "e98aa1e35ad211574fbf2e5c1c6e578234761ae9",
+      "publicationApproved": true,
+      "rightsCleared": true,
+      "capture": "disabled",
+      "captureDisabledReviewed": true,
+      "files": {
+        "assets/archivo-license.txt": "108b4e57c9c796d3d38d0428ca7ee39de47ad93187302718d9b2d8864b9b716b",
+        "assets/dp-mark.png": "f355058e539164c718e1a6fa5e8e0fa1f821de85608d295128382b7fe0f9152b",
+        "assets/font-01.woff2": "7150c0ec5ad356453013d11affec1fbab95de0dd2dcecb043b4f1cb7f87c4ba4",
+        "assets/font-02.woff2": "7150c0ec5ad356453013d11affec1fbab95de0dd2dcecb043b4f1cb7f87c4ba4",
+        "assets/font-03.woff2": "7150c0ec5ad356453013d11affec1fbab95de0dd2dcecb043b4f1cb7f87c4ba4",
+        "assets/font-04.woff2": "7150c0ec5ad356453013d11affec1fbab95de0dd2dcecb043b4f1cb7f87c4ba4",
+        "assets/font-05.woff2": "33a3280b9c3adb725a9e4199a0ed10403eb0378f334cb6aea066dc2d4ba938a2",
+        "assets/font-06.woff2": "1471d8a9f22ba5c42c597c2dc582030297027d3e4c3b59a55aec81678f80485b",
+        "assets/font-07.woff2": "7dc7dc90fb6e140dcdfbfd85aae2bab1f368a448be129fecb953a8290501cef8",
+        "assets/librecaslontext-license.txt": "a294245c822c5aa9fd9a9f3189418e99415428be5fecadf797793d5d8f6a3ad3",
+        "assets/seller-a01.png": "86ada97a441d39409ae13c426719cb79ee50501a2d7191b67a5c14db79d6466e",
+        "assets/seller-a02.png": "735545ed35c648f4c650441a64d1531df7eeba7e9e1efd25ebaf1cfac05de893",
+        "assets/seller-a03.png": "5f365e025640b0586c304b79c135f3b06dc1b3de2b42e7ec409d82f3ac03ed5d",
+        "assets/seller-a05.png": "58710280cfb99b312f51d48c4185841662273c0570a31b0114f056632683a3af",
+        "capture.mjs": "2795652ddc99d5ae02ed8459e9c1f19aed6b3c4de28efb939d07a568ebe8da35",
+        "contract.mjs": "934d56a4f05d56a341786132d4577bf2c58f62b4118ecfae2503829d2f770226",
+        "fonts.css": "b16bae599fa140284395b82a5b1726cffd8b88d11f6bfd60e963a772cb0829e7",
+        "headless-form-adapter.mjs": "414beafbd6ff8e4866766055364a8b5de786ca7a2771532d3ebf1df75147775b",
+        "index.html": "c4d0a450141f637647fcaacd2d824df0353bd3abd4f88e7abb0d64e61b7536a6",
+        "page.mjs": "ba6bbf8652893b8892dd8c75bc3c7170a83177ad8bbc2c52967832d0d4a87e17",
+        "styles.css": "979065f3b393ef3847a298f7d1f03a9d6ae8e696eac759ca225515e17773779b"
+      }
     }
   ]
 }
