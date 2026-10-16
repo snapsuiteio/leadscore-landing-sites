@@ -45,8 +45,8 @@
       "capture": "enabled",
       "integration": {
         "configUrl": "https://pages.getleadscore.ai/f/Awj77rpAdQLynS9oATCSLGrb/config",
-        "revision": 2,
-        "configurationSha256": "643a3bab4a43ac3f7fb4b34dfbec1095ec755b344cb5fd66f861d5aedf9bbcaa",
+        "revision": 3,
+        "configurationSha256": "f56881e95d0cf554a16f3da5b8587a1d410a980acc64e95a8491da7de4eb74d0",
         "tracking": "consent-required",
         "trackerSha256": "3a15e70855a08be9914397ffa957807807d3923831343d38db13fa9d3048a70e",
         "payments": "disabled",
