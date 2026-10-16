@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "pages": [
+    {
+      "tenantSlug": "snapsuite-antigua",
+      "pageSlug": "antigua",
+      "sourceCommit": "944526b8d5dc66f5b8492535d20f113b89c208e1",
+      "publicationApproved": true,
+      "rightsCleared": true,
+      "captureReviewed": true,
+      "capture": "enabled",
+      "integration": {
+        "configUrl": "https://pages.getleadscore.ai/f/qHMd5uTiUsZdVKLjrrqePyvi/config",
+        "revision": 6,
+        "payments": "disabled",
+        "automatedOutreach": "disabled",
+        "tracking": "consent-required",
+        "staticGoogleTagId": "G-9T3RDM7NKZ",
+        "clarityProjectId": "yu2abnu53o",
+        "trackerSha256": "3a15e70855a08be9914397ffa957807807d3923831343d38db13fa9d3048a70e",
+        "configurationSha256": "76fac290e823dd9f31c7fd6c4e7b266f019a35df8b011c9d8cf64beafe9a28a1"
+      },
+      "files": {
+        "assets/antigua-seminar-invite.mp4": "30cf8227966212d4049f3b5906bb1ea2dde6c569ce366ae722f096f166423529",
+        "assets/antigua-seminar-poster.jpg": "d5aad15f1d4e19ecc35e07cdf35056d9c2d6063f42e0969f49fdf1b914ab87cc",
+        "assets/dwain-browne.JPG": "9f86d825ceb98ca0f06907e94e69703f9351cbfe0ca35358d732612a23e49c17",
+        "assets/flag.svg": "8a2341f680ac7486a110fd7fcebd46c8b51dedec97a8c1f38d4c3de6939e385f",
+        "assets/seminar-preview.png": "3336d381e3c9fd99434f551eea101d34dac00d4de30ef5ac3454dc1feb816133",
+        "assets/trade-winds-hotel-exterior.jpg": "abd7002d966f76cbb4ebcae56a39ff65487119c842507cbeac0477d5c314cf8f",
+        "campaign.mjs": "497d068ce7b8ed6b10a5de2e5626205cd21f1fbe37ada1399f6bc47a6df0bbeb",
+        "index.html": "0e0ce243bfd80425e05b66d8853972ee8f98aa8b1ec128baefd8a2ad56ec266c",
+        "native-player.mjs": "19f53fcedea61cc247aaa7fbcab93c2bb15b37cfcdb34eafac761cb79b43e213",
+        "page.mjs": "b84f5a68f0c610d491f358633a7fe0d40b8b732b9d89391e19343db477d443f4",
+        "styles.css": "43cfb7b1a7f5e6f80a8a88e8ffbd40e3f0a7e39ab18606bc921a053deaa36966",
+        "tracking.mjs": "147cb08b645e7fa32c2b24940180e5d1fff3fe262553a18d776dddec4a8647b3"
+      }
+    },
+    {
+      "tenantSlug": "dp-value-partners",
+      "pageSlug": "sell-as-is",
+      "sourceCommit": "d717c4c7032c07732afefaede9a4a2a36a50e644",
+      "publicationApproved": true,
+      "rightsCleared": true,
+      "captureReviewed": true,
+      "capture": "enabled",
+      "integration": {
+        "configUrl": "https://pages.getleadscore.ai/f/Awj77rpAdQLynS9oATCSLGrb/config",
+        "revision": 2,
+        "configurationSha256": "643a3bab4a43ac3f7fb4b34dfbec1095ec755b344cb5fd66f861d5aedf9bbcaa",
+        "tracking": "consent-required",
+        "trackerSha256": "3a15e70855a08be9914397ffa957807807d3923831343d38db13fa9d3048a70e",
+        "payments": "disabled",
+        "automatedOutreach": "disabled"
+      },
+      "files": {
+        "index.html": "4d6352d9610f7701150c0fe78c676e833d4442ab5689bedc459596ee2ef184c2",
+        "headless-form-adapter.mjs": "414beafbd6ff8e4866766055364a8b5de786ca7a2771532d3ebf1df75147775b",
+        "field-mapping.mjs": "7498283cc08af1a0168e5b46117026aed34296e101b276c2516ccbec923ff388",
+        "styles.css": "979065f3b393ef3847a298f7d1f03a9d6ae8e696eac759ca225515e17773779b",
+        "capture.mjs": "78b0c8b90b3b779f12c47b6031d94bb2409c5aef725193923b665ece2fa34075",
+        "page.mjs": "e0740b3e827f7f01e46b965b05598ba751e3e5ee16d2a6f1da319854de34e6cf",
+        "contract.mjs": "4a2d8e987334ca81b10a54219f0df782cc9b8cecb397debca66cd01cf8970e95",
+        "fonts.css": "b16bae599fa140284395b82a5b1726cffd8b88d11f6bfd60e963a772cb0829e7",
+        "tracking.mjs": "83a6ac13ecfbe6d3dc817b033282def19844972ba8ee19d684b9df954773fc26",
+        "assets/font-04.woff2": "7150c0ec5ad356453013d11affec1fbab95de0dd2dcecb043b4f1cb7f87c4ba4",
+        "assets/font-06.woff2": "1471d8a9f22ba5c42c597c2dc582030297027d3e4c3b59a55aec81678f80485b",
+        "assets/font-02.woff2": "7150c0ec5ad356453013d11affec1fbab95de0dd2dcecb043b4f1cb7f87c4ba4",
+        "assets/archivo-license.txt": "1778201b7bd33e8c08a2eda32a4ad2f69bc38ced9731b01cc3fc47f268c8ef3c",
+        "assets/font-07.woff2": "7dc7dc90fb6e140dcdfbfd85aae2bab1f368a448be129fecb953a8290501cef8",
+        "assets/dp-mark.png": "f355058e539164c718e1a6fa5e8e0fa1f821de85608d295128382b7fe0f9152b",
+        "assets/font-05.woff2": "33a3280b9c3adb725a9e4199a0ed10403eb0378f334cb6aea066dc2d4ba938a2",
+        "assets/font-01.woff2": "7150c0ec5ad356453013d11affec1fbab95de0dd2dcecb043b4f1cb7f87c4ba4",
+        "assets/font-03.woff2": "7150c0ec5ad356453013d11affec1fbab95de0dd2dcecb043b4f1cb7f87c4ba4",
+        "assets/librecaslontext-license.txt": "92483eac22aa610aeb83ee246c22a1040f8ce4bdd7e68273fd89a2b06ba04338",
+        "assets/seller-a05.png": "58710280cfb99b312f51d48c4185841662273c0570a31b0114f056632683a3af",
+        "assets/seller-a01.png": "86ada97a441d39409ae13c426719cb79ee50501a2d7191b67a5c14db79d6466e",
+        "assets/seller-a03.png": "5f365e025640b0586c304b79c135f3b06dc1b3de2b42e7ec409d82f3ac03ed5d",
+        "assets/seller-a02.png": "735545ed35c648f4c650441a64d1531df7eeba7e9e1efd25ebaf1cfac05de893"
+      }
+    }
+  ]
+}
