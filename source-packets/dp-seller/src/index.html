@@ -18,7 +18,7 @@
   <p class="preview-notice" id="preview-notice">Preview · No information is sent or saved.</p>
   <header class="site-header wrap">
     <a class="brand" href="#main" aria-label="DP Value Partners home"><img src="./assets/dp-mark.png" width="44" height="41" alt=""><span>DP VALUE<br>PARTNERS</span></a>
-    <nav aria-label="Main navigation"><a href="#process">How it works</a><a href="#questions">Questions</a><a class="nav-cta" href="#property">Tell us about your property <span aria-hidden="true">↗</span></a></nav>
+    <nav aria-label="Main navigation"><a href="#process">How it works</a><a href="#questions">Questions</a><a class="nav-cta" href="#property" data-leadscore-cta>Tell us about your property <span aria-hidden="true">↗</span></a></nav>
   </header>
   <main id="main">
     <section class="hero wrap" aria-labelledby="hero-title">
@@ -27,7 +27,7 @@
         <h1 id="hero-title">Owned it for years.<br>Ready for what’s next?</h1>
         <p class="hero-support">Selling as-is.<br><em>A no-obligation offer.</em></p>
         <p id="hero-lead" class="hero-lead">A property can hold years of memories—and a growing list of things to fix. Start with a conversation about the building as it stands today.</p>
-        <a class="button" href="#property">Get a no-obligation offer <span aria-hidden="true">↗</span></a>
+        <a class="button" href="#property" data-leadscore-cta>Get a no-obligation offer <span aria-hidden="true">↗</span></a>
         <p class="cta-note">Start with your property details. No commitment to sell.</p>
       </div>
       <figure class="hero-figure">
@@ -47,11 +47,12 @@
     <section id="property" class="property-section" aria-labelledby="property-title">
       <div class="wrap property-layout">
         <aside class="form-intro"><p class="eyebrow">Your next step</p><h2 id="property-title">Tell us about<br><em>your property.</em></h2><p>You can start with what you know today. A few property details help DP Value Partners understand your situation and priorities.</p><div class="form-boundary"><span class="small-rule"></span><p>A request starts a conversation.<br>It does not guarantee an offer or a sale.</p></div></aside>
-        <form id="property-form" novalidate aria-describedby="form-introduction" data-clarity-mask="true">
-          <div class="form-heading"><p class="eyebrow">Property request</p><p id="form-introduction">Five property questions, plus the details needed to contact you.</p></div>
+        <form id="property-form" data-leadscore-form novalidate aria-describedby="form-introduction" data-clarity-mask="true">
+          <div class="form-heading"><p class="eyebrow">Property request</p><p id="form-introduction">A few property questions, plus the details needed to contact you.</p></div>
           <div id="error-summary" class="error-summary" role="alert" tabindex="-1" hidden></div>
           <div class="form-row"><div class="field"><label for="full_name">Full name</label><input id="full_name" name="full_name" autocomplete="name" maxlength="150" required aria-describedby="full_name-error"><span id="full_name-error" class="field-error"></span></div><div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" maxlength="150" required aria-describedby="email-error"><span id="email-error" class="field-error"></span></div></div>
           <div class="form-row"><div class="field"><label for="phone">Phone number</label><input id="phone" name="phone" type="tel" autocomplete="tel" maxlength="40" required aria-describedby="phone-help phone-error"><small id="phone-help">Providing a number does not enroll you in SMS marketing.</small><span id="phone-error" class="field-error"></span></div><div class="field"><label for="property_address">Property address, city and state</label><input id="property_address" name="property_address" autocomplete="street-address" maxlength="500" required aria-describedby="property_address-error"><span id="property_address-error" class="field-error"></span></div></div>
+          <div class="field question"><label for="borough">Which New York City borough is the property located in?</label><select id="borough" name="borough" required aria-describedby="borough-error"><option value="">Choose one</option><option>Brooklyn</option><option>Manhattan</option><option>Queens</option><option>The Bronx</option><option>Staten Island</option><option>Outside New York City</option></select><span id="borough-error" class="field-error"></span></div>
           <div class="property-questions">
         <div class="field question"><label for="property_type"><span class="question-number">01</span>What type of property are you looking to sell?</label><select id="property_type" name="property_type" required aria-describedby="property_type-error"><option value="">Choose one</option><option>Single-family home</option><option>2–4 family property</option><option>Multifamily (5+ units)</option><option>Condo / Co-op</option><option>Vacant land</option><option>Other</option></select><span id="property_type-error" class="field-error"></span></div>
         <div class="field question"><label for="property_condition"><span class="question-number">02</span>What is the current condition of the property?</label><select id="property_condition" name="property_condition" required aria-describedby="property_condition-error"><option value="">Choose one</option><option>Excellent – Move-in ready</option><option>Good – Minor repairs needed</option><option>Fair – Needs some renovations</option><option>Poor – Needs major renovations</option><option>Vacant or distressed</option></select><span id="property_condition-error" class="field-error"></span></div>
@@ -78,10 +79,11 @@
         <details><summary>Does sending the form mean I have agreed to sell?</summary><p>No. It is a request to discuss the property. An offer is not guaranteed, and no sale is agreed by submitting the form.</p></details>
       </div>
     </section>
-    <section class="closing"><div class="wrap"><div><p class="eyebrow">A clearer first step</p><h2>Start with the property.<br><em>We can talk about the rest.</em></h2></div><a class="button light" href="#property">Tell us about your property <span aria-hidden="true">↗</span></a></div></section>
+    <section class="closing"><div class="wrap"><div><p class="eyebrow">A clearer first step</p><h2>Start with the property.<br><em>We can talk about the rest.</em></h2></div><a class="button light" href="#property" data-leadscore-cta>Tell us about your property <span aria-hidden="true">↗</span></a></div></section>
   </main>
   <footer class="wrap footer"><a class="brand" href="#main"><img src="./assets/dp-mark.png" width="36" height="34" alt=""><span>DP VALUE<br>PARTNERS</span></a><p>Property conversations. Selling as-is.<br>No-obligation offer.</p><a href="#privacy">Privacy notice</a></footer>
-  <section id="privacy" class="privacy-section wrap" aria-labelledby="privacy-title"><h2 id="privacy-title">About your information</h2><p>This form asks for contact details and answers about the property you want to discuss. DP Value Partners uses that information to respond to your request. The planned request flow is processed through LeadScore. Submitting does not enroll you in marketing communications or authorize automated SMS messages. This page uses no optional analytics or advertising trackers.</p><p class="privacy-preview">In this preview, entries stay in the page’s memory and are cleared on reload. Nothing is sent or saved.</p></section>
+  <section id="privacy" class="privacy-section wrap" aria-labelledby="privacy-title"><h2 id="privacy-title">About your information</h2><p>This form asks for contact details and answers about the property you want to discuss. DP Value Partners uses that information to respond to your request. The planned request flow is processed through LeadScore. Submitting does not enroll you in marketing communications or authorize automated SMS messages. Optional analytics and advertising measurements load only with your permission. You can change your choices below. Your enquiry can be sent without enabling either option.</p><p class="privacy-preview">In this preview, entries stay in the page’s memory and are cleared on reload. Nothing is sent or saved.</p></section>
+  <section class="wrap privacy-section" id="tracking-choices" hidden><details><summary>Privacy choices</summary><p>Choose whether this website can measure visits and advertising results. These choices do not enroll you in email or SMS marketing.</p><label><input type="checkbox" id="tracking-analytics"> Allow analytics</label> <label><input type="checkbox" id="tracking-marketing"> Allow advertising measurement</label><p><button type="button" id="tracking-save">Save choices</button> <button type="button" id="tracking-decline">Use necessary only</button></p><p id="tracking-note" role="status"></p></details></section>
   <div class="angle-review wrap"><span>Explore the four openings</span><a href="?angle=A01" data-angle="A01" aria-current="page">Owned for years</a><a href="?angle=A02" data-angle="A02">Inherited property</a><a href="?angle=A03" data-angle="A03">Repair burden</a><a href="?angle=A05" data-angle="A05">Where to start</a></div>
 </body>
 </html>

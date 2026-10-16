@@ -10,14 +10,14 @@ function opening() {
   byId('hero-photo').dataset.creative=angle;
   byId('image-disclosure').textContent=current.caption+' The pictured property is not presented as a DP Value Partners acquisition or listing.';
   document.querySelectorAll('[data-angle]').forEach(link=>{
-    const url=new URL(location.href);url.searchParams.set('angle',link.dataset.angle);url.hash='';link.href=url.pathname+url.search;
+    const url=new URL(location.href);url.searchParams.set('angle',link.dataset.angle.toLowerCase());url.hash='';link.href=url.pathname+url.search;
     if(link.dataset.angle===angle)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');
   });
 }
 opening();
 document.querySelectorAll('[data-angle]').forEach(link=>link.addEventListener('click',event=>{
   if(event.button||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
-  event.preventDefault();history.pushState(null,'',link.href);angle=link.dataset.angle;opening();
+  event.preventDefault();history.pushState(null,'',link.href);angle=link.dataset.angle;opening();window.LeadScoreTracker?.track('page_viewed');
 }));
 window.addEventListener('popstate',()=>{angle=angleFromUrl(location.href);opening();});
 const form=byId('property-form'),status=byId('form-status'),summary=byId('error-summary'),button=byId('request-submit');

@@ -25,14 +25,15 @@ async function listFiles(root, prefix = '') {
   return result.sort();
 }
 
-export async function build(root, { publicCommit = process.env.PUBLIC_HOST_COMMIT } = {}) {
+export async function build(root, { publicCommit = process.env.PUBLIC_HOST_COMMIT, exportSet = process.env.PUBLIC_EXPORT_SET || 'staged' } = {}) {
   root = await realpath(root);
-  const manifest = JSON.parse(await readFile(path.join(root, 'sites/manifest.json'), 'utf8'));
+  requireThat(['staged','release'].includes(exportSet), 'Unknown export set');
+  const manifest = JSON.parse(await readFile(path.join(root, exportSet === 'release' ? 'sites/release-manifest.json' : 'sites/manifest.json'), 'utf8'));
   requireThat(manifest.version === 1 && Array.isArray(manifest.pages), 'Invalid manifest');
   requireThat(manifest.pages.length > 0, 'No approved page exports; publication blocked');
   requireThat(/^[a-f0-9]{40}$/.test(publicCommit || ''), 'Exact public hosting commit required');
   const routes = new Set();
-  const exportsPath = path.join(root, 'sites/exports');
+  const exportsPath = path.join(root, exportSet === 'release' ? 'sites/releases' : 'sites/exports');
   const exportsRoot = await realpath(exportsPath);
   requireThat(exportsRoot === exportsPath && !(await lstat(exportsPath)).isSymbolicLink(), 'Export root symlink rejected');
   const packages = [];
@@ -94,7 +95,7 @@ export async function build(root, { publicCommit = process.env.PUBLIC_HOST_COMMI
       await mkdir(path.dirname(destination), { recursive: true });
       await writeFile(destination, bytes);
     }
-    const headers = "/*\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n" + packages.map(({ page, route }) => `${route}*\n  Content-Security-Policy: default-src 'self'; script-src 'self'${page.integration?.tracking === 'consent-required' ? ' https://pages.getleadscore.ai https://www.googletagmanager.com https://connect.facebook.net https://www.clarity.ms https://scripts.clarity.ms' : ''}; style-src 'self' 'unsafe-inline'; img-src 'self' data:${page.integration?.tracking === 'consent-required' ? ' https://www.facebook.com https://*.google-analytics.com https://*.clarity.ms https://c.bing.com' : ''}; font-src 'self'; media-src 'self'${Object.keys(page.files).some(name => /\.(mp4|webm)$/.test(name)) ? ' blob:' : ''}; frame-src https://www.youtube.com https://www.youtube-nocookie.com${page.capture === 'enabled' ? ' https://pages.getleadscore.ai' : ''}; connect-src ${page.capture === 'enabled' ? "'self' https://pages.getleadscore.ai" : "'none'"}${page.integration?.tracking === 'consent-required' ? ' https://*.google-analytics.com https://*.analytics.google.com https://www.facebook.com https://*.clarity.ms https://c.bing.com' : ''}; form-action 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'\n`).join('');
+    const headers = "/*\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n" + packages.map(({ page, route }) => `${route}*\n  Content-Security-Policy: default-src 'self'; script-src 'self'${page.integration?.tracking === 'consent-required' ? ' https://pages.getleadscore.ai https://www.googletagmanager.com https://connect.facebook.net https://www.clarity.ms https://scripts.clarity.ms https://*.clarity.ms' : ''}; style-src 'self' 'unsafe-inline'; img-src 'self' data:${page.integration?.tracking === 'consent-required' ? ' https://www.googletagmanager.com https://www.facebook.com https://*.google-analytics.com https://*.clarity.ms https://c.bing.com' : ''}; font-src 'self'; media-src 'self'${Object.keys(page.files).some(name => /\.(mp4|webm)$/.test(name)) ? ' blob:' : ''}; frame-src https://www.youtube.com https://www.youtube-nocookie.com${page.capture === 'enabled' ? ' https://pages.getleadscore.ai' : ''}; connect-src ${page.capture === 'enabled' ? "'self' https://pages.getleadscore.ai" : "'none'"}${page.integration?.tracking === 'consent-required' ? ' https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://*.google.com https://www.facebook.com https://*.clarity.ms https://c.bing.com' : ''}; form-action 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'\n`).join('');
     await writeFile(path.join(staging, '_headers'), headers);
     const capture = packages.every(({ page }) => page.capture === 'disabled') ? 'disabled' : packages.every(({ page }) => page.capture === 'enabled') ? 'enabled' : 'mixed';
     await writeFile(path.join(staging, 'release.json'), JSON.stringify({ publicCommit, capture, pages: packages.map(({ page, route }) => ({ route, sourceCommit: page.sourceCommit, capture: page.capture, ...(page.integration ? { integration: page.integration } : {}), files: page.files })) }, null, 2) + '\n');

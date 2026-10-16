@@ -83,7 +83,8 @@ export const CONTACT_FIELDS = [
   {id:'phone',name:'phone',label:'Phone number',type:'phone',required:true},
   {id:'property_address',name:'property_address',label:'Property address, city and state',type:'text',required:true},
 ];
-export const FIELDS = [...CONTACT_FIELDS,...QUALIFICATION_QUESTIONS,
+export const BOROUGH_FIELD = {id:'borough',name:'borough',label:'Which New York City borough is the property located in?',type:'select',required:true,options:['Brooklyn','Manhattan','Queens','The Bronx','Staten Island','Outside New York City']};
+export const FIELDS = [...CONTACT_FIELDS,...QUALIFICATION_QUESTIONS,BOROUGH_FIELD,
   {id:'intent',name:'intent',label:'Request type',type:'select',required:true,options:['seller_enquiry']},
   {id:'source_angle',name:'source_angle',label:'Seller page opening',type:'select',required:true,options:Object.keys(ANGLES)}];
 export const ACKNOWLEDGEMENT_VERSION = 'dp-seller-request-2026-10-14-v1';
@@ -103,7 +104,7 @@ export function boundedAttribution(url,now=()=>new Date().toISOString()) {
 export function validateSeller(values,angle) {
   const errors={},answers={intent:'seller_enquiry',source_angle:angle};
   if(!Object.hasOwn(ANGLES,angle)) errors.source_angle='Choose a supported seller page.';
-  for(const field of [...CONTACT_FIELDS,...QUALIFICATION_QUESTIONS]) {
+  for(const field of [...CONTACT_FIELDS,...QUALIFICATION_QUESTIONS,BOROUGH_FIELD]) {
     const value=typeof values[field.name]==='string' ? values[field.name].trim() : '';
     if(!value) errors[field.name]=field.type==='select'?'Choose an answer.':'Enter '+field.label.toLowerCase()+'.';
     else if(value.length>(field.id==='property_address'?500:150)) errors[field.name]='Please shorten this answer.';

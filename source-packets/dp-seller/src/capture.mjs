@@ -1,21 +1,24 @@
-import {FIELDS,ACKNOWLEDGEMENT_TEXT,ACKNOWLEDGEMENT_VERSION,MARKETING_NOTICE,SUCCESS_MESSAGE} from './contract.mjs';
+import {CONTACT_FIELDS,QUALIFICATION_QUESTIONS,BOROUGH_FIELD,ACKNOWLEDGEMENT_TEXT,ACKNOWLEDGEMENT_VERSION,MARKETING_NOTICE,SUCCESS_MESSAGE} from './contract.mjs';
 import {createHeadlessClient,connectTurnstileBridge,validateIntegration} from './headless-form-adapter.mjs';
+import {connectTracking} from './tracking.mjs';
+import {validateFieldMapping,mapAnswers} from './field-mapping.mjs';
+export const SELLER_FIELD_MAP = {work_email:'email',property_type:'what_type_of_property_are_you_looking_to',property_condition:'what_is_the_current_condition_of_the_pro',selling_timeline:'how_soon_are_you_looking_to_sell',selling_reason:'what_is_your_reason_for_selling',occupancy_status:'is_the_property_currently_occupied',borough:'which_new_york_city_borough_is_the_prope'};
+const publishedFields = [{id:'first_name',type:'text'},{id:'last_name',type:'text'},...CONTACT_FIELDS.filter(f=>f.id!=='full_name'),...QUALIFICATION_QUESTIONS,BOROUGH_FIELD];
+export function sellerAnswers(answers) {
+  const {full_name,intent,source_angle,...fields}=answers;
+  const [first_name,...last] = String(full_name || '').trim().split(/\s+/);
+  return mapAnswers({...fields,first_name,last_name:last.join(' ')},SELLER_FIELD_MAP);
+}
 export function validateSellerConfiguration(config,{configUrl,pageId,revision,origin}) {
   validateIntegration(config);
-  if(config.configUrl!==configUrl||config.pageId!==pageId||config.revision!==revision||
-    JSON.stringify(config.allowedOrigins)!==JSON.stringify([origin])) throw Error('This seller form is not configured for this website.');
+  if(config.configUrl!==configUrl||config.pageId!==pageId||config.revision<revision||
+    !config.allowedOrigins.includes(origin)) throw Error('This seller form is not configured for this website.');
   if(config.consent.marketing.required!==false||config.consent.marketing.text!==MARKETING_NOTICE||
     config.consent.acknowledgement?.required!==true||config.consent.acknowledgement.version!==ACKNOWLEDGEMENT_VERSION||
     config.consent.acknowledgement.text!==ACKNOWLEDGEMENT_TEXT) throw Error('The seller request wording has changed.');
-  if(config.fields.length!==FIELDS.length||new Set(config.fields.map(f=>f.id)).size!==FIELDS.length) throw Error('The seller questions have changed.');
-  for(const {name,...expected} of FIELDS) {
-    const field=config.fields.find(f=>f.id===expected.id);
-    if(!field||field.type!==expected.type||field.label!==expected.label||field.required!==expected.required||
-      JSON.stringify(field.options)!==JSON.stringify(expected.options)) throw Error('The seller questions have changed.');
-  }
-  if(!config.spam.turnstile.required||config.tracking.consentRequired!==true||
-    Object.entries(config.tracking.providers).some(([key,value])=>key!=='consentMode'&&!!value))
-    throw Error('Seller security or optional tracking settings are not approved.');
+  validateFieldMapping(config,publishedFields,SELLER_FIELD_MAP);
+  if(!config.spam.turnstile.required||config.tracking.consentRequired!==true)
+    throw Error('The form security and tracking consent controls must stay enabled.');
   return config;
 }
 export async function loadSellerCapture(form,fetcher=fetch) {
@@ -29,16 +32,21 @@ export async function loadSellerCapture(form,fetcher=fetch) {
   if(!response.ok||body.success!==true)throw Error('The seller request form is unavailable. Please try again later.');
   const config=validateSellerConfiguration(body.resources,{configUrl,pageId:form.dataset.pageId,
     revision:Number(form.dataset.configRevision),origin:location.origin});
+  // Optional statistics never prevent a property enquiry.
+  void connectTracking({...config,trackerIntegrity:form.dataset.trackerIntegrity}).catch(error=>{
+    const note=document.getElementById('tracking-note');if(note)note.textContent=error.message;
+  });
   const client=createHeadlessClient(config,{fetch:fetcher,storage:null});
   const frame=document.createElement('iframe');frame.title='Property request security check';frame.className='security-check';
   form.querySelector('#request-submit').before(frame);
   const bridge=connectTurnstileBridge(frame,config);
   return {async submit(answers,attribution) {
     try {
-      const result=await client.submit({answers,marketing:false,acknowledgement:true,
+      const result=await client.submit({answers:sellerAnswers(answers),marketing:false,acknowledgement:true,
         acknowledgementVersion:ACKNOWLEDGEMENT_VERSION,website:form.elements.namedItem('website')?.value||'',
-        turnstileToken:bridge.getToken(),attribution:{first:attribution,latest:attribution}});
+        turnstileToken:bridge.getToken(),attribution:{first:{...attribution,source_angle:answers.source_angle.toLowerCase()},latest:{...attribution,source_angle:answers.source_angle.toLowerCase()}}});
       if(!result?.id)throw Error('Your request could not be verified as saved. Please retry this same request.');
+      client.reset();
       return {id:result.id,message:SUCCESS_MESSAGE};
     }finally{bridge.reset();}
   }};

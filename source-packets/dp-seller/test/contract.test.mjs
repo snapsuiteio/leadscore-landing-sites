@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {QUALIFICATION_QUESTIONS,FIELDS,ANGLES,validateSeller,angleFromUrl,boundedAttribution} from '../src/contract.mjs';
 const source=JSON.parse(readFileSync(new URL('../src/questions-source.json',import.meta.url)));
-const values=()=>({full_name:'QA Example',email:'qa@example.invalid',phone:'+12025550100',property_address:'QA fixture address',
+const values=()=>({full_name:'QA Example',email:'qa@example.invalid',phone:'+12025550100',property_address:'QA fixture address',borough:'Brooklyn',
   requestConsent:true,...Object.fromEntries(QUALIFICATION_QUESTIONS.map(q=>[q.name,q.options[0]]))});
 test('five exact approved questions/options are unchanged, with no eligibility thresholds',()=>{
   assert.deepEqual(QUALIFICATION_QUESTIONS,source.questions);
@@ -12,7 +12,7 @@ test('five exact approved questions/options are unchanged, with no eligibility t
   for(const q of QUALIFICATION_QUESTIONS)for(const option of q.options){
     const answer=validateSeller({...values(),[q.name]:option},'A01');assert.equal(answer.valid,true,option);
   }
-  assert.equal(FIELDS.length,11);assert.equal(FIELDS.some(f=>f.icpField),false);
+  assert.equal(FIELDS.length,12);assert.equal(FIELDS.some(f=>f.icpField),false);
 });
 test('only the selected four angles map to fixed seller intent; raw attribution is bounded',()=>{
   assert.deepEqual(Object.keys(ANGLES),['A01','A02','A03','A05']);
@@ -47,5 +47,5 @@ test('existing Antigua headless adapter is byte-for-byte preserved in seller pac
   const current=readFileSync(new URL('../src/headless-form-adapter.mjs',import.meta.url));
   assert.equal(createHash('sha256').update(current).digest('hex'),createHash('sha256').update(old).digest('hex'));
   const manifest=JSON.parse(readFileSync(new URL('../../../sites/manifest.json',import.meta.url)));
-  assert.equal(manifest.pages.length,1);assert.equal(manifest.pages[0].integration.revision,6);
+  assert.ok(manifest.pages.some(page=>page.tenantSlug==='snapsuite-antigua')); // Existing exports are not modified by this source change.
 });

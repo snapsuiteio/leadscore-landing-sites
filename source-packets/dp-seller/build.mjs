@@ -12,27 +12,22 @@ assert.equal(Boolean(configFile),Boolean(reviewFile),'Both actual published inte
 let html=readFileSync(join(source,'index.html'),'utf8'),capture='disabled';
 assert.ok(html.includes('data-leadscore-capture="disabled"')&&!/<form[^>]+action=/i.test(html));
 if(configFile){
-  const config=JSON.parse(readFileSync(resolve(configFile),'utf8')),review=JSON.parse(readFileSync(resolve(reviewFile),'utf8'));
-  assert.equal(review.tenantId,'de6b781c-e755-4a99-b841-ae5222325993');
-  assert.equal(review.destinationKind,'seller');assert.equal(review.routingVerified,true);
-  assert.equal(review.automatedOutreach,'disabled');assert.equal(review.actualPublishedRevision,config.revision);
-  assert.equal(review.pageId,config.pageId);
-  assert.equal(review.privatePublishedPage?.tenantId,review.tenantId);
-  assert.equal(review.privatePublishedPage?.id,config.pageId);
-  assert.equal(review.privatePublishedPage?.listId,review.listId);
-  assert.equal(review.privatePublishedPage?.publishedRevision,config.revision);
-  assert.equal(review.publicConfigurationSha256,createHash('sha256').update(JSON.stringify(config)).digest('hex'));
-  assert.ok(review.listId&&review.leadStage&&review.leadStatus&&Array.isArray(review.tags));
-  assert.equal(review.privatePublishedConfig?.routing?.triggerPlaybooks,false);
-  assert.equal(review.privatePublishedConfig?.routing?.leadStage,review.leadStage);
-  assert.equal(review.privatePublishedConfig?.routing?.leadStatus,review.leadStatus);
-  assert.equal(review.privatePublishedConfig?.routing?.pipelineType,review.pipelineType);
-  assert.deepEqual(review.privatePublishedConfig?.routing?.tags,review.tags);
-  assert.ok(!review.privatePublishedConfig?.hostedCheckout&&!review.privatePublishedConfig?.agreement&&!review.privatePublishedConfig?.webinar);
+  const exported=JSON.parse(readFileSync(resolve(configFile),'utf8'));
+  const config=exported.resources || exported,review=JSON.parse(readFileSync(resolve(reviewFile),'utf8'));
+  // Read the authenticated inspection result; never put its routing data in the export.
+  assert.equal(review.routingReview?.tenantId,review.page?.tenantId);
+  assert.ok(review.page?.tenantId && review.routingReview?.ownerId);
+  assert.equal(review.page?.templateId,'external-form');assert.equal(review.page?.status,'published');
+  assert.equal(review.page?.id,config.pageId);
+  assert.equal(review.page?.publishedRevision,config.revision);
+  assert.deepEqual(review.configuration,config,'Review must describe the exact published public contract');
+  assert.equal(review.routingReview.triggerPlaybooks,false);
+  assert.ok(Array.isArray(review.routingReview.tags));
   validateSellerConfiguration(config,{configUrl:config.configUrl,pageId:config.pageId,revision:config.revision,origin});
+  assert.match(process.env.LEADSCORE_TRACKER_INTEGRITY || '',/^sha256-[A-Za-z0-9+/]{43}=$/,'Reviewed tracker integrity is required');
   capture='enabled';
   html=html.replace('data-leadscore-capture="disabled"','data-leadscore-capture="enabled"')
-    .replace('<form id="property-form"',`<form id="property-form" data-config-url="${config.configUrl}" data-config-revision="${config.revision}" data-page-id="${config.pageId}"`)
+    .replace('<form id="property-form"',`<form id="property-form" data-config-url="${config.configUrl}" data-config-revision="${config.revision}" data-page-id="${config.pageId}" data-tracker-integrity="${process.env.LEADSCORE_TRACKER_INTEGRITY || ''}"`)
     .replace('<p class="preview-notice" id="preview-notice">Preview · No information is sent or saved.</p>','')
     .replace('Check details — preview only','Send my property request')
     .replace('<p class="preview-form-note">Preview: nothing is submitted or saved.</p>','')
@@ -45,7 +40,7 @@ for(const file of readdirSync(source))if(file!=='index.html'&&file!=='questions-
 writeFileSync(join(output,'index.html'),html);
 writeFileSync(join(output,'packet-receipt.json'),JSON.stringify({capture,publicRoute,origin,
   intake:'Existing LeadScore headless external-form adapter; no investor portal endpoint',
-  realCapture:'Not exercised by this build',optionalTracking:'none',payments:'none',automatedOutreach:'disabled',
+  realCapture:'Not exercised by this build',optionalTracking:capture==='enabled'?'consent-required':'none',payments:'none',automatedOutreach:'disabled',
   publication:'Not registered or deployed by this build'},null,2)+'\n');
 if(capture==='disabled'){
   // A reviewable offline HTML preview with inline CSS/JS. It never loads capture code.
