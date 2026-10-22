@@ -35,7 +35,7 @@
     {
       "tenantSlug": "snapsuite-antigua",
       "pageSlug": "antigua-next-step",
-      "sourceCommit": "d60ab604996326a8384885540fe1ef4f080ed737",
+      "sourceCommit": "178515396d3a4ea37d2343c0a1f83104526e4da5",
       "publicationApproved": true,
       "rightsCleared": true,
       "captureDisabledReviewed": true,
@@ -44,15 +44,15 @@
         "assets/dwain-browne.JPG": "9f86d825ceb98ca0f06907e94e69703f9351cbfe0ca35358d732612a23e49c17",
         "assets/flag.svg": "8a2341f680ac7486a110fd7fcebd46c8b51dedec97a8c1f38d4c3de6939e385f",
         "connection.mjs": "fd6c3e04169a093696e4e8c9f93897cd4bf01cb7fa141e25500cfcf7326792c7",
-        "index.html": "82cce239128817f38ff0e512e9d8836f726b6c33e0a4fe9d9df86cc199d7d98c",
-        "journey.mjs": "4dfef6e6c93d87adf4aeffb8c60907160b1f60bd8668f2a2d31e1bbfa85ed458",
+        "index.html": "f2dbc2c8204ceaf7afd093f34f150c28d62f821ae6667e0912cf5baea4daaef5",
+        "journey.mjs": "44721bbd85aa89bf3762c148d80bd7ddf7d0cfca10819fe989906bd5ed1851a5",
         "native-offers.mjs": "55f525e2e3df6cda33c2e23169edf4bd9369446fde3949619fa950ae859bc145",
         "resources/job-to-invoice.txt": "785db92be208db301e741f6b183d8bbaf0e235bb9a8b91156eb1f7a590c5dd90",
         "resources/practical-ai.txt": "03194ab5d1cd65696fdc1ba00d842776a0ed35d87892dad84c8b032f4269326d",
         "robots.txt": "331ea9090db0c9f6f597bd9840fd5b171830f6e0b3ba1cb24dfa91f0c95aedc1",
         "submission.mjs": "317e565dbaa4a1bbb69c743ef92d69fd3dd4ff77831f0db7fbc606873eebc70c",
-        "wizard.css": "f438587da7a7518403b1a6eb342d223d8ec127c47270db047a11ab4aa3308d8d",
-        "wizard.mjs": "134076d30a57d96e8392c9562985ef041f9d33d31b5dff0fa252b1e35d61d2e3"
+        "wizard.css": "4b038a1f3aec45e7bf3127969d84062192815be5b4ec89cc03d5430aa07f5b68",
+        "wizard.mjs": "ba7d774466be8bb219c4629c4c32e36ae44c890aee66c8c779c02acd0f6a9ab1"
       },
       "videoProvider": "loom"
     }
