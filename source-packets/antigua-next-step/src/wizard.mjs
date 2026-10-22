@@ -1,18 +1,28 @@
-import { EMPLOYEES, SIZES, OFFERS, SEMINAR, FREE, sizePath, profileAnswers, nextAfterProfile, offer, seatSalesOpen, SEAT_SALES_CLOSE_AT, SEMINAR_ENDS_AT } from './journey.mjs';
+import { EMPLOYEES, SIZES, ORGANIZATION, OFFERS, SEMINAR, FREE, TRACKS, track, sizePath, profileAnswers, nextAfterProfile, offer, seatSalesOpen, seatOffered, SEAT_SALES_CLOSE_AT, SEMINAR_ENDS_AT } from './journey.mjs';
 import { initialAnswer, choiceField, isEmailField, formReady, publishedAnswers } from './submission.mjs';
 import { verifiedProviderLink } from './native-offers.mjs';
 import { identityBase, identityConfigured, providerLinks } from './connection.mjs';
 
 const nativeLink=id=>verifiedProviderLink(id,providerLinks);
 const nativeLive=!!nativeLink('seminar_seat')||!!nativeLink('onsite');
-function currentOffer(id){const item=offer(id);if(id==='onsite'&&nativeLive&&!nativeLink(id))return {...item,pending:['Online booking is not open yet.'],timing:'The US$949 onsite consultation is planned for October 28, with all taxes and fees included, but online booking is not open while we complete a check of our payment account.'};return nativeLink(id)?{...item,pending:[],timing:id==='seminar_seat'?'Five paid places total. Stripe shows whether payment is available; one named seat per payment. Free entry remains first come, subject to space. Paid seats are held until 7:15 p.m. Antigua time. Cancel by October 26, 7 p.m. Antigua time for a refund of the amount paid minus actual processing fees; later cancellations receive no refund. The US$249 already includes fees; an eligible refund deducts only the actual processing fee retained by Stripe.':item.timing}:item;}
+// Booking is offered only when a verified provider link exists AND the offer has its pre-payment terms.
+// (A future verified virtual link stays closed here until its terms are added; nothing is invented.)
+// Group training checks out per choice: provider id group_<track> (root configures each verified URL).
+const linkIdFor=(id,trackId='')=>id==='group'?(trackId?`group_${trackId}`:''):id;
+const bookable=(id,trackId='')=>{const link=nativeLink(linkIdFor(id,trackId));return link&&offer(id)?.terms?.length?link:null;};
+// The offer as shown for the current choice: group takes its flat price from the chosen track.
+const priced=(item,trackId)=>item.id==='group'&&track(trackId)?{...item,price:track(trackId)[4]}:item;
+function currentOffer(id){const item=offer(id);if(id==='onsite'&&nativeLive&&!nativeLink(id))return {...item,terms:[],pending:['Online booking is not open yet.'],status:'Online booking for the onsite consultation is not open right now while we finish checking our payment account. The price is US$949, with all taxes and processing fees included.'};return nativeLink(id)?{...item,pending:[]}:item;}
 const $ = selector => document.querySelector(selector);
 const screen = $('#screen');
 // sizeSource: 'verified' = band read from a verified profile (never changeable here); 'chosen' = picked on a size card.
-const state = { step: 'intro', employees: null, priority: null, selected: null, track: '', course: false, profile: null, email: '', session: '', verified: false, error: '', sizeSource: null };
+// segment: 'organization' only when the visitor taps "I Work for an Organization"; employees stays null, so no band is sent.
+const state = { step: 'intro', employees: null, segment: null, priority: null, selected: null, track: '', course: false, profile: null, email: '', session: '', verified: false, error: '', sizeSource: null };
 let historySteps = [], freeTrigger;
 let formConfig=null,savePayload=null,savePayloadChoice='',savedReceipt=null,savedChoice='';
-const choiceKey=()=>JSON.stringify([state.selected,state.track,state.course,state.employees,state.priority]);
+const choiceKey=()=>JSON.stringify([state.selected,state.track,state.course,state.employees,state.priority,state.segment]);
+const org=()=>state.segment==='organization';
+const audienceLabel=()=>org()?'Works for an organization':label(EMPLOYEES,state.employees);
 const knownSize=()=>state.verified&&state.sizeSource==='verified';
 // Client hiding only. The provider/backend must close the Stripe link itself.
 const seatClosedNow=()=>state.selected===SEMINAR.id&&!seatSalesOpen();
@@ -23,7 +33,7 @@ async function loadPublishedForm(){
 }
 function saveSection(){
  if(!identityConfigured||!state.verified||!formReady(formConfig,state))return '';
- if(savedReceipt&&savedChoice===choiceKey())return `<section class="detail" data-leadscore-private><h2 id="saved-heading" tabindex="-1">Your choice is saved.</h2><p>Saved: ${escape(currentOffer(state.selected).title)}${state.track?' · '+escape(state.track):''}${state.course?' · Course requested':''}</p><p>Reference: ${escape(savedReceipt.id)}</p><p>This is not a booking or a payment. Nothing has been charged and no seat or appointment is reserved. ${nativeLink(state.selected)?'Book or pay with '+nativeLink(state.selected).provider+' below.':'Booking and payment are not open yet.'}</p><p class="small">Saved enquiry · CRM delivery pending</p></section>`;
+ if(savedReceipt&&savedChoice===choiceKey())return `<section class="detail" data-leadscore-private><h2 id="saved-heading" tabindex="-1">Your choice is saved.</h2><p>Saved: ${escape(currentOffer(state.selected).title)}${state.track?' · '+escape(track(state.track)?.[1]||state.track):''}${state.course?' · Course requested':''}</p><p>Reference: ${escape(savedReceipt.id)}</p><p>This is not a booking or a payment. Nothing has been charged and no seat or appointment is reserved. ${bookable(state.selected,state.track)?'Book or pay with '+bookable(state.selected,state.track).provider+' below.':'Booking and payment are not open yet.'}</p></section>`;
  const fields=formConfig.fields.filter(f=>!isEmailField(f)&&!choiceField(f)).map(field=>({field,value:field.type==='select'&&!field.options?.includes(initialAnswer(field,state.profile,state))?'':initialAnswer(field,state.profile,state)})).sort((a,b)=>Number(!!a.value)-Number(!!b.value));
  const input=({field:f,value:v})=>{const id='save-'+f.id,label=escape(f.label)+(f.required?' (required)':'');const attrs=`id="${escape(id)}" name="${escape(f.id)}" ${f.required?'required':''}`;let control;if(f.type==='select')control=`<select ${attrs}><option value="">Choose one</option>${(f.options||[]).map(o=>`<option ${v===o?'selected':''}>${escape(o)}</option>`).join('')}</select>`;else if(f.type==='textarea')control=`<textarea ${attrs}>${escape(v)}</textarea>`;else control=`<input ${attrs} type="${f.type==='phone'?'tel':f.type==='number'?'number':'text'}" value="${escape(v)}" ${f.type==='phone'?'autocomplete="tel" inputmode="tel"':['company','company_name','business_name'].includes(f.id)?'autocomplete="organization"':'autocomplete="name"'} maxlength="${f.type==='phone'?40:500}">`;const content=`<label class="field" for="${escape(id)}"><span>${label}</span>${control}</label>`;return v?`<details><summary>${escape(f.label)}: ${escape(v)} · Edit</summary>${content}</details>`:content;};
  const marketing=formConfig.consent.marketing,ack=formConfig.consent.acknowledgement;
@@ -45,7 +55,7 @@ const api = async (action, body) => {
   if (!response.ok) { const error = new Error(result.error || 'We cannot load your details right now.'); error.status = response.status; throw error; }
   return result;
 };
-function resetIdentity() { state.session='';state.profile=null;state.verified=false;state.sizeSource=null;state.employees=null;state.priority=null;state.selected=null;state.track='';state.course=false;formConfig=null;savePayload=null;savedReceipt=null; }
+function resetIdentity() { state.session='';state.profile=null;state.verified=false;state.sizeSource=null;state.employees=null;state.segment=null;state.priority=null;state.selected=null;state.track='';state.course=false;formConfig=null;savePayload=null;savedReceipt=null; }
 function go(step, remember = true, error = '') {
   // "Loading your saved details" is transient; Back never returns to it.
   if (remember && state.step !== step && state.step !== 'checking') historySteps.push(state.step);
@@ -53,39 +63,58 @@ function go(step, remember = true, error = '') {
   screen.querySelector('h1,h2')?.focus({ preventScroll: true });
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
-// Four big size cards. A tap goes straight to the matching offers; "Not sure" stays a small secondary action.
+// Four big size cards, then a separate full-width choice for organization staff. A tap goes straight to the matching offers.
 function sizeCards() {
-  return `<div class="size-grid" role="group" aria-labelledby="size-question">${SIZES.map(([id,title,sub])=>`<button type="button" class="size-card${state.employees===id?' current':''}" data-size="${id}"><strong>${title}</strong><small>${sub}</small>${state.employees===id?'<span class="sr-only"> · your current answer</span>':''}</button>`).join('')}</div><button type="button" class="text-button not-sure" data-size="unknown">Not sure</button>`;
+  const current=id=>id==='organization'?org():!org()&&state.employees===id;
+  const card=([id,title,sub],cls='')=>`<button type="button" class="size-card${cls}${current(id)?' current':''}" data-size="${id}"><strong>${title}</strong><small>${sub}</small>${current(id)?'<span class="sr-only"> · your current answer</span>':''}</button>`;
+  return `<div class="size-grid" role="group" aria-labelledby="size-question">${SIZES.map(row=>card(row)).join('')}</div>${card(ORGANIZATION,' org-card')}`;
 }
-// The recurring charge is spelled out on the card itself, never left to the review screen.
-const cadenceLine = item => item.id==='free' ? 'No purchase needed' : `${item.cadence==='Monthly'?'Charged monthly':item.cadence} · taxes and fees included`;
+// One plain sentence about how (or whether) this can be booked. The charge basis is item.billing, shown after the price.
 function cardStatus(item) {
-  const link=nativeLink(item.id);
-  if(link) return item.id===SEMINAR.id ? 'Pay with Stripe after review' : `Book with ${link.provider} after review`;
-  if(item.id==='solo') return 'Limited plan · terms pending · no checkout yet';
-  return 'Booking not open yet';
+  // Group: open as soon as any one choice is bookable; each choice's details page shows its own state.
+  const link=item.id==='group'?TRACKS.map(([key])=>bookable('group',key)).find(Boolean):bookable(item.id);
+  if(link&&item.id==='group') return 'Choose your training to read the terms and book.';
+  if(link) return item.id===SEMINAR.id ? 'Pay on Stripe after reading the seat terms.' : `Book on ${link.provider} after reading the terms.`;
+  return item.id==='solo' ? 'Sign-up is not open yet.' : 'Booking is not open yet.';
 }
-// Compact card: title and price on one row, charge basis, 2–3 benefits, status and one direct review action.
-// Sized so two primary cards fit on a 390×844 phone. Full terms live on review only.
-function offerCard(item, featured=false) {
+const ctaLabel = item => bookable(item.id) ? (item.id===SEMINAR.id ? 'See seat details and terms' : 'See details and booking terms') : 'See full details';
+// Group training leads with the benefit; the software name is secondary. Each choice opens review (data-review="group:<track>").
+// Operations and Sales are large red-bordered panels; Both is an explicit third choice. Each shows its own flat price after its explanation.
+const trackChoices = item => `<div class="track-choices" role="group" aria-labelledby="offer-${item.id}-choose"><p class="track-prompt" id="offer-${item.id}-choose">What would help your business most?</p>${TRACKS.map(([key,name,text,software,price])=>`<button class="track-choice${key==='both'?'':' track-main'}" type="button" data-review="group:${key}"><strong>${name} →</strong><span>${text}</span><small>Software: ${software}</small><b class="track-price">${price}</b></button>`).join('')}</div>`;
+// Reading order: red descriptive title, what is included, then price and charge basis, status and one action.
+// The price never shares the title row. role 'lead' = the main recommendation; 'secondary' = quieter outline action.
+// Full terms live on review, always before any provider link.
+function offerCard(item, role='') {
   const id=item.id,title=escape(item.title);
-  const cta=id==='free'?`<button class="card-cta secondary" type="button" data-free>Explore free resources</button>`
-    :id==='group'?`<div class="track-ctas" role="group" aria-label="Choose a training focus"><button class="card-cta" type="button" data-review="group:operations" aria-label="Review ${title}: Operations · SnapSuite"><span>Operations</span><small>SnapSuite →</small></button><button class="card-cta" type="button" data-review="group:sales" aria-label="Review ${title}: Sales · LeadScore"><span>Sales</span><small>LeadScore →</small></button></div>`
-    :`<button class="card-cta" type="button" data-review="${id}" aria-label="Review details: ${title}">Review details →</button>`;
-  return `<article class="offer-card${featured?' featured':''}" aria-labelledby="offer-${id}-title"><div class="card-head"><h3 class="offer-title" id="offer-${id}-title">${title}</h3><span class="price">${item.price}</span></div><p class="cadence">${cadenceLine(item)}</p><ul class="benefits">${item.points.slice(0,3).map(s=>`<li>${s}</li>`).join('')}</ul>${id==='free'?'':`<p class="card-status">${featured?'<span class="chip recommended">Suggested for you</span>':''}<span class="chip">${cardStatus(item)}</span></p>`}${cta}</article>`;
+  const action=id==='free'?`<button class="${role==='lead'?'card-cta':'card-cta secondary'}" type="button" data-free>Explore free resources</button>`
+    :id==='group'?''
+    :`<button class="${role==='secondary'?'card-cta secondary':'card-cta'}" type="button" data-review="${id}" aria-label="${ctaLabel(item)}: ${title}">${ctaLabel(item)} →</button>`;
+  // Group: the benefit choices come straight after the explanation, so they are reachable first; the price follows them.
+  return `<article class="offer-card${role?' '+role:''}" aria-labelledby="offer-${id}-title"><h3 class="offer-title" id="offer-${id}-title">${title}</h3><p class="offer-lede">${item.lede}</p>${id==='group'?trackChoices(item):''}<div class="card-foot${action?'':' no-action'}"><div><p class="price-line">${item.price&&id!=='group'?`<span class="price">${item.price}</span> `:''}<span class="cadence">${item.billing}</span></p>${item.cardNote?`<p class="card-note">${item.cardNote}</p>`:''}${id==='free'?'':`<p class="card-status">${cardStatus(item)}</p>`}</div>${action}</div></article>`;
 }
-// Optional attendance, kept separate from support offers. Paid seat card disappears at the confirmed cutoff.
+// Seminar: the paid-seat block appears on the 10+ path only; every other path gets one quiet free-attendance line.
+// The paid seat card disappears at the confirmed noon cutoff; the whole section after the seminar ends.
 function seminarSection() {
   const now=Date.now();
   if(now>=SEMINAR_ENDS_AT) return '';
+  const when='Tuesday, October 27, 2026 · 7–9 p.m. Antigua time (UTC−4) · Azure Conference Hall, Trade Winds Hotel';
+  if(!seatOffered(state.employees)) return `<p class="seminar-quiet"><strong>Free seminar:</strong> ${when}. Free to attend, first come, subject to space.</p>`;
   const open=seatSalesOpen(now);
-  return `<section class="seminar-option" aria-labelledby="seminar-title"><p class="eyebrow">OPTIONAL · SEMINAR</p><h2 id="seminar-title">Come to the seminar.</h2><p class="seminar-when">Tuesday, October 27, 2026 · 7–9 p.m. Antigua time (UTC−4)</p><ul class="benefits"><li><strong>Free to attend</strong>, subject to space</li>${open?'<li>A paid seat is optional, not required</li>':''}</ul>${open?offerCard(currentOffer(SEMINAR.id)):'<p class="small">Paid seat reservations closed at noon on October 27, Antigua time. Free attendance remains first come, subject to space.</p>'}<details class="loom-note"><summary>Dwain’s seminar update</summary><p><a href="https://www.loom.com/share/de9b7db400b940038c1e58f518ed2aff" target="_blank" rel="noreferrer">Dwain’s Antigua seminar update ↗</a></p><p>Since recording: free attendance remains first come, subject to space. A named reserved seat is optional and separate from US$249 group training. Consultations and dinner do not include a seminar seat.</p></details></section>`;
+  return `<section class="seminar-option" aria-labelledby="seminar-title"><p class="eyebrow">SEMINAR · OCTOBER 27</p><h2 id="seminar-title">The Seminar on October 27</h2><p class="seminar-when">${when}</p><p class="seminar-free">The seminar is free to attend, first come, subject to space. ${bookable(SEMINAR.id)?'If you want a seat held in your name, you can reserve one of five paid seats.':'Paid seat booking is not open on this page right now.'}</p>${open?offerCard(currentOffer(SEMINAR.id)):'<p class="small">Paid seat reservations closed at noon on October 27, Antigua time. Free attendance is still first come, subject to space.</p>'}<details class="loom-note"><summary>Dwain’s seminar update</summary><p><a href="https://www.loom.com/share/de9b7db400b940038c1e58f518ed2aff" target="_blank" rel="noreferrer">Dwain’s Antigua seminar update ↗</a></p><p>Since this was recorded: attending is still free, first come, subject to space. A reserved seat in your name is optional and separate from the group training. Consultations and the dinner do not include a seminar seat.</p></details></section>`;
 }
+// What it is and what is included come first; then the price; then what is not included and the booking terms.
+// Unsettled facts (item.pending) are guards only and are never listed here.
 function offerDetail(item) {
-  return `<div class="detail"><h3>${item.title}</h3><span class="price">${item.price}</span><span class="billing">${item.billing}</span><p>${item.summary}</p><strong>Included</strong><ul>${item.included.map(s=>`<li>${s}</li>`).join('')}</ul><strong>Not included</strong><ul>${item.excluded.map(s=>`<li>${s}</li>`).join('')}</ul><p class="small">${item.timing}</p>${item.pending.length?`<strong>To be confirmed</strong><ul>${item.pending.map(s=>`<li>${s}</li>`).join('')}</ul>`:''}</div>`;
+  const list=rows=>`<ul>${rows.map(s=>`<li>${s}</li>`).join('')}</ul>`;
+  // item arrives already priced for the chosen track; an offer with no set price shows only its billing sentence.
+  const price=`<p class="detail-price">${item.price?`<span class="price">${item.price}</span>`:''}<span class="billing">${item.billing}</span></p>`;
+  return `<div class="detail"><h3 class="detail-title">${item.title}</h3><p>${item.summary}</p><h4 class="detail-sub">What is included</h4>${list(item.included)}${price}${item.excluded.length?`<h4 class="detail-sub">What is not included</h4>${list(item.excluded)}`:''}${item.terms?.length?`<h4 class="detail-sub">Before you book</h4>${list(item.terms)}`:''}</div>`;
 }
-const helpFootnote = '<p class="small help-footnote">If you have already paid elsewhere, do not pay again. Use the contact details on your receipt to ask for help. A payment still being checked must be reconciled before another charge.</p>';
+const helpFootnote = '<p class="small help-footnote">Already paid somewhere else? Please do not pay again. Use the contact details on your receipt and we will help. If a payment is still being checked, it must be sorted out before any new charge.</p>';
 function render() {
+  // Back can land on a review whose selection was reset (for example after "Not your email?" cleared it).
+  // Never render a blank review: show the offers, or the size question if no size is chosen yet.
+  if(state.step==='review'&&!offer(state.selected))state.step=state.employees||org()?'offers':state.verified?'employees':'intro';
   $('#back').hidden = !historySteps.length;$('#back').disabled=!!savePayload;
   // The first screen's step label repeats the question below it; drop the row unless Back is needed.
   $('.stepbar').hidden = state.step==='intro' && !historySteps.length;
@@ -107,29 +136,43 @@ function render() {
     ? `<div class="private-head" data-leadscore-private><h1 tabindex="-1" class="welcome">${state.profile?.name ? `Welcome back, ${escape(state.profile.name)}.` : 'Your email is verified.'}</h1></div>` + sizeQuestion + sizeCards()
     : sizeTitle + sizeCards();
   if(state.step === 'offers') {
-    const path=sizePath(state.employees),known=knownSize(),p=state.profile;
-    const primary=path.offers.map(id=>id==='free'?FREE:currentOffer(id));
-    const others=[...OFFERS.filter(o=>!path.offers.includes(o.id)).map(o=>currentOffer(o.id)),...(path.offers.includes('free')?[]:[FREE])];
-    // Compact head: one heading plus one line, so both primary cards stay on the first phone screen.
+    const path=sizePath(state.employees,state.segment),known=knownSize(),p=state.profile;
+    const [lead,...secondary]=path.offers.map(id=>id==='free'?FREE:currentOffer(id));
+    // An offer shown as a card or as the small "also" line, or free help shown as the quiet line, is not repeated below.
+    const shown=[...path.offers,...(path.also?[path.also]:[])];
+    const others=[...OFFERS.filter(o=>!shown.includes(o.id)).map(o=>currentOffer(o.id)),...(path.freeAfter||shown.includes('free')?[]:[FREE])];
+    const quiet=(path.also?`<p class="also-line">${path.alsoPrompt||'Would one-to-one help suit you better?'} <button class="text-button" type="button" data-review="${path.also}">See the ${escape(offer(path.also).title)}</button></p>`:'')
+      +(path.freeAfter?'<p class="free-after"><span>Prefer to start on your own for free?</span> <button class="text-button" type="button" data-free>Explore free resources</button></p>':'');
+    const seminar=seminarSection(),seats=seatOffered(state.employees);
+    // Compact head: one heading plus one line, so the lead card starts near the top of a phone screen.
+    // No change-size control: the stepbar Back returns to the size question. Known verified visitors have no Back here.
+    const intro=path.intro?`<p class="path-intro">${path.intro}${path.introCalendly&&bookable('onsite')?' '+path.introCalendly:''}</p>`:'';
     const head=known
-      ? `<div class="private-head path-head" data-leadscore-private><h1 tabindex="-1">${p?.name ? `Welcome back, ${escape(p.name)}.` : 'Your next step.'}</h1>${p?.company ? `<p class="path-line">Support that fits ${escape(p.company)}.</p>` : ''}</div>`
-      : `<div class="path-head"><h1 tabindex="-1">${path.title}</h1><p class="path-line"><span>Team: ${label(EMPLOYEES,state.employees)}</span><button class="text-button change-size" type="button" data-go="employees">Change team size</button></p></div>`;
+      ? `<div class="private-head path-head" data-leadscore-private><h1 tabindex="-1">${p?.name ? `Welcome back, ${escape(p.name)}.` : 'Your next step.'}</h1>${p?.company ? `<p class="path-line">Support that fits ${escape(p.company)}.</p>` : ''}</div>${intro}`
+      // The h1 names who the page is for (it already states the team size), so no separate "Team:" line repeats it.
+      : `<div class="path-head"><h1 tabindex="-1">${path.title}</h1>${intro}</div>`;
     // "path-offers", never "primary": .primary is the red pill button style and would paint the whole wrapper.
-    screen.innerHTML = head + `<div class="offer-cards path-offers">${primary.map(item=>offerCard(item,item.id===path.featured)).join('')}</div><details class="more-options"><summary>Explore other options</summary><div class="offer-cards compact">${others.map(item=>offerCard(item)).join('')}</div></details>${seminarSection()}${known&&p?.email?`<button class="text-button" type="button" data-go="identify" data-leadscore-private>Not ${escape(p.email)}? Use a different email</button>`:''}`;
+    screen.innerHTML = head + `<div class="offer-cards path-offers">${offerCard(lead,'lead')}${secondary.map(item=>offerCard(item,'secondary')).join('')}</div>${quiet}${seats?seminar:''}<details class="more-options"><summary>Explore other options</summary><div class="offer-cards compact">${others.map(item=>offerCard(item)).join('')}</div></details>${seats?'':seminar}${known&&p?.email?`<button class="text-button" type="button" data-go="identify" data-leadscore-private>Not ${escape(p.email)}? Use a different email</button>`:''}`;
   }
   if(state.step === 'review' && seatClosedNow()) screen.innerHTML = heading('SEMINAR · OCTOBER 27', 'Paid seat reservations have closed.', 'Seat sales closed at noon on October 27, Antigua time. Nothing has been booked or charged on this page. Free attendance remains first come, subject to space.') + `<button class="primary" type="button" data-go="offers" ${savePayload?'disabled':''}>See my other options</button>${helpFootnote}`;
   else if(state.step === 'review') {
-    const item = currentOffer(state.selected), link = nativeLink(state.selected);
-    screen.innerHTML = heading('REVIEW YOUR CHOICE', 'Your next step, clearly laid out.') + `<div class="notice" role="status"><strong>${link?'Continue with '+link.provider:'Details are still being finalised.'}</strong><p>${link?'Nothing has been booked or paid on this page. The provider will show your current booking or payment result.':'This offer is available for review. Its payment opens after inclusions and terms are confirmed.'}</p></div>${knownSize()?'':`<div class="summary-line"><span>Team size: ${label(EMPLOYEES,state.employees)}</span><button class="text-button" data-go="employees">Change</button></div>`}${state.selected==='group'?`<p>Training focus: ${state.track==='operations'?'Operations · SnapSuite':'Sales · LeadScore'}</p><p class="small">Software access is confirmed separately from training.</p>`:''}${offerDetail(item)}${state.selected==='solo'?`<label class="check"><input type="checkbox" id="course" ${state.course?'checked':''}><span>Optional US$97 course add-on<br><small>Contents and billing basis to be confirmed. Optional and unselected by default.</small></span></label><p id="course-status" class="small">${state.course?'Requested in this draft only; no course charge has been authorized.':'Course not added.'}</p><p class="small">Website and email add-ons: scope, limits and pricing to be confirmed.</p>`:''}<p class="small">${'Listed price includes all taxes and processing fees.'}${state.selected==='solo'?' Start date, renewal date and recurring terms must be shown before you subscribe.':''}</p>${saveSection()}${link?`<a class="primary" href="${link.url}" rel="noreferrer" data-provider="${state.selected}">${state.selected==='seminar_seat'?'Continue to Stripe to pay US$249':'Choose a time and pay US$949 on Calendly'} →</a><p class="small">Card details are entered on the provider’s secure page. This page cannot confirm payment or booking. Keep your provider confirmation; do not pay again if a result is pending.</p>${state.selected==='seminar_seat'?'<p class="small">Prices are in US dollars. A local-currency price includes Stripe’s conversion cost. Choose USD $249 to pay exactly US$249.</p>':''}`:`<div class="notice"><strong>Booking: not open yet</strong><p>No seat or appointment is reserved. Actual availability and the full terms must be confirmed before payment.</p></div><button class="primary" type="button" disabled aria-disabled="true" aria-describedby="checkout-help">Booking and payment not open</button><p id="checkout-help" class="small">When checkout opens, card details will be entered on Stripe’s secure page. Please do not enter card details here.</p>`}<button class="secondary" data-go="offers" ${savePayload?'disabled':''}>Change my support</button>${helpFootnote}`;
+    const item = priced(currentOffer(state.selected),state.track), link = bookable(state.selected,state.track), t = state.selected==='group' ? track(state.track) : null;
+    const solo = state.selected==='solo';
+    // Order: what you get, price, terms (all inside offerDetail), then how to book. The provider link always comes last.
+    // The closed-state status is shown only when there is no bookable link, so it never contradicts an open booking.
+    const status = item.status || 'Booking is not open on this page yet.';
+    screen.innerHTML = heading('REVIEW YOUR CHOICE', 'Everything you need to know before you book.') + `${knownSize()?'':`<div class="summary-line"><span>${org()?'You work for an organization':'Team size: '+label(EMPLOYEES,state.employees)}</span></div>`}${t?`<p class="track-line">Your choice: <strong>${t[1]}</strong>${t[3]?` · Software: ${t[3]}`:''}</p>`:''}${offerDetail(item)}${solo?`<label class="check"><input type="checkbox" id="course" ${state.course?'checked':''}><span>Add the optional course (US$97)<br><small>What the course covers and how it is billed will be shown before you pay. It is not added unless you tick this box. It is separate from the US$49 introductory AI course.</small></span></label><p id="course-status" class="small">${state.course?'Course interest noted on this page only. Nothing has been charged.':'Course not added.'}</p><p class="small">Website and email add-ons may be offered later. Their scope, limits and prices have not been set.</p>`:''}${saveSection()}${link?`<div class="notice" role="status"><strong>Book and pay on ${link.provider}</strong><p>Nothing is booked or paid on this page. You enter your card details on ${link.provider}’s secure page. After you pay, ${link.provider} shows your result: keep that confirmation. If a result is still pending, please do not pay again.</p></div><a class="primary" href="${link.url}" rel="noreferrer" data-provider="${state.selected}">${state.selected===SEMINAR.id||state.selected==='group'?`Continue to ${link.provider} to pay ${item.price}`:`Choose a time and pay ${item.price} on ${link.provider}`} →</a>`:`<div class="notice" role="status"><strong>${solo?'Sign-up is not open yet':'Booking is not open yet'}</strong><p>${status}</p></div><button class="primary" type="button" disabled aria-disabled="true" aria-describedby="checkout-help">${solo?'Sign-up is not open yet':'Booking and payment are not open yet'}</button><p id="checkout-help" class="small">Nothing has been booked or charged. Please do not enter card details on this page.</p>`}<button class="secondary" data-go="offers" ${savePayload?'disabled':''}>Back to my options</button>${helpFootnote}`;
   }
   // The static native page is not identity-connected, so it never claims details can be brought along.
-  $('#companion-copy').textContent=nativeLive&&!identityConfigured?(nativeLink('onsite')?'Choose your support. Booking and payment take place with Stripe and Calendly.':'Choose your support. Seminar seat payment takes place with Stripe.'):state.verified?'Your options are matched to your business. Nothing is booked or paid until you choose.':identityConfigured?'Already shared your details? Continue with your email.':'Choose your team size to see the support that fits.';
-  $('#summary').innerHTML = [state.employees && `<p><strong>Your team</strong><br>${label(EMPLOYEES,state.employees)}</p>`,state.selected&&!seatClosedNow()&&`<p><strong>Your choice</strong><br>${escape(currentOffer(state.selected).title)}</p>`].filter(Boolean).join('');
+  // Name only the providers whose links are actually live.
+  $('#companion-copy').textContent=nativeLive&&!identityConfigured?(nativeLink('onsite')&&nativeLink('seminar_seat')?'Choose your support. Booking and payment take place with Stripe and Calendly.':nativeLink('onsite')?'Choose your support. Booking and payment for the onsite consultation take place with Calendly.':'Choose your support. Seminar seat payment takes place with Stripe.'):state.verified?'Your options are matched to your business. Nothing is booked or paid until you choose.':identityConfigured?'Already shared your details? Continue with your email.':'Choose your team size to see the support that fits.';
+  $('#summary').innerHTML = [(state.employees||org()) && `<p><strong>${org()?'You':'Your team'}</strong><br>${audienceLabel()}</p>`,state.selected&&!seatClosedNow()&&`<p><strong>Your choice</strong><br>${escape(currentOffer(state.selected).title)}</p>`].filter(Boolean).join('');
   screen.querySelectorAll('[data-go]').forEach(button=>button.addEventListener('click',()=>go(button.dataset.go)));
   screen.querySelectorAll('[data-free]').forEach(button=>button.addEventListener('click',openFree));
   screen.querySelectorAll('[data-size]').forEach(button=>button.addEventListener('click',()=>{
-    if(state.employees!==button.dataset.size){state.selected=null;state.track='';state.course=false;}
-    state.employees=button.dataset.size;state.sizeSource='chosen';go('offers');
+    const isOrg=button.dataset.size==='organization',employees=isOrg?null:button.dataset.size;
+    if(state.employees!==employees||org()!==isOrg){state.selected=null;state.track='';state.course=false;}
+    state.employees=employees;state.segment=isOrg?'organization':null;state.sizeSource='chosen';go('offers');
   }));
   screen.querySelectorAll('[data-review]').forEach(button=>button.addEventListener('click',async()=>{
     const [id,track='']=button.dataset.review.split(':');
@@ -142,7 +185,7 @@ function render() {
   screen.querySelectorAll('[data-provider="seminar_seat"]').forEach(link=>link.addEventListener('click',event=>{if(!seatSalesOpen()){event.preventDefault();render();screen.querySelector('h1')?.focus();}}));
   $('#explore-anonymously')?.addEventListener('click',()=>{resetIdentity();go('employees');});
   $('#retry-identity')?.addEventListener('click',redeem);
-  $('#course')?.addEventListener('change',e=>{state.course=e.target.checked;$('#course-status').textContent=state.course?'Requested in this draft only; no course charge has been authorized.':'Course not added.';});
+  $('#course')?.addEventListener('change',e=>{state.course=e.target.checked;$('#course-status').textContent=state.course?'Course interest noted on this page only. Nothing has been charged.':'Course not added.';});
   $('#save-choice-form')?.addEventListener('submit',async e=>{
     e.preventDefault();const form=e.target,button=form.querySelector('button[type=submit]'),status=$('#save-status');
     if(!savePayload){savePayloadChoice=choiceKey();const values=new FormData(form);savePayload={schemaVersion:1,revision:formConfig.revision,submissionId:crypto.randomUUID(),answers:publishedAnswers(formConfig,state.profile,state,values),consent:{marketing:values.get('marketing')==='on',acknowledgement:values.get('acknowledgement')==='on',...(formConfig.consent.acknowledgement?{acknowledgementVersion:formConfig.consent.acknowledgement.version}:{})},website:''};}
@@ -163,7 +206,8 @@ $('#free-dialog').addEventListener('close',()=>freeTrigger?.isConnected&&freeTri
 $('#back').addEventListener('click',()=>go(historySteps.pop()||'intro',false));
 // A verified, recognised visitor's home is their offers; the size cards are never offered back to them.
 $('.brand').addEventListener('click',event=>{event.preventDefault();if(!savePayload)go(knownSize()?'offers':'intro');});
-if(nativeLive)$('.review-banner').textContent=nativeLink('onsite')?'ANTIGUA · SEMINAR SEATS AND ONSITE CONSULTATIONS · OTHER OFFERS IN REVIEW':'Seminar seats are available now for US$249, with all taxes and fees included; other packages are currently in review.';
+// Event facts only: no readiness or availability claim (each card states its own booking status).
+if(nativeLive)$('.review-banner').textContent='ANTIGUA · SEMINAR OCTOBER 27 · CONSULTATIONS OCTOBER 28, 2026';
 // Re-render once when the seat cutoff passes on an open page (timer, or on return to a sleeping tab).
 let seatCutoffRendered=!seatSalesOpen();
 function refreshSeatCutoff(){if(seatCutoffRendered||seatSalesOpen())return;seatCutoffRendered=true;if(!savePayload&&(state.step==='offers'||state.step==='review'&&state.selected===SEMINAR.id))render();}

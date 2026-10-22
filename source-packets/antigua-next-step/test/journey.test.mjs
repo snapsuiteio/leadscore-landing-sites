@@ -14,12 +14,12 @@ test('only exact approved USD provider destinations activate',()=>{
  assert.equal(verifiedProviderLink('group'),null);
  const bad={...providerLinks,seminar_seat:{...providerLinks.seminar_seat,url:providerLinks.seminar_seat.url+'?amount=1'}};
  assert.equal(verifiedProviderLink('seminar_seat',bad),null);
- assert.match(OFFERS.find(x=>x.id==='onsite').included.join(' '),/no expiry deadline/);
+ assert.match(OFFERS.find(x=>x.id==='onsite').terms.join(' '),/no extra charge and no expiry date/);assert.equal(verifiedProviderLink('virtual').amount,47900);assert.match(OFFERS.find(x=>x.id==='virtual').terms.join(' '),/48 hours/);
 });
 
 test('size paths preserve thresholds and the confirmed noon cutoff',()=>{
- assert.deepEqual(SIZES.map(row=>row[0]),['solo','1_4','5_9','10_plus']);
- assert.deepEqual(sizePath('solo').offers,['solo','free']);
+ assert.deepEqual(SIZES.map(row=>row[0]),['10_plus','5_9','1_4','solo']);
+ assert.deepEqual(sizePath('solo').offers,['solo']);
  assert.deepEqual(sizePath('10_plus').offers,['onsite','virtual']);
  assert.equal(seatSalesOpen(SEAT_SALES_CLOSE_AT-1),true);
  assert.equal(seatSalesOpen(SEAT_SALES_CLOSE_AT),false);
