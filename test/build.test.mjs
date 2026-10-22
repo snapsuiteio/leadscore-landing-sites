@@ -159,3 +159,9 @@ test('tracking CSP is restricted to supported providers and requires reviewed ca
   f.page.integration.tracking = 'always';
   await f.save(); await assert.rejects(f.run(), /Tracking requires/);
 });
+
+test('allows reviewed Loom frames only for the explicitly configured page', async t => {
+ const f=await fixture(t,(_,p)=>{p.videoProvider='loom'});const result=await f.run();const headers=await readFile(path.join(result.output,'_headers'),'utf8');
+ assert.match(headers,/frame-src[^;]+https:\/\/www.loom.com/);assert.match(headers,/connect-src 'none'; form-action 'none'/);
+ f.page.videoProvider='unreviewed.test';await f.save();await assert.rejects(f.run(),/Unsupported reviewed video provider/);
+});
