@@ -65,7 +65,8 @@ summary:focus-visible{outline:3px solid var(--ink);outline-offset:4px}
 .track-choice.track-main{border-color:var(--red);min-height:120px}
 .track-price{display:block;margin-top:6px;font-size:22px;font-weight:700;color:var(--ink)}
 .track-choice strong{font-size:19px;color:var(--red)}.track-choice span{font-size:16px;line-height:1.4}.track-choice small{font-size:14px;color:var(--muted)}
-@media(min-width:720px){.track-choices{grid-template-columns:repeat(3,minmax(0,1fr))}.track-prompt{grid-column:1/-1}}
+/* Operations, Sales and Both are always three stacked full-width rows (one box per row), on every viewport. */
+.track-choices{grid-template-columns:minmax(0,1fr)}
 .more-options{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
 .more-options>summary{cursor:pointer;min-height:56px;display:flex;align-items:center;gap:10px;font-weight:650}
 .offer-cards.compact .offer-title{font-size:20px}

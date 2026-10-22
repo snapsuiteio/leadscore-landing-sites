@@ -27,11 +27,12 @@ const commonPending = ['Cancellation, rescheduling and refund terms'];
 // summary opens the review screen and does not repeat the "What is included" list.
 export const OFFERS = [
   { id: 'onsite', title: 'Two-Hour Consultation at Your Business With Dwain', price: 'US$949', cadence: 'One-time',
-    lede: 'Dwain spends two hours at your business, looking at how your operations run and the challenges you face. You leave with practical ways AI and software can make your business more efficient, and clear first steps.',
+    lede: 'Dwain spends two hours at your business, looking at how your operations run and the challenges you face. You leave with practical ways AI and software can make your business more efficient, and clear first steps. After the visit, you also get one one-hour virtual follow-up meeting with Dwain.',
     billing: 'One-time total, including all taxes and processing fees.',
-    summary: 'Dwain spends two hours at your business on Wednesday, October 28, 2026. All you need to do is set aside the time and show him how the work really happens.',
-    included: ['Two hours with Dwain at your business', 'A walk-through of how your business operates and the challenges you are facing', 'Practical opportunities to use AI and software in your business', 'Clear first next steps to make your business more efficient'],
-    excluded: ['Setting up, connecting or moving your software and data. The visit shows you what to do next; it does not complete the work.', 'A written report or ongoing support after the visit'],
+    summary: 'A two-hour visit by Dwain to your business on Wednesday, October 28, 2026, plus one one-hour virtual follow-up meeting with Dwain afterwards. For the visit, all you need to do is set aside the time and show him how the work really happens.',
+    included: ['Two hours with Dwain at your business', 'A walk-through of how your business operates and the challenges you are facing', 'Practical opportunities to use AI and software in your business', 'Clear first next steps to make your business more efficient', 'One one-hour virtual follow-up meeting with Dwain after the visit'],
+    // The one included follow-up is listed above; only support beyond it is excluded.
+    excluded: ['Setting up, connecting or moving your software and data. The visit shows you what to do next; it does not complete the work.', 'A written report, or ongoing support beyond the one included follow-up meeting'],
     terms: ['Visits are on Wednesday, October 28, 2026, Antigua time (UTC−4), at 8–10 a.m., 11 a.m.–1 p.m. or 2–4 p.m. Calendly shows which times are still available.', 'You pay the full US$949 on Calendly when you book. All taxes and processing fees are included.', 'Moving to another available time on October 28 costs nothing extra.', 'If you cancel, or move the visit to another day, your full payment becomes one two-hour private video consultation with Dwain on a later date you both agree. There is no extra charge and no expiry date.', 'That change does not give a cash refund or a refund of the price difference.', 'If Dwain cannot make the visit, you choose either a full refund or a video consultation instead.', 'When you book, please give directions to your business and a phone number.'],
     status: '', pending: [], productId: 'prod_VUGQJjsZZbqg35' },
   { id: 'virtual', title: 'Two-Hour Private Virtual Meeting With Dwain', price: 'US$479', cadence: 'One-time',
@@ -48,14 +49,27 @@ export const OFFERS = [
     pending: [], productId: 'prod_VUGRThRNPwj1wf' },
   // Training price comes from the chosen track (TRACKS). Session dates and the monthly software fees are confirmed by
   // Dwain. The fees sit in `billing` so they show under the price on the card AND the details page, before any purchase.
-  // terms stay empty on purpose: bookable() needs terms, so no group checkout can show while the items in `status` are open.
+  // Dwain approved a one-time Stripe training purchase per track (group_operations / group_sales / group_both) while the
+  // later subscription details are unsettled. `terms` holds only known facts plus plain disclosures of what is not yet
+  // specified; it invents no access, recording, support-schedule or refund rule. A checkout shows only for a track whose
+  // verified URL root has added; otherwise `status` shows.
   { id: 'group', title: 'Software Onboarding and Guided Training, Then Monthly Support', price: 'US$249', cadence: 'One-time',
     lede: 'Get set up in the software that fits your business and learn to use it: four weekly guided sessions on Wednesdays, November 4, 11, 18 and 25, 2026, from 2 to 3:20 p.m. Antigua time (1 to 2:20 p.m. Toronto time), then monthly group support during your first six months.',
     billing: 'One-time training fee for each choice, including all taxes and processing fees. This is a training fee, not ongoing software access. After the training, the software is a separate monthly subscription: US$179 a month for SnapSuite or for LeadScore (up to 5 users), or US$349 a month for both, plus US$29 a month for each additional user. All monthly prices include taxes and fees.',
     summary: 'Software onboarding and guided training in a small group. The four 80-minute sessions are on Wednesdays, November 4, 11, 18 and 25, 2026, from 2 to 3:20 p.m. Antigua time (AST, UTC−4). That is 1 to 2:20 p.m. in Toronto (America/Toronto) and 18:00 to 19:20 UTC. After the training, monthly group support continues during your first six months. Plan to attend each session and put what you learn to work between sessions.',
     included: ['Software onboarding for the software you choose', 'Guided training: four 80-minute sessions on Wednesdays, November 4, 11, 18 and 25, 2026', 'Monthly group support during your first six months'],
     excluded: ['Ongoing software access after the training. It is a separate monthly subscription, priced above.'],
-    terms: [], status: 'Group training is not open for booking yet. Before booking opens, you will see whether you can use the software during the training, when the first monthly software charge is made and when it renews, the monthly support dates and when the six months begin, whether sessions are recorded, and the cancellation and refund terms.',
+    terms: [
+      'This is a one-time training fee: US$249 for Operations, US$249 for Sales, or US$398.40 for Both, including all taxes and processing fees.',
+      'Prices are in US dollars. On Stripe, choose the USD amount shown for your training choice (USD $249 or USD $398.40) to pay exactly that total. A local-currency price includes Stripe’s conversion cost.',
+      'It covers onboarding for the software you choose, four 80-minute guided sessions on Wednesdays, November 4, 11, 18 and 25, 2026, from 2 to 3:20 p.m. Antigua time (1 to 2:20 p.m. Toronto time), and monthly group support during your first six months.',
+      'Buying the training does not start a software subscription. After the training, the software is US$179 a month for SnapSuite or for LeadScore (up to 5 users), or US$349 a month for both, plus US$29 a month for each additional user, all including taxes and fees. When monthly billing starts and when it renews will be agreed with you before any monthly charge.',
+      'Still to be confirmed separately: whether you can use the software during the training, the monthly support dates and when the six months begin, and whether sessions are recorded.',
+      // Dwain-approved refund policy for the one-time training fee. It says nothing about subscription cancellation or after the cutoff.
+      'You can ask for a refund of the one-time training fee until 2 p.m. Antigua time (1 p.m. Toronto time) on Tuesday, November 3, 2026, 24 hours before the first session. The refund is the amount you paid minus the actual processing fees that are not returned to us.',
+    ],
+    // Shown only for a track with no verified checkout URL.
+    status: 'Online payment for this group training is not open on this page yet.',
     pending: ['Software access during the training', 'First monthly software charge date and renewal', 'Monthly support dates and when the six months begins', 'Recordings', ...commonPending], productId: 'prod_VUGwHRp60qOa18' },
   { id: 'solo', title: 'Business Essentials Plan for Solo Business Owners', price: 'US$49', cadence: 'Monthly',
     lede: 'A monthly plan for people who run their business on their own. The exact features, usage limits and support are still being finalized, and you will see them in full before you can subscribe.',
