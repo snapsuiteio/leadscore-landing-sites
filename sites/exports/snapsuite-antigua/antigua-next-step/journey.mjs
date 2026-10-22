@@ -1,7 +1,10 @@
 // Offer facts approved by Dwain on 22 October 2026. Provider activation is separate.
-export const EMPLOYEES = [['10_plus', '10 or more'], ['5_9', '5–9'], ['1_4', '1–4'], ['solo', 'Just me'], ['unknown', 'Not sure']];
-// First-screen size cards, smallest first. "Not sure" stays a small secondary action.
-export const SIZES = [['solo', 'Just me', 'No employees'], ['1_4', '1–4', 'employees'], ['5_9', '5–9', 'employees'], ['10_plus', '10 or more', 'employees']];
+export const EMPLOYEES = [['10_plus', '10+ employees'], ['5_9', '5–9 employees'], ['1_4', '1–4 employees'], ['solo', 'Just me'], ['unknown', 'Not sure']];
+// First-screen size cards, largest first (10+ is first/left).
+export const SIZES = [['10_plus', '10+', 'employees'], ['5_9', '5–9', 'employees'], ['1_4', '1–4', 'employees'], ['solo', 'Just me', 'No employees']];
+// A separate choice for people who work for an organization (including government) rather than own a business.
+// Set only when the visitor picks it; never inferred from a missing or unknown headcount. It is not an employee band.
+export const ORGANIZATION = ['organization', 'I Work for an Organization', 'For staff and directors, including in government.'];
 export const PRIORITIES = [
   ['operations', 'Less paperwork and smoother operations', 'Jobs, quotes, invoices and everyday admin'],
   ['sales', 'Better sales and customer follow-up', 'Leads, conversations and staying in touch'],
@@ -9,38 +12,112 @@ export const PRIORITIES = [
   ['tailored', 'A tailored plan for my business', 'Talk through one priority with Dwain'],
 ];
 export const FOCUS = { operations: 'SnapSuite · Operations', sales: 'LeadScore · Sales', ai: 'Practical AI learning', tailored: 'A tailored business consultation' };
-const commonPending = ['Cancellation, rescheduling and refund terms'];
-export const OFFERS = [
-  { id: 'onsite', title: 'Onsite one-on-one', price: 'US$949', cadence: 'One-time', points: ['2 hours at your business', 'One problem, one practical plan', 'Wednesday, October 28'], billing: 'One-time total · all taxes and processing fees included', summary: 'Two hours at your business. One agreed problem. A practical plan and next steps.', included: ['Two hours focused on one agreed business problem', 'A practical plan and clear next steps', 'A limited onsite slot; customer cancellation or moving to another day converts the full payment to one 2-hour private virtual consultation on a later mutually agreed date, at no extra charge and with no expiry deadline', 'No cash or price-difference refund for that conversion; if the host cannot deliver, choose a full refund or virtual replacement'], excluded: ['A completed integration, migration or full implementation', 'Post-session written follow-up or ongoing support'], pending: [], timing: 'Onsite consultation windows: Wednesday, October 28, 2026 · 8–10 a.m., 11 a.m.–1 p.m. or 2–4 p.m. Antigua time (UTC−4). Calendly shows current availability and requires US$949 total payment during booking. Moving to another available October 28 time carries no new charge. Provide business directions and a phone number.', productId: 'prod_VUGQJjsZZbqg35' },
-  { id: 'virtual', title: 'Virtual one-on-one', price: 'US$479', cadence: 'One-time', points: ['2 hours by video', 'One priority, a focused action plan'], billing: 'One-time total · all taxes and processing fees included', summary: 'Two hours by video. One priority and a focused action plan.', included: ['Two hours of private virtual guidance', 'One priority and an action plan'], excluded: ['A completed integration, migration or full implementation'], pending: ['Available dates, times and timezone', 'Meeting details', 'Written follow-up and ongoing support', ...commonPending], timing: 'Appointment dates and times to be confirmed.', productId: 'prod_VUGRThRNPwj1wf' },
-  { id: 'group', title: 'Guided group help', price: 'US$249', cadence: 'One-time', points: ['4 weekly training sessions', 'Monthly support in the first 6 months', 'Operations or sales focus'], billing: 'Training package total · taxes and processing fees included', summary: 'Four weekly training sessions, followed by monthly group support during the first six months.', included: ['Four training sessions, one per week', 'Monthly group support during the first six months', 'Separate operations and sales/software options'], excluded: ['A bundled software subscription at the unresolved software prices'], pending: ['Session length and start date', 'Monthly support schedule and when the six months begins', 'Recordings and software access', ...commonPending], timing: 'Training dates and support schedule to be confirmed.', productId: 'prod_VUGwHRp60qOa18' },
-  { id: 'solo', title: 'Solo business essentials', price: 'US$49', cadence: 'Monthly', points: ['Business essentials plan', 'Limited, basic features'], billing: 'Per month, taxes and processing fees included · plan terms pending', summary: 'A limited product plan for business essentials, with basic capabilities.', included: ['Limited product capabilities for business essentials'], excluded: ['Unlimited consulting', 'Advanced automation'], pending: ['Exact features, usage limits and support', 'Subscription start and renewal date', ...commonPending], timing: 'Subscription terms and renewal details to be confirmed.' },
-  { id: 'dinner', title: 'A deeper conversation', price: 'US$1,500', cadence: 'Per person', points: ['Shared dinner, up to 5 people', '2 private virtual follow-ups', 'Wednesday, October 28 · 7:30 p.m.'], billing: 'Per person total, taxes and processing fees included · package terms pending', summary: 'A shared dinner with up to five participants, plus two private virtual one-on-one follow-up sessions.', included: ['Shared dinner format with up to five participants', 'TWO private virtual one-on-one follow-up sessions'], excluded: ['A private individual dinner', 'Unlimited access'], pending: ['Dinner venue and duration', 'Exactly which meal and drinks are included', 'Follow-up lengths and booking window', ...commonPending], timing: 'Planned dinner: Wednesday, October 28, 2026 at 7:30 p.m. Antigua time (UTC−4), separate from the onsite consultations. Shared with up to five participants, plus two private virtual one-on-one follow-ups. Venue, meal and drinks, duration, follow-up lengths, booking window and policies remain to be confirmed. Booking is not open yet.', productId: 'prod_VUGyJFviXCeOC5' },
+// Group training choices: [key, title, benefit, software, flat price incl. all taxes and fees] (prices approved by Dwain).
+// Each choice has its own price and its own checkout id (group_<key>), configured by root once verified.
+export const TRACKS = [
+  ['operations', 'Help With Operations', 'SnapSuite onboarding and guided training to organize your paperwork, receipts and records.', 'SnapSuite', 'US$249'],
+  ['sales', 'Help With Sales', 'LeadScore onboarding and guided training to follow up with leads and customers and keep your communications organized.', 'LeadScore', 'US$249'],
+  ['both', 'Both', 'SnapSuite and LeadScore onboarding and guided training together.', 'SnapSuite and LeadScore', 'US$398.40'],
 ];
+export const track = id => TRACKS.find(([key]) => key === id);
+// pending: internal guards for unsettled facts. They are never shown as a customer checklist,
+// and an offer with pending facts has no checkout.
+const commonPending = ['Cancellation, rescheduling and refund terms'];
+// Card copy is lede: two plain sentences explaining the value, shown before the price.
+// summary opens the review screen and does not repeat the "What is included" list.
+export const OFFERS = [
+  { id: 'onsite', title: 'Two-Hour Consultation at Your Business With Dwain', price: 'US$949', cadence: 'One-time',
+    lede: 'Dwain spends two hours at your business, looking at how your operations run and the challenges you face. You leave with practical ways AI and software can make your business more efficient, and clear first steps.',
+    billing: 'One-time total, including all taxes and processing fees.',
+    summary: 'Dwain spends two hours at your business on Wednesday, October 28, 2026. All you need to do is set aside the time and show him how the work really happens.',
+    included: ['Two hours with Dwain at your business', 'A walk-through of how your business operates and the challenges you are facing', 'Practical opportunities to use AI and software in your business', 'Clear first next steps to make your business more efficient'],
+    excluded: ['Setting up, connecting or moving your software and data. The visit shows you what to do next; it does not complete the work.', 'A written report or ongoing support after the visit'],
+    terms: ['Visits are on Wednesday, October 28, 2026, Antigua time (UTC−4), at 8–10 a.m., 11 a.m.–1 p.m. or 2–4 p.m. Calendly shows which times are still available.', 'You pay the full US$949 on Calendly when you book. All taxes and processing fees are included.', 'Moving to another available time on October 28 costs nothing extra.', 'If you cancel, or move the visit to another day, your full payment becomes one two-hour private video consultation with Dwain on a later date you both agree. There is no extra charge and no expiry date.', 'That change does not give a cash refund or a refund of the price difference.', 'If Dwain cannot make the visit, you choose either a full refund or a video consultation instead.', 'When you book, please give directions to your business and a phone number.'],
+    status: '', pending: [], productId: 'prod_VUGQJjsZZbqg35' },
+  { id: 'virtual', title: 'Two-Hour Private Virtual Meeting With Dwain', price: 'US$479', cadence: 'One-time',
+    lede: 'A private two-hour virtual meeting with Dwain. Bring real problems and workflows from your business or your job, and he will show you how AI can help and give you practical next steps.',
+    billing: 'One-time total, including all taxes and processing fees.',
+    summary: 'A private two-hour virtual meeting with Dwain. Come with examples of the work you want to improve.',
+    included: ['Two hours one-to-one with Dwain in a virtual meeting', 'Working through real problems and workflows from your business or your job', 'Practical examples of how AI can help with them', 'Practical next steps you can act on'],
+    excluded: ['Setting up, connecting or moving your software and data for you, or a guarantee that the work will be completed', 'A written report or ongoing support after the meeting'],
+    // Rescheduling and cancellation wording is Dwain's existing paid-meeting policy, quoted exactly.
+    terms: ['Calendly shows the times that are available and the time zone they are in. No date is guaranteed until you book.', 'You pay the full US$479 on Calendly when you book. All taxes and processing fees are included.', 'Rescheduling: If you need to reschedule, please provide at least 48 hours’ notice.', 'Cancellations: For cancellations within 24 hours of the appointment, a 50% fee of the consultation rate will apply.', 'Your Zoom meeting details are sent with your Calendly booking confirmation.'],
+    // Shown only while no verified booking link exists.
+    status: 'Booking for the virtual meeting is not open on this page yet.',
+    pending: ['Verified Calendly booking link'], productId: 'prod_VUGRThRNPwj1wf' },
+  // Price comes from the chosen track (TRACKS). How long software access lasts, user limits and any later billing are
+  // unresolved: they are neither claimed nor excluded, and there is no checkout until terms exist.
+  { id: 'group', title: 'Software Onboarding and Guided Training, Then Monthly Support', price: 'US$249', cadence: 'One-time',
+    lede: 'Get set up in the software that fits your business and learn to use it: four weekly guided sessions, then monthly group support during your first six months.',
+    billing: 'Flat price for each choice, including all taxes and processing fees.',
+    summary: 'Software onboarding and guided training in a small group: four weekly sessions, then monthly group support during your first six months. Plan to attend each weekly session and put what you learn to work between sessions.',
+    included: ['Software onboarding for the software you choose', 'Guided training: four sessions, one each week', 'Monthly group support during your first six months'],
+    excluded: [],
+    terms: [], status: 'Group training is not open for booking yet. Before booking opens, you will see the session length, the start date, the monthly support schedule, whether sessions are recorded, how long your software access lasts, any user limits, whether anything is billed afterwards, and the cancellation and refund terms.',
+    pending: ['Session length and start date', 'Monthly support schedule and when the six months begins', 'Recordings', 'Software access duration, user limits and any later billing', ...commonPending], productId: 'prod_VUGwHRp60qOa18' },
+  { id: 'solo', title: 'Business Essentials Plan for Solo Business Owners', price: 'US$49', cadence: 'Monthly',
+    lede: 'A monthly plan for people who run their business on their own. The exact features, usage limits and support are still being finalized, and you will see them in full before you can subscribe.',
+    billing: 'Charged every month, including all taxes and processing fees.',
+    summary: 'A monthly business essentials plan for people who run their business on their own. The exact features, usage limits and support are still being finalized.',
+    included: ['A monthly business essentials plan for one-person businesses'],
+    excluded: ['Unlimited consulting', 'Advanced automation'],
+    terms: [], status: 'Before you can subscribe, you will see the exact features, usage limits and support, the start date, the renewal date and how cancellation works.',
+    pending: ['Exact features, usage limits and support', 'Subscription start and renewal date', ...commonPending] },
+  { id: 'dinner', title: 'Shared Dinner With Dwain, Plus Two Private Video Follow-Ups', price: 'US$1,500', cadence: 'Per person',
+    lede: 'A small shared dinner with Dwain, with five paid places, planned for Wednesday, October 28, 2026 at 7:30 p.m. (Antigua time). Your place includes TWO private one-to-one video follow-up sessions with Dwain afterwards.',
+    billing: 'Price per person, including all taxes and processing fees.',
+    summary: 'This is a shared dinner, not a private one, planned for Wednesday, October 28, 2026 at 7:30 p.m. Antigua time (UTC−4), separate from the onsite consultations.',
+    included: ['A place at a small shared dinner with five paid places', 'TWO private one-to-one video follow-up sessions with Dwain'],
+    excluded: ['A private dinner for you alone', 'Unlimited access to Dwain'],
+    terms: [], status: 'Dinner booking is not open yet. The venue, the meal and drinks, how long the dinner lasts, and the length and booking window of the follow-ups have not been set. The cancellation and refund terms will be shown before you can book.',
+    pending: ['Dinner venue and duration', 'Exactly which meal and drinks are included', 'Follow-up lengths and booking window', ...commonPending], productId: 'prod_VUGyJFviXCeOC5' },
+];
+// Current policy (Dwain): any business may buy a paid seat. The seat block is still presented on the 10+ path only;
+// that is display targeting, not purchase eligibility.
 export const SEMINAR = {
-  id:'seminar_seat',productId:'prod_VUGvcSJE0RGfhO',title:'Named reserved seminar seat',price:'US$249',cadence:'One-time',points:['Your named seat, held until 7:15 p.m.','Five paid seats in total','Optional · separate from group training'],billing:'One-time total · all taxes and processing fees included',
-  summary:'October 27, 2026 · 7–9 p.m. Antigua time (UTC−4) · Azure Conference Hall, Trade Winds Hotel.',
-  included:['One named seminar seat per successful Stripe payment (five paid seats in total)','Seat held until 7:15 p.m.; released after that if you have not arrived'],
-  excluded:['The separate US$249 group-training programme','Consultations and dinner'],
+  id:'seminar_seat',productId:'prod_VUGvcSJE0RGfhO',title:'Reserve Your Named Seat at the Seminar',price:'US$249',cadence:'One-time',
+  lede:'A seat held in your name until 7:15 p.m. Only five paid seats are available, and seat sales close at noon on October 27, Antigua time.',
+  billing:'Flat one-time price, including all taxes and processing fees.',
+  summary:'The seminar is on Tuesday, October 27, 2026, 7–9 p.m. Antigua time (UTC−4), at the Azure Conference Hall, Trade Winds Hotel. Attending is free, first come, subject to space. Any business can buy a paid seat. A paid seat is optional: it reserves a seat in your name, held until 7:15 p.m.',
+  included:['One seat reserved in your name for each successful payment','Your seat is held until 7:15 p.m. If you have not arrived by then, it is released.'],
+  excluded:['The separate group training','Consultations and the dinner'],
+  terms:['Any business can buy a paid seat.','There are five paid seats in total. Stripe shows whether a seat is still available when you pay.','Seat sales close at noon on Tuesday, October 27, 2026, Antigua time.','Cancel by 7 p.m. on Monday, October 26, 2026 (Antigua time), at least 24 hours before the seminar, for a refund of the amount you paid minus the actual processing fee Stripe keeps. Cancellations after that are not refunded.','Prices are in US dollars. Choose USD $249 on Stripe to pay exactly US$249. A local-currency price includes Stripe’s conversion cost.','Free attendance is still first come, subject to space. You do not need a paid seat to attend.'],
+  status:'Paid seat booking is not open on this page right now. Free attendance is still first come, subject to space.',
   pending:['Verified current inventory for the five paid-seat allocation','Confirmed payment, allocation and check-in connection'],
-  timing:'Five paid reservations are allocated in total; current availability is not verified. Free entry is first come, subject to space. Consultations and dinner do not include a seminar seat. Cancel at least 24 hours before the event (by October 26, 2026, 7 p.m. Antigua time) for a refund of the amount paid minus actual processing fees. Later cancellations receive no refund. The processing-fee deduction is based on the actual provider amount; no numerical deduction is assumed.',
 };
 // Confirmed seat sales cutoff: noon October 27, 2026, Antigua time (UTC−4) = 16:00Z.
 // Client-side only; the Stripe link itself must be closed by the provider/backend.
 export const SEAT_SALES_CLOSE_AT = Date.UTC(2026, 9, 27, 16, 0, 0);
 export const SEMINAR_ENDS_AT = Date.UTC(2026, 9, 28, 1, 0, 0);
 export const seatSalesOpen = (now = Date.now()) => now < SEAT_SALES_CLOSE_AT;
+// The paid-seat block is presented on the 10+ path only. Display targeting, not purchase eligibility (see SEMINAR).
+export const seatOffered = employees => employees === '10_plus';
 // The no-purchase path. Not a paid offer, so it stays outside OFFERS and never reaches review or checkout.
-export const FREE = { id: 'free', title: 'Free DIY start', price: 'Free', cadence: 'No purchase', points: ['Practical guides to try today', 'Free DIY course and Friday live Q&A · links being confirmed'] };
-// Relevant first offers for each business size. Every other offer stays under "Explore other options".
+export const FREE = { id: 'free', title: 'Free Guides to Get Started on Your Own', price: 'Free', cadence: 'No purchase', billing: 'No purchase or card needed.', lede: 'Download two practical guides today: a job-to-invoice checklist and a practical AI workflow. A free DIY course and a Friday live Q&A are coming; their links are not ready yet.' };
+// Organization path primary offer: an initial virtual introduction for staff and directors bringing these tools to an
+// organization of 30+ employees. Its length and any cost are not set (price ''), and it has no terms, so it is never
+// bookable until root verifies a matching event and its terms are added. It is not the paid US$479 virtual meeting.
+export const ORG_INTRO = { id: 'org_intro', title: 'Initial Virtual Introduction for Your Organization', price: '', cadence: '',
+  lede: 'Want to bring practical AI and business tools to your boss or your organization? Start with an initial virtual introduction and presentation from Dwain, for organizations with 30 or more employees.',
+  billing: 'The length and any cost will be confirmed before you can book.',
+  summary: 'An initial virtual introduction and presentation from Dwain for staff and directors, including in government, who want to bring practical AI and business tools to an organization with 30 or more employees.',
+  included: ['An initial virtual introduction and presentation with Dwain'], excluded: [], terms: [],
+  status: 'Booking for the introduction is not open on this page yet. Its length and any cost will be confirmed before you can book.',
+  pending: ['Matching Calendly event, length and any cost'] };
+// The first offer is the lead card; a second is a quieter secondary card. also: one small text link under the lead.
+// Every other offer stays under "Explore other options". freeAfter: a quiet free-resources line follows the lead card.
+// 'free' as an offer id means the FREE guides card. title is the page h1: who the page is for, never a repeat of a card title.
 export const SIZE_PATHS = {
-  solo: { eyebrow: 'JUST ME', title: 'Two ways to start.', offers: ['solo', 'free'] },
-  '1_4': { eyebrow: '1–4 EMPLOYEES', title: 'Help for a small team.', offers: ['group', 'virtual'] },
-  '5_9': { eyebrow: '5–9 EMPLOYEES', title: 'Help for a growing team.', offers: ['group', 'virtual'] },
-  '10_plus': { eyebrow: '10 OR MORE EMPLOYEES', title: 'Start with a consultation.', offers: ['onsite', 'virtual'], featured: 'onsite' },
-  unknown: { eyebrow: 'NOT SURE OF SIZE', title: 'Good places to start.', offers: ['group', 'virtual'] },
+  organization: { eyebrow: 'I WORK FOR AN ORGANIZATION', title: 'For people who work for an organization', intro: 'For staff and directors, including in government, who want to bring practical AI and business tools to their organization.', offers: ['org_intro'], freeAfter: true },
+  solo: { eyebrow: 'JUST ME', title: 'For people who run a business on their own', intro: 'Starting out, or running your business on your own, is completely okay. The right tools can help you get started.', offers: ['solo'], freeAfter: true },
+  '1_4': { eyebrow: '1–4 EMPLOYEES', title: 'For businesses with 1–4 employees', offers: ['group'], also: 'virtual' },
+  '5_9': { eyebrow: '5–9 EMPLOYEES', title: 'For businesses with 5–9 employees', offers: ['group'], also: 'virtual' },
+  // intro: a short larger-company lead-in above the two cards. introCalendly is added only while the verified onsite link is live.
+  '10_plus': { eyebrow: '10+ EMPLOYEES', title: 'For businesses with 10+ employees', intro: 'Your business already has systems and processes. Dwain can help you refine them. Choose a limited onsite appointment while he is in Antigua on Wednesday, October 28, or a private virtual meeting at a later date.', introCalendly: 'Calendly shows which onsite times are still available.', offers: ['onsite', 'virtual'], featured: 'onsite' },
+  unknown: { eyebrow: 'NOT SURE OF SIZE', title: 'Good places to start', offers: ['group'], also: 'virtual' },
 };
-export const sizePath = employees => SIZE_PATHS[employees] || SIZE_PATHS.unknown;
+// The organization path applies only to an explicit choice (segment), never to an unknown headcount.
+export const sizePath = (employees, segment = null) => segment === 'organization' ? SIZE_PATHS.organization : employees && employees !== 'organization' && SIZE_PATHS[employees] || SIZE_PATHS.unknown;
 export function recommend(employees, priority) {
   if (priority === 'tailored' || employees === '10_plus') return 'onsite';
   if (employees === 'solo') return 'solo';
@@ -64,4 +141,4 @@ export function missingQuestions(state) {
 }
 // Size is the only question before offers; a verified size goes straight to them.
 export function nextAfterProfile(state) { return missingQuestions(state)[0] || 'offers'; }
-export function offer(id) { return id===SEMINAR.id?SEMINAR:OFFERS.find(item => item.id === id); }
+export function offer(id) { return id===SEMINAR.id?SEMINAR:id===ORG_INTRO.id?ORG_INTRO:OFFERS.find(item => item.id === id); }

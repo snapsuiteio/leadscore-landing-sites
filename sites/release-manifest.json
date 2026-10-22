@@ -81,7 +81,7 @@
     {
       "tenantSlug": "snapsuite-antigua",
       "pageSlug": "antigua-next-step",
-      "sourceCommit": "ae4f9d26118e1c0303ad68eb00571763ea11265f",
+      "sourceCommit": "106e6acdffbc06442cf6ccf49450375044e326e9",
       "publicationApproved": true,
       "rightsCleared": true,
       "captureDisabledReviewed": true,
@@ -90,15 +90,16 @@
         "assets/dwain-browne.JPG": "9f86d825ceb98ca0f06907e94e69703f9351cbfe0ca35358d732612a23e49c17",
         "assets/flag.svg": "8a2341f680ac7486a110fd7fcebd46c8b51dedec97a8c1f38d4c3de6939e385f",
         "connection.mjs": "fd6c3e04169a093696e4e8c9f93897cd4bf01cb7fa141e25500cfcf7326792c7",
-        "index.html": "f2dbc2c8204ceaf7afd093f34f150c28d62f821ae6667e0912cf5baea4daaef5",
-        "journey.mjs": "1cc16c122643dd9de501a6ad86d5379a0d947e954e80cd855bf1c276b04db2aa",
-        "native-offers.mjs": "55f525e2e3df6cda33c2e23169edf4bd9369446fde3949619fa950ae859bc145",
+        "index.html": "59f46e832f256643b8010705aa803089f9086ab362125c7b9123ead283f41615",
+        "journey.mjs": "42b4fba574c3dc7583dd4c44f24d123844b10cc8883bcbcabc125042f31c1f5f",
+        "native-offers.mjs": "566724c82abc3bcdf4a08826c627e91dd192a8881c65aa379efcf5f23881a4ca",
+        "portable.html": "a59fbb93cf81aae1c5ca9a8829789b20a64535b7bb11f94b6ceb4dbed12a3b1c",
         "resources/job-to-invoice.txt": "785db92be208db301e741f6b183d8bbaf0e235bb9a8b91156eb1f7a590c5dd90",
         "resources/practical-ai.txt": "03194ab5d1cd65696fdc1ba00d842776a0ed35d87892dad84c8b032f4269326d",
         "robots.txt": "331ea9090db0c9f6f597bd9840fd5b171830f6e0b3ba1cb24dfa91f0c95aedc1",
         "submission.mjs": "317e565dbaa4a1bbb69c743ef92d69fd3dd4ff77831f0db7fbc606873eebc70c",
-        "wizard.css": "4b038a1f3aec45e7bf3127969d84062192815be5b4ec89cc03d5430aa07f5b68",
-        "wizard.mjs": "ba7d774466be8bb219c4629c4c32e36ae44c890aee66c8c779c02acd0f6a9ab1"
+        "wizard.css": "592514b33a3b702a3daeceb54e0fde7b34acc976266f0ce558bf27ca422964ce",
+        "wizard.mjs": "f026384908ec984cc5578f0a99bc20fc88f522f9df4499396a6109533eb38f6a"
       },
       "videoProvider": "loom"
     }
