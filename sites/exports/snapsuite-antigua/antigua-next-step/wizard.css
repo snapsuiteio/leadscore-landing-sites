@@ -11,3 +11,6 @@
 .help-footnote{margin-top:24px}
 
 .save-fields{border:0;padding:0;min-width:0}.save-fields legend{font-weight:650}.save-fields details{border-bottom:1px solid var(--rule);padding:12px 0}.save-fields summary{cursor:pointer;min-height:48px;overflow-wrap:anywhere}.save-fields input[type=tel],.save-fields input[type=number],.save-fields textarea{font:inherit;min-height:56px;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:12px;width:100%;color:var(--ink)}
+
+/* Claude: separate secondary actions while preserving their existing tap targets. */
+#screen > .text-button{display:block;min-height:48px}
