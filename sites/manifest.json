@@ -35,7 +35,7 @@
     {
       "tenantSlug": "snapsuite-antigua",
       "pageSlug": "antigua-next-step",
-      "sourceCommit": "106e6acdffbc06442cf6ccf49450375044e326e9",
+      "sourceCommit": "366599830a48b71880843a10ea70dc6fc8943f0a",
       "publicationApproved": true,
       "rightsCleared": true,
       "captureDisabledReviewed": true,
@@ -45,7 +45,7 @@
         "assets/flag.svg": "8a2341f680ac7486a110fd7fcebd46c8b51dedec97a8c1f38d4c3de6939e385f",
         "connection.mjs": "fd6c3e04169a093696e4e8c9f93897cd4bf01cb7fa141e25500cfcf7326792c7",
         "index.html": "59f46e832f256643b8010705aa803089f9086ab362125c7b9123ead283f41615",
-        "journey.mjs": "42b4fba574c3dc7583dd4c44f24d123844b10cc8883bcbcabc125042f31c1f5f",
+        "journey.mjs": "4d74c39038d6ab223278b847cf39052836b92669308b12a6dcf371540cca5457",
         "native-offers.mjs": "566724c82abc3bcdf4a08826c627e91dd192a8881c65aa379efcf5f23881a4ca",
         "resources/job-to-invoice.txt": "785db92be208db301e741f6b183d8bbaf0e235bb9a8b91156eb1f7a590c5dd90",
         "resources/practical-ai.txt": "03194ab5d1cd65696fdc1ba00d842776a0ed35d87892dad84c8b032f4269326d",

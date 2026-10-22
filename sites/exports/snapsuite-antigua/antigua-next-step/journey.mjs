@@ -44,17 +44,19 @@ export const OFFERS = [
     terms: ['Calendly shows the times that are available and the time zone they are in. No date is guaranteed until you book.', 'You pay the full US$479 on Calendly when you book. All taxes and processing fees are included.', 'Rescheduling: If you need to reschedule, please provide at least 48 hours’ notice.', 'Cancellations: For cancellations within 24 hours of the appointment, a 50% fee of the consultation rate will apply.', 'Your Zoom meeting details are sent with your Calendly booking confirmation.'],
     // Shown only while no verified booking link exists.
     status: 'Booking for the virtual meeting is not open on this page yet.',
-    pending: ['Verified Calendly booking link'], productId: 'prod_VUGRThRNPwj1wf' },
-  // Price comes from the chosen track (TRACKS). How long software access lasts, user limits and any later billing are
-  // unresolved: they are neither claimed nor excluded, and there is no checkout until terms exist.
+    // Root verified the Calendly event (two-hour-private-virtual-meeting-with-dwain) in native-offers.mjs.
+    pending: [], productId: 'prod_VUGRThRNPwj1wf' },
+  // Training price comes from the chosen track (TRACKS). Session dates and the monthly software fees are confirmed by
+  // Dwain. The fees sit in `billing` so they show under the price on the card AND the details page, before any purchase.
+  // terms stay empty on purpose: bookable() needs terms, so no group checkout can show while the items in `status` are open.
   { id: 'group', title: 'Software Onboarding and Guided Training, Then Monthly Support', price: 'US$249', cadence: 'One-time',
-    lede: 'Get set up in the software that fits your business and learn to use it: four weekly guided sessions, then monthly group support during your first six months.',
-    billing: 'Flat price for each choice, including all taxes and processing fees.',
-    summary: 'Software onboarding and guided training in a small group: four weekly sessions, then monthly group support during your first six months. Plan to attend each weekly session and put what you learn to work between sessions.',
-    included: ['Software onboarding for the software you choose', 'Guided training: four sessions, one each week', 'Monthly group support during your first six months'],
-    excluded: [],
-    terms: [], status: 'Group training is not open for booking yet. Before booking opens, you will see the session length, the start date, the monthly support schedule, whether sessions are recorded, how long your software access lasts, any user limits, whether anything is billed afterwards, and the cancellation and refund terms.',
-    pending: ['Session length and start date', 'Monthly support schedule and when the six months begins', 'Recordings', 'Software access duration, user limits and any later billing', ...commonPending], productId: 'prod_VUGwHRp60qOa18' },
+    lede: 'Get set up in the software that fits your business and learn to use it: four weekly guided sessions on Wednesdays, November 4, 11, 18 and 25, 2026, from 2 to 3:20 p.m. Antigua time (1 to 2:20 p.m. Toronto time), then monthly group support during your first six months.',
+    billing: 'One-time training fee for each choice, including all taxes and processing fees. This is a training fee, not ongoing software access. After the training, the software is a separate monthly subscription: US$179 a month for SnapSuite or for LeadScore (up to 5 users), or US$349 a month for both, plus US$29 a month for each additional user. All monthly prices include taxes and fees.',
+    summary: 'Software onboarding and guided training in a small group. The four 80-minute sessions are on Wednesdays, November 4, 11, 18 and 25, 2026, from 2 to 3:20 p.m. Antigua time (AST, UTC−4). That is 1 to 2:20 p.m. in Toronto (America/Toronto) and 18:00 to 19:20 UTC. After the training, monthly group support continues during your first six months. Plan to attend each session and put what you learn to work between sessions.',
+    included: ['Software onboarding for the software you choose', 'Guided training: four 80-minute sessions on Wednesdays, November 4, 11, 18 and 25, 2026', 'Monthly group support during your first six months'],
+    excluded: ['Ongoing software access after the training. It is a separate monthly subscription, priced above.'],
+    terms: [], status: 'Group training is not open for booking yet. Before booking opens, you will see whether you can use the software during the training, when the first monthly software charge is made and when it renews, the monthly support dates and when the six months begin, whether sessions are recorded, and the cancellation and refund terms.',
+    pending: ['Software access during the training', 'First monthly software charge date and renewal', 'Monthly support dates and when the six months begins', 'Recordings', ...commonPending], productId: 'prod_VUGwHRp60qOa18' },
   { id: 'solo', title: 'Business Essentials Plan for Solo Business Owners', price: 'US$49', cadence: 'Monthly',
     lede: 'A monthly plan for people who run their business on their own. The exact features, usage limits and support are still being finalized, and you will see them in full before you can subscribe.',
     billing: 'Charged every month, including all taxes and processing fees.',
