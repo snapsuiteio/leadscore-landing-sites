@@ -10,7 +10,7 @@ test('known CRM facts skip repeated questions and ambiguous sizes stay unknown',
  assert.equal(recommend('solo','sales'),'solo');
 });
 test('only exact approved USD provider destinations activate',()=>{
- assert.ok(verifiedProviderLink('seminar_seat'));assert.equal(verifiedProviderLink('onsite'),null);assert.ok(verifiedProviderLink('onsite',{onsite:{...providerLinks.onsite,enabled:true}}));
+ assert.ok(verifiedProviderLink('seminar_seat'));assert.ok(verifiedProviderLink('onsite'));assert.equal(verifiedProviderLink('onsite',{onsite:{...providerLinks.onsite,enabled:false}}),null);
  assert.equal(verifiedProviderLink('group'),null);
  const bad={...providerLinks,seminar_seat:{...providerLinks.seminar_seat,url:providerLinks.seminar_seat.url+'?amount=1'}};
  assert.equal(verifiedProviderLink('seminar_seat',bad),null);
