@@ -1,4 +1,4 @@
-import { EMPLOYEES, PRIORITIES, FOCUS, OFFERS, SEMINAR, recommend, profileAnswers, nextAfterProfile, offer } from './journey.mjs';
+import { EMPLOYEES, SIZES, OFFERS, SEMINAR, FREE, sizePath, profileAnswers, nextAfterProfile, offer, seatSalesOpen, SEAT_SALES_CLOSE_AT, SEMINAR_ENDS_AT } from './journey.mjs';
 import { initialAnswer, choiceField, isEmailField, formReady, publishedAnswers } from './submission.mjs';
 import { verifiedProviderLink } from './native-offers.mjs';
 import { identityBase, identityConfigured, providerLinks } from './connection.mjs';
@@ -8,10 +8,14 @@ const nativeLive=!!nativeLink('seminar_seat')||!!nativeLink('onsite');
 function currentOffer(id){const item=offer(id);if(id==='onsite'&&nativeLive&&!nativeLink(id))return {...item,pending:['Online booking is not open yet.'],timing:'The US$949 onsite consultation is planned for October 28, with all taxes and fees included, but online booking is not open while we complete a check of our payment account.'};return nativeLink(id)?{...item,pending:[],timing:id==='seminar_seat'?'Five paid places total. Stripe shows whether payment is available; one named seat per payment. Free entry remains first come, subject to space. Paid seats are held until 7:15 p.m. Antigua time. Cancel by October 26, 7 p.m. Antigua time for a refund of the amount paid minus actual processing fees; later cancellations receive no refund. The US$249 already includes fees; an eligible refund deducts only the actual processing fee retained by Stripe.':item.timing}:item;}
 const $ = selector => document.querySelector(selector);
 const screen = $('#screen');
-const state = { step: 'intro', employees: null, priority: null, selected: null, track: '', course: false, profile: null, email: '', session: '', verified: false, error: '', editing: false };
+// sizeSource: 'verified' = band read from a verified profile (never changeable here); 'chosen' = picked on a size card.
+const state = { step: 'intro', employees: null, priority: null, selected: null, track: '', course: false, profile: null, email: '', session: '', verified: false, error: '', sizeSource: null };
 let historySteps = [], freeTrigger;
 let formConfig=null,savePayload=null,savePayloadChoice='',savedReceipt=null,savedChoice='';
 const choiceKey=()=>JSON.stringify([state.selected,state.track,state.course,state.employees,state.priority]);
+const knownSize=()=>state.verified&&state.sizeSource==='verified';
+// Client hiding only. The provider/backend must close the Stripe link itself.
+const seatClosedNow=()=>state.selected===SEMINAR.id&&!seatSalesOpen();
 const formBase=()=>identityBase.replace(/\/identity$/,'');
 async function loadPublishedForm(){
  if(!identityConfigured||!state.verified)return;
@@ -28,6 +32,7 @@ function saveSection(){
 const incoming = new URL(location.href);
 let accessToken = new URLSearchParams(incoming.hash.slice(1)).get('access');
 // Clean credentials and contact data before any API call, image, tracker or navigation can reuse them.
+// A raw ?email= is discarded and never used to look anything up.
 if (accessToken || incoming.searchParams.has('email') || incoming.searchParams.has('code')) {
   incoming.searchParams.delete('email'); incoming.searchParams.delete('code'); incoming.hash = '';
   history.replaceState(null, '', incoming.pathname + incoming.search);
@@ -40,81 +45,113 @@ const api = async (action, body) => {
   if (!response.ok) { const error = new Error(result.error || 'We cannot load your details right now.'); error.status = response.status; throw error; }
   return result;
 };
+function resetIdentity() { state.session='';state.profile=null;state.verified=false;state.sizeSource=null;state.employees=null;state.priority=null;state.selected=null;state.track='';state.course=false;formConfig=null;savePayload=null;savedReceipt=null; }
 function go(step, remember = true, error = '') {
-  if (remember && state.step !== step) historySteps.push(state.step);
-  if(step==='offers'&&!state.selected) {state.selected=recommend(state.employees,state.priority);if(state.selected==='group'&&['operations','sales'].includes(state.priority))state.track=state.priority;}
+  // "Loading your saved details" is transient; Back never returns to it.
+  if (remember && state.step !== step && state.step !== 'checking') historySteps.push(state.step);
   state.step = step; state.error = error; render();
   screen.querySelector('h1,h2')?.focus({ preventScroll: true });
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
-function selectedCard(rows, field) {
-  return `<fieldset class="choices"><legend class="small">Choose one</legend>${rows.map(([id,title,sub]) => `<label class="choice"><input type="radio" name="${field}" value="${id}" ${state[field] === id ? 'checked' : ''}><span><strong>${title}</strong>${sub ? `<small>${sub}</small>` : ''}</span></label>`).join('')}</fieldset>`;
+// Four big size cards. A tap goes straight to the matching offers; "Not sure" stays a small secondary action.
+function sizeCards() {
+  return `<div class="size-grid" role="group" aria-labelledby="size-question">${SIZES.map(([id,title,sub])=>`<button type="button" class="size-card${state.employees===id?' current':''}" data-size="${id}"><strong>${title}</strong><small>${sub}</small>${state.employees===id?'<span class="sr-only"> · your current answer</span>':''}</button>`).join('')}</div><button type="button" class="text-button not-sure" data-size="unknown">Not sure</button>`;
+}
+// The recurring charge is spelled out on the card itself, never left to the review screen.
+const cadenceLine = item => item.id==='free' ? 'No purchase needed' : `${item.cadence==='Monthly'?'Charged monthly':item.cadence} · taxes and fees included`;
+function cardStatus(item) {
+  const link=nativeLink(item.id);
+  if(link) return item.id===SEMINAR.id ? 'Pay with Stripe after review' : `Book with ${link.provider} after review`;
+  if(item.id==='solo') return 'Limited plan · terms pending · no checkout yet';
+  return 'Booking not open yet';
+}
+// Compact card: title and price on one row, charge basis, 2–3 benefits, status and one direct review action.
+// Sized so two primary cards fit on a 390×844 phone. Full terms live on review only.
+function offerCard(item, featured=false) {
+  const id=item.id,title=escape(item.title);
+  const cta=id==='free'?`<button class="card-cta secondary" type="button" data-free>Explore free resources</button>`
+    :id==='group'?`<div class="track-ctas" role="group" aria-label="Choose a training focus"><button class="card-cta" type="button" data-review="group:operations" aria-label="Review ${title}: Operations · SnapSuite"><span>Operations</span><small>SnapSuite →</small></button><button class="card-cta" type="button" data-review="group:sales" aria-label="Review ${title}: Sales · LeadScore"><span>Sales</span><small>LeadScore →</small></button></div>`
+    :`<button class="card-cta" type="button" data-review="${id}" aria-label="Review details: ${title}">Review details →</button>`;
+  return `<article class="offer-card${featured?' featured':''}" aria-labelledby="offer-${id}-title"><div class="card-head"><h3 class="offer-title" id="offer-${id}-title">${title}</h3><span class="price">${item.price}</span></div><p class="cadence">${cadenceLine(item)}</p><ul class="benefits">${item.points.slice(0,3).map(s=>`<li>${s}</li>`).join('')}</ul>${id==='free'?'':`<p class="card-status">${featured?'<span class="chip recommended">Suggested for you</span>':''}<span class="chip">${cardStatus(item)}</span></p>`}${cta}</article>`;
+}
+// Optional attendance, kept separate from support offers. Paid seat card disappears at the confirmed cutoff.
+function seminarSection() {
+  const now=Date.now();
+  if(now>=SEMINAR_ENDS_AT) return '';
+  const open=seatSalesOpen(now);
+  return `<section class="seminar-option" aria-labelledby="seminar-title"><p class="eyebrow">OPTIONAL · SEMINAR</p><h2 id="seminar-title">Come to the seminar.</h2><p class="seminar-when">Tuesday, October 27, 2026 · 7–9 p.m. Antigua time (UTC−4)</p><ul class="benefits"><li><strong>Free to attend</strong>, subject to space</li>${open?'<li>A paid seat is optional, not required</li>':''}</ul>${open?offerCard(currentOffer(SEMINAR.id)):'<p class="small">Paid seat reservations closed at noon on October 27, Antigua time. Free attendance remains first come, subject to space.</p>'}<details class="loom-note"><summary>Dwain’s seminar update</summary><p><a href="https://www.loom.com/share/de9b7db400b940038c1e58f518ed2aff" target="_blank" rel="noreferrer">Dwain’s Antigua seminar update ↗</a></p><p>Since recording: free attendance remains first come, subject to space. A named reserved seat is optional and separate from US$249 group training. Consultations and dinner do not include a seminar seat.</p></details></section>`;
 }
 function offerDetail(item) {
   return `<div class="detail"><h3>${item.title}</h3><span class="price">${item.price}</span><span class="billing">${item.billing}</span><p>${item.summary}</p><strong>Included</strong><ul>${item.included.map(s=>`<li>${s}</li>`).join('')}</ul><strong>Not included</strong><ul>${item.excluded.map(s=>`<li>${s}</li>`).join('')}</ul><p class="small">${item.timing}</p>${item.pending.length?`<strong>To be confirmed</strong><ul>${item.pending.map(s=>`<li>${s}</li>`).join('')}</ul>`:''}</div>`;
 }
-function groupTrackControl() {
-  return state.selected==='group'?`<label class="field"><span>Choose a training focus</span><select id="track"><option value="">Choose operations or sales</option><option value="operations" ${state.track==='operations'?'selected':''}>Operations · SnapSuite</option><option value="sales" ${state.track==='sales'?'selected':''}>Sales · LeadScore</option></select></label><p class="small">Choose operations or sales before reviewing group training.</p>`:'';
-}
-function offerCard(item, rec) {
-  return `<label class="offer-choice"><input type="radio" name="selected" aria-labelledby="offer-${item.id}-title offer-${item.id}-price" aria-describedby="offer-${item.id}-summary" value="${item.id}" ${state.selected===item.id?'checked':''}>${item.id===rec?'<span class="chip recommended">Suggested for you</span>':''}<span class="offer-title" role="heading" aria-level="3" id="offer-${item.id}-title">${item.title}</span><span class="price" id="offer-${item.id}-price">${item.price}</span><span class="billing">${item.billing}</span><span class="offer-description" id="offer-${item.id}-summary">${item.summary}</span><span class="offer-description small">${item.timing}</span><span class="offer-description"><span class="chip">${nativeLink(item.id)?'Book directly with '+nativeLink(item.id).provider:'Details to be confirmed'}</span></span></label>${item.id==='group'?groupTrackControl():''}`;
-}
-function seminarCard() {
-  return `<section class="seminar-option" aria-labelledby="seminar-title"><p class="eyebrow">SEMINAR ATTENDANCE · OPTIONAL</p><h2 id="seminar-title">Your seat at the seminar.</h2><div class="seminar-video"><iframe src="https://www.loom.com/embed/de9b7db400b940038c1e58f518ed2aff" title="Dwain’s Antigua seminar update" loading="lazy" referrerpolicy="no-referrer" allow="fullscreen" allowfullscreen></iframe><div><p><a href="https://www.loom.com/share/de9b7db400b940038c1e58f518ed2aff" target="_blank" rel="noreferrer">Dwain’s Antigua seminar update ↗</a></p><strong>An update since recording</strong><p>Free attendance remains first come, subject to space. A named reserved seat is an optional paid offer, separate from US$249 group training. Consultations and dinner do not include a seminar seat.</p></div></div>${offerCard(currentOffer(SEMINAR.id),null)}${nativeLink(SEMINAR.id)?`<a class="primary" href="${nativeLink(SEMINAR.id).url}" rel="noreferrer">Pay US$249 on Stripe →</a><p class="small">Prices are in US dollars and include taxes and fees. Stripe may also show your local currency; that price includes its conversion cost. Choose USD $249 to pay exactly US$249.</p>`:`<button class="secondary" type="button" disabled aria-describedby="seat-pending">Reserve seat: coming soon</button><p id="seat-pending" class="small">Reservations open after the five-seat inventory and checkout are connected and verified. Select the card to review the terms.</p>`}</section>`;
-}
+const helpFootnote = '<p class="small help-footnote">If you have already paid elsewhere, do not pay again. Use the contact details on your receipt to ask for help. A payment still being checked must be reconciled before another charge.</p>';
 function render() {
   $('#back').hidden = !historySteps.length;$('#back').disabled=!!savePayload;
-  $('#progress').textContent = ({ intro: 'A practical next step', identify: 'Start with your email', checking: 'Loading your saved details', emailSent: 'Check your inbox', profile: 'Confirm your details', editProfile: 'Update your draft details', employees: 'Your business', priority: 'What would help?', offers: 'Choose your support', review: 'Review your choice', identityError: 'Your personal link', ambiguous: 'A detail needs checking' })[state.step];
-  const heading = (eyebrow,title,copy='') => `<p class="eyebrow">${eyebrow}</p><h1 tabindex="-1">${title}</h1>${copy ? `<p class="intro-copy">${copy}</p>` : ''}`;
-  const rec = recommend(state.employees,state.priority);
-  if(state.step === 'intro') screen.innerHTML = '<img class="intro-portrait" src="./assets/dwain-browne.JPG" alt="Dwain Browne" width="96" height="96">'+heading('ANTIGUA · KEEP THE MOMENTUM', 'Choose your next step toward a business that gives you more time.', 'Get practical help with your operations, sales or everyday use of AI. Choose the support that fits you—from free resources to focused one-on-one help.') + `<button class="primary" data-go="${nativeLive?'offers':'identify'}">${nativeLive?'See the offers →':'Find my next step →'}</button><button class="text-button" data-free>Explore free resources</button>${nativeLive?`<button class="text-button" data-go="employees">Help me choose · 2 quick questions</button>${identityConfigured?'<button class="text-button" data-go="identify">Start with your email</button>':''}`:'<p class="intro-proof">Already shared your details? Your personal email link brings them with you. At the event, start with your email. We will only ask what is missing.</p>'}`;
-  if(state.step === 'identify') screen.innerHTML = heading('LET’S PICK UP WHERE YOU LEFT OFF', 'Start with your email.', 'Use the email you gave us before. A private link will let you confirm your saved details and continue.') + `<form id="identify-form"><label class="field"><span>Your email address</span><input name="email" type="email" autocomplete="email" value="${escape(state.email)}" required maxlength="254"></label><p class="small">We verify the email before showing any saved business information.</p><button class="primary" type="submit">Send my private link →</button></form>${!identityConfigured?'<div class="notice"><strong>Identity connection is pending</strong><p>This draft cannot send verification emails or load real LeadScore records yet.</p></div>':''}<button class="text-button" data-go="employees">Explore the offers without looking up my details</button>`;
+  // The first screen's step label repeats the question below it; drop the row unless Back is needed.
+  $('.stepbar').hidden = state.step==='intro' && !historySteps.length;
+  $('#progress').textContent = ({ intro: 'A practical next step', identify: 'Continue with your email', checking: 'Loading your saved details', emailSent: 'Check your inbox', employees: 'Your business', offers: 'Your options', review: 'Review your choice', identityError: 'Your personal link', ambiguous: 'A detail needs checking' })[state.step];
+  const heading = (eyebrow,title,copy='',id='') => `<p class="eyebrow">${eyebrow}</p><h1 tabindex="-1"${id?` id="${id}"`:''}>${title}</h1>${copy ? `<p class="intro-copy">${copy}</p>` : ''}`;
+  const sizeQuestion = '<h2 id="size-question" class="size-question">How many employees, not counting you?</h2>';
+  // One short question is the whole first screen: no portrait, eyebrow or promotional headline above the cards.
+  const sizeTitle = '<h1 tabindex="-1" id="size-question" class="size-title">How many employees, not counting you?</h1>';
+  // QR / anonymous entry. The email option only appears when the verified email adapter is connected,
+  // and it only ever sends a private link; typing an email never reveals or skips anything.
+  if(state.step === 'intro') screen.innerHTML = sizeTitle + sizeCards() + (identityConfigured?'<div class="known-visitor"><p><strong>Shared your details before?</strong> We email you a private link first.</p><button class="secondary" type="button" data-go="identify">Continue with my email</button></div>':'');
+  if(state.step === 'identify') screen.innerHTML = heading('LET’S PICK UP WHERE YOU LEFT OFF', 'Continue with your email.', 'Use the email you gave us before. We will send a private link to continue.') + `<form id="identify-form"><label class="field"><span>Your email address</span><input name="email" type="email" autocomplete="email" value="${escape(state.email)}" required maxlength="254"></label><p class="small">We verify the email before showing any saved business information.</p><button class="primary" type="submit">Send my private link →</button></form>${!identityConfigured?'<div class="notice"><strong>Identity connection is pending</strong><p>This draft cannot send verification emails or load real LeadScore records yet.</p></div>':''}<button class="text-button" type="button" id="explore-anonymously">Explore the offers without looking up my details</button>`;
   if(state.step === 'checking') screen.innerHTML = heading('YOUR PERSONAL LINK', 'Loading your saved details…', 'We are checking your private link.');
   if(state.step === 'emailSent') screen.innerHTML = heading('CONTINUE PRIVATELY', 'Check your inbox.', 'Your link request has been saved. If a link arrives, open it to continue. No saved business details are shown here.') + `<p class="small">Email delivery is separate from saving this request. If nothing arrives, contact the event team before requesting another.</p><button class="secondary" data-go="identify">Use a different email</button>`;
-  if(state.step === 'identityError') screen.innerHTML = heading('YOUR PERSONAL LINK', state.error === 'expired' ? 'This private link is unavailable or has expired.' : 'We cannot load your details right now.', state.error === 'expired' ? 'Start with your email to request a fresh private link.' : 'Your saved information has not been loaded. You can try again or explore the offers without it.') + `${accessToken&&state.error!=='expired'?'<button class="primary" id="retry-identity">Try loading my details again</button>':''}<button class="secondary" data-go="identify">Start with my email</button><button class="text-button" data-go="employees">Explore the offers</button>`;
+  if(state.step === 'identityError') screen.innerHTML = heading('YOUR PERSONAL LINK', state.error === 'expired' ? 'This private link is unavailable or has expired.' : 'We cannot load your details right now.', state.error === 'expired' ? 'Continue with your email to request a fresh private link.' : 'Your saved information has not been loaded. You can try again or explore the offers without it.') + `${accessToken&&state.error!=='expired'?'<button class="primary" id="retry-identity">Try loading my details again</button>':''}<button class="secondary" data-go="identify">Continue with my email</button><button class="text-button" data-go="employees">Explore the offers</button>`;
   if(state.step === 'ambiguous') screen.innerHTML = heading('A DETAIL NEEDS CHECKING', 'We need to check one detail before continuing.', 'More than one record needs review. None of their details have been displayed. Please ask the event team to help identify the correct record.') + `<button class="text-button" data-go="employees">Explore the offers while this is checked</button>`;
-  if(state.step === 'profile') {
-    const p = state.profile;
-    screen.innerHTML = heading('ALREADY SHARED · READY TO CONTINUE', p?.name ? `Welcome back, ${escape(p.name)}.` : 'Your email is verified.', 'Here is what you already told us. Confirm it, or change anything that needs updating.') + `<div class="detail" data-leadscore-private><dl class="profile-grid"><dt>Email</dt><dd>${escape(p.email)}</dd><dt>Your name</dt><dd>${escape(p.name)||'Not yet provided'}</dd><dt>Business</dt><dd>${escape(p.company)||'Not yet provided'}</dd>${p.phone?`<dt>Phone</dt><dd>${escape(p.phone)}</dd>`:''}<dt>Employees, excluding you</dt><dd>${label(EMPLOYEES,state.employees)}</dd><dt>What would help</dt><dd>${label(PRIORITIES,state.priority)}</dd></dl></div><button class="primary" id="confirm-profile">This is right →</button><button class="text-button" data-go="editProfile">Edit my details</button><p class="small">Your current LeadScore record is unchanged. When you save your choice, these reviewed details are included in your enquiry.</p>`;
-  }
-  if(state.step === 'editProfile') screen.innerHTML = heading('CHECK YOUR DETAILS', 'Make this your next step.') + `<form id="profile-form"><label class="field"><span>Your name</span><input name="name" type="text" autocomplete="name" value="${escape(state.profile?.name)}" maxlength="120"></label><label class="field"><span>Business name</span><input name="company" type="text" autocomplete="organization" value="${escape(state.profile?.company)}" maxlength="200"></label><label class="field"><span>Employees, excluding you</span><select name="employees"><option value="">Not yet provided</option>${EMPLOYEES.map(([key,title])=>`<option value="${key}" ${state.employees === key?'selected':''}>${title}</option>`).join('')}</select></label><label class="field"><span>What would help</span><select name="priority"><option value="">Not yet provided</option>${PRIORITIES.map(([key,title])=>`<option value="${key}" ${state.priority === key?'selected':''}>${title}</option>`).join('')}</select></label><button class="primary">Use these draft details</button></form>`;
-  if(state.step === 'employees') screen.innerHTML = heading('YOUR BUSINESS', 'How many employees do you have, excluding yourself?', 'This helps us suggest the level of support. Every option stays open to you.') + selectedCard(EMPLOYEES,'employees') + `<button class="primary" id="continue-employees" ${state.employees?'':'disabled'}>Continue →</button>`;
-  if(state.step === 'priority') screen.innerHTML = heading('WHAT WOULD HELP?', 'What would make the biggest difference?', 'Choose one priority to start with.') + selectedCard(PRIORITIES,'priority') + `<button class="primary" id="continue-priority" ${state.priority?'':'disabled'}>See my next steps →</button>`;
+  // Minimal qualification: only when size is unknown, or an anonymous visitor asked to change it.
+  if(state.step === 'employees') screen.innerHTML = state.verified
+    ? `<div class="private-head" data-leadscore-private><h1 tabindex="-1" class="welcome">${state.profile?.name ? `Welcome back, ${escape(state.profile.name)}.` : 'Your email is verified.'}</h1></div>` + sizeQuestion + sizeCards()
+    : sizeTitle + sizeCards();
   if(state.step === 'offers') {
-    const ordered = [...OFFERS].sort((a,b)=>Number(b.id===rec)-Number(a.id===rec));
-    screen.innerHTML = heading('YOUR NEXT STEP', rec ? 'Here is where I would start.' : 'Choose the support that fits.', 'A recommendation is a starting point. Choose any option, or start free.') + `<div class="notice"><strong>${FOCUS[state.priority] || 'Practical help for your business'}</strong><p>${state.priority === 'operations'?'Focus on smoother operations with SnapSuite.':state.priority === 'sales'?'Focus on sales and customer follow-up with LeadScore.':state.priority === 'ai'?'Start with practical AI learning and choose the support level that suits you.':'A focused consultation can help you shape a tailored plan.'} Software access is confirmed separately from training.</p></div>${seminarCard()}<fieldset class="offer-grid"><legend>Choose your support · Group training and other help</legend>${ordered.map(item=>offerCard(currentOffer(item.id),rec)).join('')}</fieldset><button class="secondary" data-free>Start free · No purchase required</button><button class="primary" id="review" ${!state.selected || state.selected==='group'&&!state.track?'disabled':''}>Review my choice →</button>`;
+    const path=sizePath(state.employees),known=knownSize(),p=state.profile;
+    const primary=path.offers.map(id=>id==='free'?FREE:currentOffer(id));
+    const others=[...OFFERS.filter(o=>!path.offers.includes(o.id)).map(o=>currentOffer(o.id)),...(path.offers.includes('free')?[]:[FREE])];
+    // Compact head: one heading plus one line, so both primary cards stay on the first phone screen.
+    const head=known
+      ? `<div class="private-head path-head" data-leadscore-private><h1 tabindex="-1">${p?.name ? `Welcome back, ${escape(p.name)}.` : 'Your next step.'}</h1>${p?.company ? `<p class="path-line">Support that fits ${escape(p.company)}.</p>` : ''}</div>`
+      : `<div class="path-head"><h1 tabindex="-1">${path.title}</h1><p class="path-line"><span>Team: ${label(EMPLOYEES,state.employees)}</span><button class="text-button change-size" type="button" data-go="employees">Change team size</button></p></div>`;
+    // "path-offers", never "primary": .primary is the red pill button style and would paint the whole wrapper.
+    screen.innerHTML = head + `<div class="offer-cards path-offers">${primary.map(item=>offerCard(item,item.id===path.featured)).join('')}</div><details class="more-options"><summary>Explore other options</summary><div class="offer-cards compact">${others.map(item=>offerCard(item)).join('')}</div></details>${seminarSection()}${known&&p?.email?`<button class="text-button" type="button" data-go="identify" data-leadscore-private>Not ${escape(p.email)}? Use a different email</button>`:''}`;
   }
-  if(state.step === 'review') {
-    const item = currentOffer(state.selected);
-    screen.innerHTML = heading('REVIEW YOUR CHOICE', 'Your next step, clearly laid out.') + `<div class="notice" role="status"><strong>${nativeLink(state.selected)?'Continue with '+nativeLink(state.selected).provider:'Details are still being finalised.'}</strong><p>${nativeLink(state.selected)?'Nothing has been booked or paid on this page. The provider will show your current booking or payment result.':'This offer is available for review. Its payment opens after inclusions and terms are confirmed.'}</p></div><div class="summary-line"><span>Team size: ${label(EMPLOYEES,state.employees)} · ${FOCUS[state.priority]||'Your business priority'}</span><button class="text-button" data-go="employees">Change</button></div>${state.selected==='group'?`<p>Training focus: ${state.track==='operations'?'Operations · SnapSuite':'Sales · LeadScore'}</p>`:''}${offerDetail(item)}${state.selected==='solo'?`<label class="check"><input type="checkbox" id="course" ${state.course?'checked':''}><span>Optional US$97 course add-on<br><small>Contents and billing basis to be confirmed. Optional and unselected by default.</small></span></label><p id="course-status" class="small">${state.course?'Requested in this draft only; no course charge has been authorized.':'Course not added.'}</p><p class="small">Website and email add-ons: scope, limits and pricing to be confirmed.</p>`:''}<p class="small">${'Listed price includes all taxes and processing fees.'}${state.selected==='solo'?' Start date, renewal date and recurring terms must be shown before you subscribe.':''}</p>${saveSection()}${nativeLink(state.selected)?`<a class="primary" href="${nativeLink(state.selected).url}" rel="noreferrer">${state.selected==='seminar_seat'?'Continue to Stripe to pay US$249':'Choose a time and pay US$949 on Calendly'} →</a><p class="small">Card details are entered on the provider’s secure page. This page cannot confirm payment or booking. Keep your provider confirmation; do not pay again if a result is pending.</p>${state.selected==='seminar_seat'?'<p class="small">Prices are in US dollars. A local-currency price includes Stripe’s conversion cost. Choose USD $249 to pay exactly US$249.</p>':''}`:`<div class="notice"><strong>Booking: not open yet</strong><p>No seat or appointment is reserved. Actual availability and the full terms must be confirmed before payment.</p></div><button class="primary" type="button" disabled aria-disabled="true" aria-describedby="checkout-help">Booking and payment not open</button><p id="checkout-help" class="small">When checkout opens, card details will be entered on Stripe’s secure page. Please do not enter card details here.</p>`}<button class="secondary" data-go="offers" ${savePayload?'disabled':''}>Change my support</button><p class="small help-footnote">If you have already paid elsewhere, do not pay again. Use the contact details on your receipt to ask for help. A payment still being checked must be reconciled before another charge.</p>`;
+  if(state.step === 'review' && seatClosedNow()) screen.innerHTML = heading('SEMINAR · OCTOBER 27', 'Paid seat reservations have closed.', 'Seat sales closed at noon on October 27, Antigua time. Nothing has been booked or charged on this page. Free attendance remains first come, subject to space.') + `<button class="primary" type="button" data-go="offers" ${savePayload?'disabled':''}>See my other options</button>${helpFootnote}`;
+  else if(state.step === 'review') {
+    const item = currentOffer(state.selected), link = nativeLink(state.selected);
+    screen.innerHTML = heading('REVIEW YOUR CHOICE', 'Your next step, clearly laid out.') + `<div class="notice" role="status"><strong>${link?'Continue with '+link.provider:'Details are still being finalised.'}</strong><p>${link?'Nothing has been booked or paid on this page. The provider will show your current booking or payment result.':'This offer is available for review. Its payment opens after inclusions and terms are confirmed.'}</p></div>${knownSize()?'':`<div class="summary-line"><span>Team size: ${label(EMPLOYEES,state.employees)}</span><button class="text-button" data-go="employees">Change</button></div>`}${state.selected==='group'?`<p>Training focus: ${state.track==='operations'?'Operations · SnapSuite':'Sales · LeadScore'}</p><p class="small">Software access is confirmed separately from training.</p>`:''}${offerDetail(item)}${state.selected==='solo'?`<label class="check"><input type="checkbox" id="course" ${state.course?'checked':''}><span>Optional US$97 course add-on<br><small>Contents and billing basis to be confirmed. Optional and unselected by default.</small></span></label><p id="course-status" class="small">${state.course?'Requested in this draft only; no course charge has been authorized.':'Course not added.'}</p><p class="small">Website and email add-ons: scope, limits and pricing to be confirmed.</p>`:''}<p class="small">${'Listed price includes all taxes and processing fees.'}${state.selected==='solo'?' Start date, renewal date and recurring terms must be shown before you subscribe.':''}</p>${saveSection()}${link?`<a class="primary" href="${link.url}" rel="noreferrer" data-provider="${state.selected}">${state.selected==='seminar_seat'?'Continue to Stripe to pay US$249':'Choose a time and pay US$949 on Calendly'} →</a><p class="small">Card details are entered on the provider’s secure page. This page cannot confirm payment or booking. Keep your provider confirmation; do not pay again if a result is pending.</p>${state.selected==='seminar_seat'?'<p class="small">Prices are in US dollars. A local-currency price includes Stripe’s conversion cost. Choose USD $249 to pay exactly US$249.</p>':''}`:`<div class="notice"><strong>Booking: not open yet</strong><p>No seat or appointment is reserved. Actual availability and the full terms must be confirmed before payment.</p></div><button class="primary" type="button" disabled aria-disabled="true" aria-describedby="checkout-help">Booking and payment not open</button><p id="checkout-help" class="small">When checkout opens, card details will be entered on Stripe’s secure page. Please do not enter card details here.</p>`}<button class="secondary" data-go="offers" ${savePayload?'disabled':''}>Change my support</button>${helpFootnote}`;
   }
-  $('#companion-copy').textContent=nativeLive&&!identityConfigured?(nativeLink('onsite')?'Choose your support. Booking and payment take place with Stripe and Calendly.':'Choose your support. Seminar seat payment takes place with Stripe.'):state.verified?'Your saved details are ready to confirm. We will only ask what is missing.':'Already shared your details? A personal email link will bring them with you.';
-  $('#summary').innerHTML = [state.employees && `<p><strong>Your team</strong><br>${label(EMPLOYEES,state.employees)}</p>`,state.priority&&`<p><strong>Your focus</strong><br>${FOCUS[state.priority]}</p>`,state.selected&&`<p><strong>Your choice</strong><br>${currentOffer(state.selected).title}</p>`].filter(Boolean).join('');
+  // The static native page is not identity-connected, so it never claims details can be brought along.
+  $('#companion-copy').textContent=nativeLive&&!identityConfigured?(nativeLink('onsite')?'Choose your support. Booking and payment take place with Stripe and Calendly.':'Choose your support. Seminar seat payment takes place with Stripe.'):state.verified?'Your options are matched to your business. Nothing is booked or paid until you choose.':identityConfigured?'Already shared your details? Continue with your email.':'Choose your team size to see the support that fits.';
+  $('#summary').innerHTML = [state.employees && `<p><strong>Your team</strong><br>${label(EMPLOYEES,state.employees)}</p>`,state.selected&&!seatClosedNow()&&`<p><strong>Your choice</strong><br>${escape(currentOffer(state.selected).title)}</p>`].filter(Boolean).join('');
   screen.querySelectorAll('[data-go]').forEach(button=>button.addEventListener('click',()=>go(button.dataset.go)));
   screen.querySelectorAll('[data-free]').forEach(button=>button.addEventListener('click',openFree));
-  screen.querySelectorAll('input[type=radio]').forEach(input=>input.addEventListener('change',()=>{
-    state[input.name]=input.value;
-    if(input.name!=='selected') {state.selected=null;state.track='';state.course=false;}
-    if(input.name==='selected') { state.course=false; render(); screen.querySelector(`input[value="${input.value}"]`)?.focus(); }
-    else $('#continue-'+input.name)?.removeAttribute('disabled');
+  screen.querySelectorAll('[data-size]').forEach(button=>button.addEventListener('click',()=>{
+    if(state.employees!==button.dataset.size){state.selected=null;state.track='';state.course=false;}
+    state.employees=button.dataset.size;state.sizeSource='chosen';go('offers');
   }));
-  $('#continue-employees')?.addEventListener('click',()=>go(state.priority?'offers':'priority'));
-  $('#continue-priority')?.addEventListener('click',()=>go('offers'));
-  $('#confirm-profile')?.addEventListener('click',()=>go(nextAfterProfile(state)));
-  $('#review')?.addEventListener('click',async()=>{await loadPublishedForm();go('review');});
+  screen.querySelectorAll('[data-review]').forEach(button=>button.addEventListener('click',async()=>{
+    const [id,track='']=button.dataset.review.split(':');
+    if(id===SEMINAR.id&&!seatSalesOpen()){render();return;}
+    if(state.selected!==id||state.track!==track)state.course=false;
+    state.selected=id;state.track=track;button.disabled=true;
+    await loadPublishedForm();go('review');
+  }));
+  // A page left open past the cutoff must not hand off to Stripe from a stale render.
+  screen.querySelectorAll('[data-provider="seminar_seat"]').forEach(link=>link.addEventListener('click',event=>{if(!seatSalesOpen()){event.preventDefault();render();screen.querySelector('h1')?.focus();}}));
+  $('#explore-anonymously')?.addEventListener('click',()=>{resetIdentity();go('employees');});
   $('#retry-identity')?.addEventListener('click',redeem);
-  $('#track')?.addEventListener('change',e=>{state.track=e.target.value;$('#review').disabled=!state.track;});
   $('#course')?.addEventListener('change',e=>{state.course=e.target.checked;$('#course-status').textContent=state.course?'Requested in this draft only; no course charge has been authorized.':'Course not added.';});
   $('#save-choice-form')?.addEventListener('submit',async e=>{
     e.preventDefault();const form=e.target,button=form.querySelector('button[type=submit]'),status=$('#save-status');
     if(!savePayload){savePayloadChoice=choiceKey();const values=new FormData(form);savePayload={schemaVersion:1,revision:formConfig.revision,submissionId:crypto.randomUUID(),answers:publishedAnswers(formConfig,state.profile,state,values),consent:{marketing:values.get('marketing')==='on',acknowledgement:values.get('acknowledgement')==='on',...(formConfig.consent.acknowledgement?{acknowledgementVersion:formConfig.consent.acknowledgement.version}:{})},website:''};}
     button.disabled=true;button.textContent='Saving…';form.setAttribute('aria-busy','true');form.querySelectorAll('input,select,textarea').forEach(input=>input.disabled=true);$('#back').disabled=true;screen.querySelectorAll('[data-go]').forEach(control=>control.disabled=true);
     try{const result=await api('submit',{session:state.session,submission:savePayload});if(result.resources?.enquiryStatus!=='saved'||!result.resources.id)throw Error('Unconfirmed receipt');savedReceipt=result.resources;savedChoice=savePayloadChoice;savePayload=null;render();$('#saved-heading')?.focus();}
-    catch(error){status.className='error';status.setAttribute('role','alert');status.textContent=error.status===403?'Your private session is unavailable or has expired. Your result may already have been saved. Open a fresh private link and retry the same details to recover the saved result.':"We could not confirm your choice was saved. Your details are still here. Please try again.";button.disabled=false;button.textContent='Try saving again';form.removeAttribute('aria-busy');if(error.status===403){const restart=document.createElement('button');restart.type='button';restart.className='text-button';restart.textContent='Start with my email';restart.addEventListener('click',()=>{savePayload=null;go('identify');});status.append(document.createElement('br'),restart);}}
+    catch(error){status.className='error';status.setAttribute('role','alert');status.textContent=error.status===403?'Your private session is unavailable or has expired. Your result may already have been saved. Open a fresh private link and retry the same details to recover the saved result.':"We could not confirm your choice was saved. Your details are still here. Please try again.";button.disabled=false;button.textContent='Try saving again';form.removeAttribute('aria-busy');if(error.status===403){const restart=document.createElement('button');restart.type='button';restart.className='text-button';restart.textContent='Continue with my email';restart.addEventListener('click',()=>{savePayload=null;go('identify');});status.append(document.createElement('br'),restart);}}
   });
-  $('#profile-form')?.addEventListener('submit',e=>{e.preventDefault();const data=new FormData(e.target);state.profile={...state.profile,name:data.get('name').trim(),company:data.get('company').trim()};const employees=data.get('employees')||null,priority=data.get('priority')||null;if(employees!==state.employees||priority!==state.priority){state.selected=null;state.track='';state.course=false;}state.employees=employees;state.priority=priority;go('profile');});
   $('#identify-form')?.addEventListener('submit',async e=>{
-    e.preventDefault();state.session='';state.profile=null;state.verified=false;state.employees=null;state.priority=null;state.selected=null;state.track='';state.course=false;formConfig=null;savePayload=null;savedReceipt=null;state.email=new FormData(e.target).get('email').trim();const button=e.target.querySelector('button');button.disabled=true;
+    e.preventDefault();resetIdentity();state.email=new FormData(e.target).get('email').trim();const button=e.target.querySelector('button');button.disabled=true;
     try { await api('request',{email:state.email,requestId:crypto.randomUUID()});go('emailSent'); }
     catch(error) { const prior=$('#identity-request-error');prior?.remove();const message=error.status===429?'Please wait before requesting another private link.':'Your verification request could not be confirmed. Check your inbox before requesting another link, or explore the offers below.';e.target.insertAdjacentHTML('afterend',`<div id="identity-request-error" class="error" role="alert">${message}</div>`);button.disabled=false; }
   });
@@ -124,8 +161,15 @@ document.querySelectorAll('[data-free]').forEach(button=>button.addEventListener
 $('#close-free').addEventListener('click',()=>$('#free-dialog').close());
 $('#free-dialog').addEventListener('close',()=>freeTrigger?.isConnected&&freeTrigger.focus());
 $('#back').addEventListener('click',()=>go(historySteps.pop()||'intro',false));
-$('.brand').addEventListener('click',event=>{event.preventDefault();if(!savePayload)go('intro');});
+// A verified, recognised visitor's home is their offers; the size cards are never offered back to them.
+$('.brand').addEventListener('click',event=>{event.preventDefault();if(!savePayload)go(knownSize()?'offers':'intro');});
 if(nativeLive)$('.review-banner').textContent=nativeLink('onsite')?'ANTIGUA · SEMINAR SEATS AND ONSITE CONSULTATIONS · OTHER OFFERS IN REVIEW':'Seminar seats are available now for US$249, with all taxes and fees included; other packages are currently in review.';
+// Re-render once when the seat cutoff passes on an open page (timer, or on return to a sleeping tab).
+let seatCutoffRendered=!seatSalesOpen();
+function refreshSeatCutoff(){if(seatCutoffRendered||seatSalesOpen())return;seatCutoffRendered=true;if(!savePayload&&(state.step==='offers'||state.step==='review'&&state.selected===SEMINAR.id))render();}
+const untilSeatCutoff=SEAT_SALES_CLOSE_AT-Date.now();
+if(untilSeatCutoff>0&&untilSeatCutoff<2147483647)setTimeout(refreshSeatCutoff,untilSeatCutoff+50);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshSeatCutoff();});
 render();
 const exchangeRequestId=crypto.randomUUID();
 async function redeem() {
@@ -133,7 +177,12 @@ async function redeem() {
   try {
     const result=await api('exchange',{token:accessToken,requestId:exchangeRequestId});accessToken=null;
     if(result.status==='ambiguous') go('ambiguous');
-    else {state.profile=result.profile;state.session=result.session;state.verified=true;Object.assign(state,profileAnswers(result.profile));go('profile');}
+    else {
+      state.profile=result.profile;state.session=result.session;state.verified=true;
+      // Only an explicit verified band skips the question; nothing is guessed from partial ranges.
+      Object.assign(state,profileAnswers(result.profile));state.sizeSource=state.employees?'verified':null;
+      historySteps=[];go(nextAfterProfile(state),false);
+    }
   } catch(error) {go('identityError',true,[403,410].includes(error.status)?'expired':'unavailable');}
 }
 if(accessToken) await redeem();
