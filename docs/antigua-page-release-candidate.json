@@ -14,7 +14,7 @@
     "connection.mjs": "fd6c3e04169a093696e4e8c9f93897cd4bf01cb7fa141e25500cfcf7326792c7",
     "courses.html": "c84b48fbb3278ad8ddab62d819a4b626128545f2869cabb12043c5a32bc55d0a",
     "index.html": "d3908694894f6a2e1027ce28a510e80c30a24ea86bfeb27177e3cd99aba2faa2",
-    "journey.mjs": "d76d11037d4c486cbed5a3495039f27f8a1a651b567441cae757687864480ce1",
+    "journey.mjs": "b0671ff1254531079a2b627fe54266684463f5c17940e0d2a2a3debbdecf6842",
     "native-offers.mjs": "da3b4ff181c69289ded7cf2d08cee08240e709caea4704faad23ee46f86e4323",
     "offer-entry.mjs": "3438db713df2f724c89b7598e556cc37805f6f4bb64d875931d93bd627bcdefe",
     "organization.mjs": "c216d7870a2e62cc8805b94499d7ac2385c119329e1f30a9e79f8cbe38a8686c",
@@ -26,12 +26,13 @@
     "robots.txt": "331ea9090db0c9f6f597bd9840fd5b171830f6e0b3ba1cb24dfa91f0c95aedc1",
     "submission.mjs": "317e565dbaa4a1bbb69c743ef92d69fd3dd4ff77831f0db7fbc606873eebc70c",
     "wizard.css": "9df52e9414eab11f543d1815b4e8bc7abf3aba2ac7e98a1ae9a6307e5038c30d",
-    "wizard.mjs": "a546813934e337db9c51dbd04a48171fef8caf825386ba69e2b5207d478f67f2"
+    "wizard.mjs": "7bdc0bb3077b0d626ab3e42ae75ce031266c5dd16ab0bb39f93f13015d673eef"
   },
   "reviewedDirectOfferSource": "000bffed3418503634ca75a5ba06d1f9cd382517",
   "directOffers": [
     "onsite",
     "seat"
   ],
-  "onsiteFollowUps": 2
+  "onsiteFollowUps": 2,
+  "reviewedCopySource": "ea7c8b320fd173f52899088de1d22e5d7cc80c1b"
 }
