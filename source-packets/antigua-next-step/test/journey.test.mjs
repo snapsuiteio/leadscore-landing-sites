@@ -28,5 +28,5 @@ test('size paths preserve thresholds and the confirmed noon cutoff',()=>{
 
 test('three fixed-date training choices use separate one-time prices and the approved refund cutoff',()=>{
  for(const [id,amount] of [['group_operations',24900],['group_sales',24900],['group_both',39840]]){assert.equal(verifiedProviderLink(id).amount,amount);assert.equal(verifiedProviderLink(id,{[id]:{...providerLinks[id],amount:1}}),null)}
- assert.match(OFFERS.find(x=>x.id==='group').terms.join(' '),/November 3, 2026/);assert.match(OFFERS.find(x=>x.id==='onsite').included.join(' '),/One one-hour virtual follow-up/);
+ assert.match(OFFERS.find(x=>x.id==='group').terms.join(' '),/November 3, 2026/);assert.match(OFFERS.find(x=>x.id==='onsite').included.join(' '),/Two virtual follow-up meetings/);
 });
