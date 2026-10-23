@@ -14,12 +14,21 @@ export const PRIORITIES = [
 export const FOCUS = { operations: 'SnapSuite · Operations', sales: 'LeadScore · Sales', ai: 'Practical AI learning', tailored: 'A tailored business consultation' };
 // Group training choices: [key, title, benefit, software, flat price incl. all taxes and fees] (prices approved by Dwain).
 // Each choice has its own price and its own checkout id (group_<key>), configured by root once verified.
+// Benefit first; the software follows. No outcome is promised.
 export const TRACKS = [
-  ['operations', 'Help With Operations', 'SnapSuite onboarding and guided training to organize your paperwork, receipts and records.', 'SnapSuite', 'US$249'],
-  ['sales', 'Help With Sales', 'LeadScore onboarding and guided training to follow up with leads and customers and keep your communications organized.', 'LeadScore', 'US$249'],
-  ['both', 'Both', 'SnapSuite and LeadScore onboarding and guided training together.', 'SnapSuite and LeadScore', 'US$398.40'],
+  ['operations', 'Help With Operations', 'Help with paperwork, receipts, invoices and records.', 'SnapSuite', 'US$249'],
+  ['sales', 'Help With Sales', 'Help with emails, communication, follow-ups and proposals.', 'LeadScore', 'US$249'],
+  ['both', 'Help With Both', 'Help with both sales and operations.', 'SnapSuite and LeadScore', 'US$398.40'],
 ];
 export const track = id => TRACKS.find(([key]) => key === id);
+// Separate-card notes for the 1–4 and 5–9 paths. `software` is the after-training subscription only (approved prices).
+// The number of users included with both is not set, so none is stated.
+export const TRACK_CARDS = {
+  operations: { fit: 'For you if you’re interested in using SnapSuite.', software: 'After the training, SnapSuite is a separate monthly subscription: US$179 a month for up to 5 users, plus US$29 a month for each additional user, including taxes and fees.' },
+  sales: { fit: 'For you if you’re interested in using LeadScore.', software: 'After the training, LeadScore is a separate monthly subscription: US$179 a month for up to 5 users, plus US$29 a month for each additional user, including taxes and fees.' },
+  both: { fit: 'For you if you’re interested in using SnapSuite and LeadScore.', software: 'After the training, SnapSuite and LeadScore together are a separate monthly subscription: US$349 a month, plus US$29 a month for each additional user, including taxes and fees. How many users are included with both has not been set yet.' },
+};
+export const TRACK_QUESTION = 'What would help your business most?';
 // pending: internal guards for unsettled facts. They are never shown as a customer checklist,
 // and an offer with pending facts has no checkout.
 const commonPending = ['Cancellation, rescheduling and refund terms'];
@@ -33,7 +42,7 @@ export const OFFERS = [
     included: ['Two hours with Dwain at your business', 'A walk-through of how your business operates and the challenges you are facing', 'Practical opportunities to use AI and software in your business', 'Clear first next steps to make your business more efficient', 'One one-hour virtual follow-up meeting with Dwain after the visit'],
     // The one included follow-up is listed above; only support beyond it is excluded.
     excluded: ['Setting up, connecting or moving your software and data. The visit shows you what to do next; it does not complete the work.', 'A written report, or ongoing support beyond the one included follow-up meeting'],
-    terms: ['Visits are on Wednesday, October 28, 2026, Antigua time (UTC−4), at 8–10 a.m., 11 a.m.–1 p.m. or 2–4 p.m. Calendly shows which times are still available.', 'You pay the full US$949 on Calendly when you book. All taxes and processing fees are included.', 'Moving to another available time on October 28 costs nothing extra.', 'If you cancel, or move the visit to another day, your full payment becomes one two-hour private video consultation with Dwain on a later date you both agree. There is no extra charge and no expiry date.', 'That change does not give a cash refund or a refund of the price difference.', 'If Dwain cannot make the visit, you choose either a full refund or a video consultation instead.', 'When you book, please give directions to your business and a phone number.'],
+    terms: ['Visits are on Wednesday, October 28, 2026, Antigua time (UTC−4), at 8–10 a.m., 11 a.m.–1 p.m. or 2–4 p.m. Available appointment times are shown when you book.', 'Pay the full US$949 when you book. All taxes and processing fees are included.', 'Moving to another available time on October 28 costs nothing extra.', 'If you cancel, or move the visit to another day, your full payment becomes one two-hour private video consultation with Dwain on a later date you both agree. There is no extra charge and no expiry date.', 'That change does not give a cash refund or a refund of the price difference.', 'If Dwain cannot make the visit, you choose either a full refund or a video consultation instead.', 'When you book, please give directions to your business and a phone number.'],
     status: '', pending: [], productId: 'prod_VUGQJjsZZbqg35' },
   { id: 'virtual', title: 'Two-Hour Private Virtual Meeting With Dwain', price: 'US$479', cadence: 'One-time',
     lede: 'A private two-hour virtual meeting with Dwain. Bring real problems and workflows from your business or your job, and he will show you how AI can help and give you practical next steps.',
@@ -42,7 +51,7 @@ export const OFFERS = [
     included: ['Two hours one-to-one with Dwain in a virtual meeting', 'Working through real problems and workflows from your business or your job', 'Practical examples of how AI can help with them', 'Practical next steps you can act on'],
     excluded: ['Setting up, connecting or moving your software and data for you, or a guarantee that the work will be completed', 'A written report or ongoing support after the meeting'],
     // Rescheduling and cancellation wording is Dwain's existing paid-meeting policy, quoted exactly.
-    terms: ['Calendly shows the times that are available and the time zone they are in. No date is guaranteed until you book.', 'You pay the full US$479 on Calendly when you book. All taxes and processing fees are included.', 'Rescheduling: If you need to reschedule, please provide at least 48 hours’ notice.', 'Cancellations: For cancellations within 24 hours of the appointment, a 50% fee of the consultation rate will apply.', 'Your Zoom meeting details are sent with your Calendly booking confirmation.'],
+    terms: ['Available appointment times, and their time zone, are shown when you book. No date is guaranteed until you book.', 'Pay the full US$479 when you book. All taxes and processing fees are included.', 'Rescheduling: If you need to reschedule, please provide at least 48 hours’ notice.', 'Cancellations: For cancellations within 24 hours of the appointment, a 50% fee of the consultation rate will apply.', 'Your booking confirmation includes your Zoom meeting details.'],
     // Shown only while no verified booking link exists.
     status: 'Booking for the virtual meeting is not open on this page yet.',
     // Root verified the Calendly event (two-hour-private-virtual-meeting-with-dwain) in native-offers.mjs.
@@ -109,7 +118,7 @@ export const seatSalesOpen = (now = Date.now()) => now < SEAT_SALES_CLOSE_AT;
 // The paid-seat block is presented on the 10+ path only. Display targeting, not purchase eligibility (see SEMINAR).
 export const seatOffered = employees => employees === '10_plus';
 // The no-purchase path. Not a paid offer, so it stays outside OFFERS and never reaches review or checkout.
-export const FREE = { id: 'free', title: 'Free Guides to Get Started on Your Own', price: 'Free', cadence: 'No purchase', billing: 'No purchase or card needed.', lede: 'Download two practical guides today: a job-to-invoice checklist and a practical AI workflow. A free DIY course and a Friday live Q&A are coming; their links are not ready yet.' };
+export const FREE = { id: 'free', title: 'Free Guides to Get Started on Your Own', price: 'Free', cadence: 'No purchase', billing: 'No purchase or card needed.', lede: 'Practical checklists for invoicing, sales follow-up and everyday AI that you can read or download today, plus the Friday live Q&A and where to follow Dwain. They open on their own page.' };
 // Organization path primary offer: an initial virtual introduction for staff and directors bringing these tools to an
 // organization of 30+ employees. Its length and any cost are not set (price ''), and it has no terms, so it is never
 // bookable until root verifies a matching event and its terms are added. It is not the paid US$479 virtual meeting.
@@ -126,10 +135,11 @@ export const ORG_INTRO = { id: 'org_intro', title: 'Initial Virtual Introduction
 export const SIZE_PATHS = {
   organization: { eyebrow: 'I WORK FOR AN ORGANIZATION', title: 'For people who work for an organization', intro: 'For staff and directors, including in government, who want to bring practical AI and business tools to their organization.', offers: ['org_intro'], freeAfter: true },
   solo: { eyebrow: 'JUST ME', title: 'For people who run a business on their own', intro: 'Starting out, or running your business on your own, is completely okay. The right tools can help you get started.', offers: ['solo'], freeAfter: true },
-  '1_4': { eyebrow: '1–4 EMPLOYEES', title: 'For businesses with 1–4 employees', offers: ['group'], also: 'virtual' },
-  '5_9': { eyebrow: '5–9 EMPLOYEES', title: 'For businesses with 5–9 employees', offers: ['group'], also: 'virtual' },
+  // trackCards: Operations, Sales and Both as three separate stacked cards under TRACK_QUESTION (same prices on both paths).
+  '1_4': { eyebrow: '1–4 EMPLOYEES', title: 'For businesses with 1–4 employees', offers: ['group'], also: 'virtual', trackCards: true },
+  '5_9': { eyebrow: '5–9 EMPLOYEES', title: 'For businesses with 5–9 employees', offers: ['group'], also: 'virtual', trackCards: true },
   // intro: a short larger-company lead-in above the two cards. introCalendly is added only while the verified onsite link is live.
-  '10_plus': { eyebrow: '10+ EMPLOYEES', title: 'For businesses with 10+ employees', intro: 'Your business already has systems and processes. Dwain can help you refine them. Choose a limited onsite appointment while he is in Antigua on Wednesday, October 28, or a private virtual meeting at a later date.', introCalendly: 'Calendly shows which onsite times are still available.', offers: ['onsite', 'virtual'], featured: 'onsite' },
+  '10_plus': { eyebrow: '10+ EMPLOYEES', title: 'For businesses with 10+ employees', intro: 'Your business already has systems and processes. Dwain can help you refine them. Choose a limited onsite appointment while he is in Antigua on Wednesday, October 28, or a private virtual meeting at a later date.', introCalendly: 'Available onsite appointment times are shown when you book.', offers: ['onsite', 'virtual'], featured: 'onsite' },
   unknown: { eyebrow: 'NOT SURE OF SIZE', title: 'Good places to start', offers: ['group'], also: 'virtual' },
 };
 // The organization path applies only to an explicit choice (segment), never to an unknown headcount.

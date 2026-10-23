@@ -1,0 +1,58 @@
+Follow up with one lead, properly
+A free checklist from Dwain Browne. No sign-up needed.
+
+Choose one lead or customer conversation that has gone quiet. Use made-up details if you are testing this with an AI tool. Do not paste real contact details into a tool you have not approved.
+
+1. Identify the lead.
+   Lead or company reference: ______
+   Where they came from (referral, event, website, call): ______
+
+2. Check permission to contact.
+   How did they agree to hear from you? ______
+   Preferred channel (email, phone, message): ______
+   Have they asked not to be contacted? yes / no
+   If no permission is recorded, or they have asked not to be contacted, stop here.
+
+3. Record the last conversation.
+   Date: ______  Channel: ______
+   What they asked for or said: ______
+   What you promised, if anything: ______
+
+4. Name one owner.
+   Who on your team follows up: ______
+   Only one person owns the next step.
+
+5. Set the next step and its date.
+   Next step (call, send information, proposal, check-in): ______
+   Date: ______
+   What would make this lead "closed - not now"? ______
+
+6. If a proposal is involved, review it first.
+   Proposal or quote reference: ______
+   Is the scope what they asked for? ______
+   Are prices, dates and terms correct and current? ______
+   Who checks it before it goes out? ______
+
+7. Draft the follow-up.
+   Keep it short. Refer to the last conversation. Ask one clear question.
+   Draft: ______
+
+8. Human review. Nothing is sent automatically.
+   The owner reads the draft, checks every fact and commitment, and sends it personally.
+   Sent on: ______  By: ______
+   Reply received? ______  Next date: ______
+
+Worked example using fictional details
+Lead L-21, Sample Bakery, met at a trade event. They agreed by email to receive a quote for a delivery schedule. Last conversation: 3 October, asked for weekly pricing. Owner: Pat. Next step: send the reviewed quote by 10 October. Pat checks the quote, edits the draft below and sends it personally.
+
+Prompt you can copy
+"Draft a short follow-up email from my notes. Refer to our last conversation and ask one clear question about the next step. Use only the facts in my notes. Do not invent prices, discounts, dates, deadlines, urgency or promises. List anything I must confirm before sending. Do not send the message. Notes: [paste fictional notes]."
+
+Example draft
+"Hi Sam, thanks for talking with us on 3 October about weekly deliveries. I've prepared the weekly pricing you asked for. Would you like me to send it over, or would a short call this week be easier?" The owner checks the facts and sends it, or not.
+
+Your seven-day pilot
+Use this checklist for five quiet leads. Record how many had a clear owner and next date before you started, and how many replied. These are your observations, not promised results. Follow-up does not guarantee a sale.
+
+Optional next step
+More free guides, and the ways to follow Dwain, are on the free resources page where you found this checklist. If you would like help with your own sales follow-up, go back to that page and choose "See support for your business". Both are optional.
