@@ -104,3 +104,41 @@ summary:focus-visible{outline:3px solid var(--ink);outline-offset:4px}
 }
 @media(max-width:360px){.size-card{min-height:120px;padding:10px}.size-card strong{font-size:25px}.offer-card{padding:14px 16px}.offer-card.lead{padding:15px 16px}}
 @media(prefers-reduced-motion:no-preference){.size-card,.card-cta{transition:border-color .12s,background-color .12s}}
+
+/* Claude organization questionnaire and separate free choice. */
+.free-choice{display:block;width:100%;min-height:72px;margin:12px 0 4px;border:1px dashed var(--rule);border-radius:24px;background:transparent;color:var(--ink);padding:14px 18px;text-align:center}
+.free-choice strong{font-size:18px;font-weight:650}.free-choice small{display:block;margin-top:4px;font-size:15px;color:var(--muted)}.free-choice:hover{border-color:var(--ink)}
+.org-step{font-size:13px;color:var(--muted);margin:0 0 8px}.org-form textarea{font:inherit;min-height:96px;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:12px;width:100%;color:var(--ink);resize:vertical}.org-form .field small{display:block;margin:-4px 0 8px}.org-form details summary{cursor:pointer;min-height:48px}.org-form h3{margin-top:28px}
+
+.analytics-footer{max-width:1120px;margin:auto;padding:0 20px 24px}.consent-panel{position:fixed;left:0;right:0;bottom:0;z-index:4;background:var(--card);border-top:1px solid var(--rule);padding:16px 20px max(16px,env(safe-area-inset-bottom));max-height:65vh;overflow:auto}.consent-panel[hidden]{display:none}.consent-panel p{margin:8px 0;font-size:15px}.consent-panel .consent-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}.consent-panel .secondary{margin-top:0}@media(max-width:959px){.consent-panel{bottom:61px}}
+
+@media(max-width:959px){:root{--free-bar-space:calc(76px + env(safe-area-inset-bottom))}html{scroll-padding-bottom:var(--free-bar-space)}.layout{padding-bottom:calc(var(--free-bar-space) + 34px)}#screen form :is(input,select,textarea,button,summary),#screen [tabindex="-1"]{scroll-margin-bottom:var(--free-bar-space);scroll-margin-top:16px}}
+
+#org-contact-guard{display:block}
+
+.org-form [aria-invalid="true"]{border-color:#a10d1e}#org-contact-guard{background:#ffefeb;position:relative;z-index:1}@media(min-width:960px){#analytics-consent>*{max-width:1120px;margin-left:auto;margin-right:auto}.consent-panel>strong{display:block}.consent-panel .consent-actions{grid-template-columns:repeat(2,minmax(0,220px));justify-content:start}}
+
+/* Courses: held, script-free page. Placed after line 115 so its padding wins. */
+.courses-page .layout{padding-bottom:48px}
+.course-cards{grid-template-columns:minmax(0,1fr)}
+.course-audience{margin:0 0 8px;font-weight:650;font-size:16px}
+.card-cta[aria-disabled=true],.card-cta[aria-disabled=true]:hover{background:#ead4ce;color:#5d302b;cursor:default}
+.courses-page .brand{min-height:48px}
+.courses-page .stepbar .text-button{display:inline-flex;align-items:center;min-height:48px}
+.courses-free{margin:24px 0}.courses-free .detail-sub{margin-bottom:4px}
+/* Main-page course links: real 48px targets, wrap cleanly, never a card. */
+.courses-link{display:inline-flex;flex-wrap:wrap;align-items:center;gap:0 6px;min-height:48px;padding:10px 0;color:var(--ink);font-weight:650;text-decoration:underline;text-underline-offset:5px}
+.new-tab{font-weight:400;font-size:14px;color:var(--muted)}
+.courses-line{margin:14px 0 0;font-size:15px;color:var(--muted)}
+.courses-card{border-top:1px solid var(--rule);margin-top:24px;padding-top:24px}.courses-card p{margin:10px 0}
+@media(max-width:959px){.courses-page .layout{padding-bottom:40px}#screen .courses-link{scroll-margin-bottom:var(--free-bar-space)}}
+
+/* Claude entrance and learning branch, existing palette and touch targets. */
+.entry-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 8px}
+.entry-card{display:flex;flex-direction:column;justify-content:center;gap:8px;min-height:168px;border:2px solid var(--rule);border-radius:24px;background:var(--card);color:var(--ink);padding:20px 22px;text-align:left}
+.entry-card strong{font-family:var(--serif);font-size:30px;line-height:1.1;font-weight:600}
+.entry-card small{font-size:16px;color:var(--muted)}
+.entry-card:hover{border-color:var(--ink)}.entry-card.current{border-color:var(--red);background:#fff8f0}
+.card-cta[href]{text-decoration:none}
+.courses-line .text-button{display:inline-flex;align-items:center;min-height:48px;padding:10px 0;font-weight:650}
+@media(max-width:959px){.entry-grid{grid-template-columns:minmax(0,1fr)}.entry-card{min-height:128px;padding:18px}.entry-card strong{font-size:26px}}
