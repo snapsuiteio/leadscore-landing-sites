@@ -337,4 +337,5 @@ async function redeem() {
     }
   } catch(error) {go('identityError',true,[403,410].includes(error.status)?'expired':'unavailable');}
 }
-if(accessToken) await redeem();
+if(accessToken&&identityConfigured) await redeem();
+else if(!identityConfigured)accessToken=null;
