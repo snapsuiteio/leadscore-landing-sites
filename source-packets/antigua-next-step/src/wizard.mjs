@@ -1,3 +1,4 @@
+import { publicOfferIntent, offerReviewState, offerFromReviewState } from './offer-entry.mjs';
 import { initializeAnalytics, analyticsStep, analyticsSize, analyticsOffer, analyticsForm, analyticsEvent, suspendPrivateAnalytics, safeWizardAttribution, recordChoice } from './analytics.mjs';
 import { ORGANIZATION_QUESTIONS, organizationReady, organizationAnswers, organizationContactLike } from './organization.mjs';
 import { EMPLOYEES, SIZES, ORGANIZATION, OFFERS, SEMINAR, FREE, TRACKS, TRACK_CARDS, TRACK_QUESTION, track, sizePath, profileAnswers, nextAfterProfile, offer, seatSalesOpen, seatOffered, SEAT_SALES_CLOSE_AT, SEMINAR_ENDS_AT } from './journey.mjs';
@@ -43,6 +44,8 @@ let orgStep=0,orgDraft={},orgPending=null,orgReceipt=null,orgError='';
 let formConfig=null,savePayload=null,savePayloadChoice='',savedReceipt=null,savedChoice='';
 const choiceKey=()=>JSON.stringify([state.selected,state.track,state.course,state.employees,state.priority,state.segment]);
 const org=()=>state.segment==='organization';
+const publicDetailContext=()=>!!offerReviewState(state.selected)&&!state.employees&&!org()&&!state.verified;
+const directOfferView=()=>state.step==='review'&&publicDetailContext();
 const audienceLabel=()=>org()?'Works for an organization':label(EMPLOYEES,state.employees);
 const knownSize=()=>state.verified&&state.sizeSource==='verified';
 const workStep=()=>org()||knownSize()?'offers':state.verified?nextAfterProfile(state):'intro';
@@ -67,14 +70,15 @@ function saveSection(){
 const incoming = new URL(location.href);
 let accessToken = new URLSearchParams(incoming.hash.slice(1)).get('access');
 const publicQueryKeys=new Set(['utm_source','utm_medium','utm_campaign','utm_content','utm_term','gclid','fbclid','ad_id','angle']);
-const privateVisit=!!incoming.hash||Array.from(incoming.searchParams.keys()).some(key=>!publicQueryKeys.has(key))||/\/(?:private|prefill|profile)(?:\/|$)/.test(incoming.pathname);
+const publicOfferId=publicOfferIntent(incoming,publicQueryKeys);
+const privateVisit=!!incoming.hash||Array.from(incoming.searchParams.keys()).some(key=>!publicQueryKeys.has(key)&&!(key==='offer'&&publicOfferId))||/\/(?:private|prefill|profile)(?:\/|$)/.test(incoming.pathname);
 const wizardAttribution=safeWizardAttribution(incoming);
 if(privateVisit)suspendPrivateAnalytics();
 // Clean credentials and contact data before any API call, image, tracker or navigation can reuse them.
 // A raw ?email= is discarded and never used to look anything up.
 if (incoming.search || incoming.hash) {
   incoming.search = ''; incoming.hash = '';
-  history.replaceState(null, '', incoming.pathname + incoming.search);
+  history.replaceState(publicOfferId&&!privateVisit?offerReviewState(publicOfferId):null, '', incoming.pathname);
 }
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const label = (rows, id) => rows.find(([key]) => key === id)?.[1] || 'Not yet provided';
@@ -173,7 +177,7 @@ function render() {
   $('#back').hidden = !historySteps.length;$('#back').disabled=!!savePayload||!!orgPending;
   // The first screen's step label repeats the question below it; drop the row unless Back is needed.
   $('.stepbar').hidden = state.step==='entry' && !historySteps.length;
-  $('#progress').textContent = ({ entry:'A practical next step', learn:'Learn AI', intro: 'A practical next step', identify: 'Continue with your email', checking: 'Loading your saved details', emailSent: 'Check your inbox', employees: 'Your business', offers: 'Your options', review: 'Review your choice', identityError: 'Your personal link', ambiguous: 'A detail needs checking' })[state.step];
+  $('#progress').textContent = directOfferView()?(state.selected===SEMINAR.id?'Seminar seat':'Onsite consultation'):({ entry:'A practical next step', learn:'Learn AI', intro: 'A practical next step', identify: 'Continue with your email', checking: 'Loading your saved details', emailSent: 'Check your inbox', employees: 'Your business', offers: 'Your options', review: 'Review your choice', identityError: 'Your personal link', ambiguous: 'A detail needs checking' })[state.step];
   const heading = (eyebrow,title,copy='',id='') => `<p class="eyebrow">${eyebrow}</p><h1 tabindex="-1"${id?` id="${id}"`:''}>${title}</h1>${copy ? `<p class="intro-copy">${copy}</p>` : ''}`;
   const sizeQuestion = '<h2 id="size-question" class="size-question">How many employees are in your business?</h2>';
   // One short question is the whole first screen: no portrait, eyebrow or promotional headline above the cards.
@@ -217,23 +221,23 @@ function render() {
     screen.innerHTML = head + `<div class="offer-cards path-offers">${cards}</div>${shared}${quiet}${seats?seminar:''}<details class="more-options"><summary>Explore other options</summary><div class="offer-cards compact">${others.map(item=>offerCard(item)).join('')}</div></details>${seats?'':seminar}${known&&p?.email?`<button class="text-button" type="button" data-go="identify" data-leadscore-private data-clarity-mask="true">Not ${escape(p.email)}? Use a different email</button>`:''}`;
   }
   if(state.step==='offers'&&org()){screen.innerHTML=organizationScreen();$('#progress').textContent='Your introduction request';}
-  if(state.step === 'review' && seatClosedNow()) screen.innerHTML = heading('SEMINAR · OCTOBER 27', 'Paid seat reservations have closed.', 'Seat sales closed at noon on October 27, Antigua time. Nothing has been booked or charged on this page. Free attendance remains first come, subject to space.') + `<button class="primary" type="button" data-go="offers" ${savePayload?'disabled':''}>See my other options</button>${helpFootnote}`;
+  if(state.step === 'review' && seatClosedNow()) screen.innerHTML = heading('SEMINAR · OCTOBER 27', 'Paid seat reservations have closed.', 'Seat sales closed at noon on October 27, Antigua time. Nothing has been booked or charged on this page. Free attendance remains first come, subject to space.') + `<button class="primary" type="button" data-go="${state.employees||org()?'offers':'entry'}" ${savePayload?'disabled':''}>${state.employees||org()?'See my other options':'See all options'}</button>${helpFootnote}`;
   else if(state.step === 'review') {
     const item = priced(currentOffer(state.selected),state.track), link = bookable(state.selected,state.track), t = state.selected==='group' ? track(state.track) : null;
     const solo = state.selected==='solo';
     // Order: what you get, price, terms (all inside offerDetail), then how to book. The provider link always comes last.
     // The closed-state status is shown only when there is no bookable link, so it never contradicts an open booking.
     const status = item.status || 'Booking is not open on this page yet.';
-    screen.innerHTML = heading('REVIEW YOUR CHOICE', 'Everything you need to know before you book.') + `${knownSize()?'':`<div class="summary-line"><span>${org()?'You work for an organization':'Team size: '+label(EMPLOYEES,state.employees)}</span></div>`}${t?`<p class="track-line">Your choice: <strong>${t[1]}</strong>${t[3]?` · Software: ${t[3]}`:''}</p>`:''}${offerDetail(item)}${solo?`<label class="check"><input type="checkbox" id="course" ${state.course?'checked':''}><span>Add the optional SnapSuite business course (US$97, one-time)<br><small>A guide to running your business with SnapSuite. It covers the challenges of running and growing a business, and shows how each one maps to what SnapSuite does. Course details are sent to you by email; when you will receive them will be confirmed before you can pay. With the course, your first payment is US$146, then US$49 a month. It is not added unless you tick this box. It is separate from the US$49 introductory AI course.</small></span></label><p id="course-status" class="small">${state.course?'Course added on this page only: first payment US$146, then US$49 a month. Nothing has been charged and no course email has been sent.':'Course not added.'}</p><p class="small">Website and email add-ons may be offered later. Their scope, limits and prices have not been set.</p>`:''}${saveSection()}${!link?'':appointmentLink(link)?`<div class="notice" role="status"><strong>Choose your appointment time and pay</strong><p>Nothing is booked or paid on this page. Available appointment times are shown when you book, and you pay when you book, entering your card details on the secure booking page. Your booking confirmation includes your meeting details: keep it. If a result is still pending, please do not pay again.</p></div>`:`<div class="notice" role="status"><strong>Book and pay on ${link.provider}</strong><p>Nothing is booked or paid on this page. You enter your card details on ${link.provider}’s secure page. After you pay, ${link.provider} shows your result: keep that confirmation. If a result is still pending, please do not pay again.</p></div>`}${link?`<a class="primary" href="${link.url}" rel="noreferrer" data-provider="${state.selected}">${providerLabel(state.selected)}</a>`:`<div class="notice" role="status"><strong>${solo?'Sign-up is not open yet':'Booking is not open yet'}</strong><p>${status}</p></div><button class="primary" type="button" disabled aria-disabled="true" aria-describedby="checkout-help">${solo?'Sign-up is not open yet':'Booking and payment are not open yet'}</button><p id="checkout-help" class="small">Nothing has been booked or charged. Please do not enter card details on this page.</p>`}<button class="secondary" data-go="offers" ${savePayload?'disabled':''}>Back to my options</button>${helpFootnote}`;
+    screen.innerHTML = heading(directOfferView()?(state.selected===SEMINAR.id?'SEMINAR · OCTOBER 27':'ONSITE CONSULTATION'):'REVIEW YOUR CHOICE', 'Everything you need to know before you book.') + `${knownSize()||!(state.employees||org())?'':`<div class="summary-line"><span>${org()?'You work for an organization':'Team size: '+label(EMPLOYEES,state.employees)}</span></div>`}${t?`<p class="track-line">Your choice: <strong>${t[1]}</strong>${t[3]?` · Software: ${t[3]}`:''}</p>`:''}${offerDetail(item)}${solo?`<label class="check"><input type="checkbox" id="course" ${state.course?'checked':''}><span>Add the optional SnapSuite business course (US$97, one-time)<br><small>A guide to running your business with SnapSuite. It covers the challenges of running and growing a business, and shows how each one maps to what SnapSuite does. Course details are sent to you by email; when you will receive them will be confirmed before you can pay. With the course, your first payment is US$146, then US$49 a month. It is not added unless you tick this box. It is separate from the US$49 introductory AI course.</small></span></label><p id="course-status" class="small">${state.course?'Course added on this page only: first payment US$146, then US$49 a month. Nothing has been charged and no course email has been sent.':'Course not added.'}</p><p class="small">Website and email add-ons may be offered later. Their scope, limits and prices have not been set.</p>`:''}${saveSection()}${!link?'':appointmentLink(link)?`<div class="notice" role="status"><strong>Choose your appointment time and pay</strong><p>Nothing is booked or paid on this page. Available appointment times are shown when you book, and you pay when you book, entering your card details on the secure booking page. Your booking confirmation includes your meeting details: keep it. If a result is still pending, please do not pay again.</p></div>`:`<div class="notice" role="status"><strong>Book and pay on ${link.provider}</strong><p>Nothing is booked or paid on this page. You enter your card details on ${link.provider}’s secure page. After you pay, ${link.provider} shows your result: keep that confirmation. If a result is still pending, please do not pay again.</p></div>`}${link?`<a class="primary" href="${link.url}" rel="noreferrer" data-provider="${state.selected}">${providerLabel(state.selected)}</a>`:`<div class="notice" role="status"><strong>${solo?'Sign-up is not open yet':'Booking is not open yet'}</strong><p>${status}</p></div><button class="primary" type="button" disabled aria-disabled="true" aria-describedby="checkout-help">${solo?'Sign-up is not open yet':'Booking and payment are not open yet'}</button><p id="checkout-help" class="small">Nothing has been booked or charged. Please do not enter card details on this page.</p>`}<button class="secondary" data-go="${state.employees||org()?'offers':'entry'}" ${savePayload?'disabled':''}>${state.employees||org()?'Back to my options':'See all options'}</button>${helpFootnote}`;
   }
   // The static native page is not identity-connected, so it never claims details can be brought along.
   // Name only the providers whose links are actually live.
   $('#companion-copy').textContent=state.step==='entry'?'Work with Dwain, or learn AI on your own.':state.step==='learn'?'Each course has one flat, one-time price. Nothing is charged on this page.':org()?"Tell us about your organization. Nothing is booked or paid on this page.":state.step==='review'&&!bookable(state.selected,state.track)?'Choose your support. Nothing is booked or paid on this page.':nativeLive&&!identityConfigured?(nativeLink('onsite')&&nativeLink('seminar_seat')?'Choose your support. Seminar seats are paid on Stripe. For the onsite consultation, choose your appointment time and pay when you book.':nativeLink('onsite')?'Choose your support. For the onsite consultation, choose your appointment time and pay when you book.':'Choose your support. Seminar seat payment takes place with Stripe.'):state.verified?'Your options are matched to your business. Nothing is booked or paid until you choose.':identityConfigured?'Already shared your details? Continue with your email.':'Choose your team size to see the support that fits.';
-  $('#summary').innerHTML = state.step==='learn'?'':[(state.employees||org()) && `<p><strong>${org()?'You':'Your team'}</strong><br>${audienceLabel()}</p>`,state.selected&&!seatClosedNow()&&`<p><strong>Your choice</strong><br>${escape(currentOffer(state.selected).title)}</p>`].filter(Boolean).join('');
+  $('#summary').innerHTML = state.step==='learn'?'':[(state.employees||org()) && `<p><strong>${org()?'You':'Your team'}</strong><br>${audienceLabel()}</p>`,state.selected&&!seatClosedNow()&&`<p><strong>${publicDetailContext()?'Viewing':'Your choice'}</strong><br>${escape(currentOffer(state.selected).title)}</p>`].filter(Boolean).join('');
   screen.querySelectorAll('[data-entry]').forEach(button=>button.addEventListener('click',()=>choose(state.path&&state.path!==button.dataset.entry?'path_switch_'+button.dataset.entry:'entry_'+button.dataset.entry,()=>{state.path=button.dataset.entry;go(state.path==='learn'?'learn':workStep());})));
   screen.querySelectorAll('[data-course-details]').forEach(link=>link.addEventListener('click',event=>followCourse(event,'course_details_'+link.dataset.courseDetails)));
   screen.querySelectorAll('[data-free-download]').forEach(link=>link.addEventListener('click',event=>followChoice(event,'free_download_'+link.dataset.freeDownload)));
-  screen.querySelectorAll('[data-go]').forEach(button=>button.addEventListener('click',()=>{if(['identify','checking','emailSent','identityError','ambiguous'].includes(button.dataset.go)){suspendPrivateAnalytics();go(button.dataset.go);return;}void choose('explore_options',()=>go(button.dataset.go));}));
+  screen.querySelectorAll('[data-go]').forEach(button=>button.addEventListener('click',()=>{if(['identify','checking','emailSent','identityError','ambiguous'].includes(button.dataset.go)){suspendPrivateAnalytics();go(button.dataset.go);return;}void choose('explore_options',()=>{if(button.dataset.go==='entry')history.replaceState({antiguaStep:'entry'},'',location.pathname);go(button.dataset.go);});}));
   screen.querySelectorAll('[data-free-page]').forEach(link=>link.addEventListener('click',event=>followCourse(event,'free_open')));
   screen.querySelectorAll('[data-size]').forEach(button=>button.addEventListener('click',async()=>{
     if(choiceBusy)return;choiceBusy=true;try{await recordChoice('size_'+button.dataset.size);
@@ -297,7 +301,7 @@ async function followCourse(event,code){
  event.preventDefault();if(choiceBusy||savePayload||orgPending)return;
  const href=event.currentTarget.href;
  // No profile, contact details, answers, access token or session is persisted.
- history.replaceState({antiguaStep:state.step==='learn'?'learn':'entry'},'',location.pathname);
+ history.replaceState(directOfferView()?offerReviewState(state.selected):{antiguaStep:state.step==='learn'?'learn':'entry'},'',location.pathname);
  await choose(code,()=>location.assign(href));
 }
 // Free resources are a normal same-tab page (resources.html); the sidebar and phone bar links use the same code.
@@ -305,7 +309,7 @@ document.querySelectorAll('[data-free-page]:not(#screen *)').forEach(link=>link.
 $('#back').addEventListener('click',()=>choose('nav_back',()=>go(historySteps.pop()||'entry',false)));
 document.querySelectorAll('.courses-link:not(#screen *)').forEach(link=>link.addEventListener('click',event=>followCourse(event,'courses_link_sidebar')));
 // Home returns to the entrance; verified profile and organization draft stay in memory.
-$('.brand').addEventListener('click',event=>{event.preventDefault();if(!savePayload&&!orgPending)void choose('nav_home',()=>go('entry'));});
+$('.brand').addEventListener('click',event=>{event.preventDefault();if(!savePayload&&!orgPending)void choose('nav_home',()=>{history.replaceState({antiguaStep:'entry'},'',location.pathname);go('entry');});});
 // Event facts only: no readiness or availability claim (each card states its own booking status).
 if(nativeLive)$('.review-banner').textContent='ANTIGUA · SEMINAR OCTOBER 27 · CONSULTATIONS OCTOBER 28, 2026';
 // Re-render once when the seat cutoff passes on an open page (timer, or on return to a sleeping tab).
@@ -314,7 +318,9 @@ function refreshSeatCutoff(){if(seatCutoffRendered||seatSalesOpen())return;seatC
 const untilSeatCutoff=SEAT_SALES_CLOSE_AT-Date.now();
 if(untilSeatCutoff>0&&untilSeatCutoff<2147483647)setTimeout(refreshSeatCutoff,untilSeatCutoff+50);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshSeatCutoff();});
+const restoredPublicOffer=!accessToken&&!privateVisit?offerFromReviewState(history.state):null;
 if(!accessToken&&!privateVisit&&history.state?.antiguaStep==='learn'){state.path='learn';state.step='learn';historySteps=['entry'];}
+else if(restoredPublicOffer){state.path='work';state.selected=restoredPublicOffer;state.track='';state.step='review';historySteps=[];}
 render();
 void initializeAnalytics({configured:identityConfigured,base:formBase(),privateVisit,attribution:wizardAttribution,getStep:()=>state.step});
 const exchangeRequestId=crypto.randomUUID();
