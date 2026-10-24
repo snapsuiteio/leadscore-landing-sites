@@ -16,7 +16,7 @@
     "index.html": "d3908694894f6a2e1027ce28a510e80c30a24ea86bfeb27177e3cd99aba2faa2",
     "journey.mjs": "b0671ff1254531079a2b627fe54266684463f5c17940e0d2a2a3debbdecf6842",
     "native-offers.mjs": "da3b4ff181c69289ded7cf2d08cee08240e709caea4704faad23ee46f86e4323",
-    "offer-entry.mjs": "3438db713df2f724c89b7598e556cc37805f6f4bb64d875931d93bd627bcdefe",
+    "offer-entry.mjs": "ba5ceaf3ddf05d6126330625e96f24e8bd226bf48b81dfac81afca50b6502387",
     "organization.mjs": "c216d7870a2e62cc8805b94499d7ac2385c119329e1f30a9e79f8cbe38a8686c",
     "resources-back.mjs": "de98af953020997fb0729ecaf9b93ce6e15174afeb90eca38e4033b87401ee11",
     "resources.html": "500097a281df1f2ec94c87ca95b223514f704b90a31b6c9529adb1d158561cac",
@@ -26,13 +26,15 @@
     "robots.txt": "331ea9090db0c9f6f597bd9840fd5b171830f6e0b3ba1cb24dfa91f0c95aedc1",
     "submission.mjs": "317e565dbaa4a1bbb69c743ef92d69fd3dd4ff77831f0db7fbc606873eebc70c",
     "wizard.css": "9df52e9414eab11f543d1815b4e8bc7abf3aba2ac7e98a1ae9a6307e5038c30d",
-    "wizard.mjs": "7bdc0bb3077b0d626ab3e42ae75ce031266c5dd16ab0bb39f93f13015d673eef"
+    "wizard.mjs": "a10b783b9471749db2c2ce7c1b9578f8b32ac0d2aaab677e4488201a8f0eef36"
   },
   "reviewedDirectOfferSource": "000bffed3418503634ca75a5ba06d1f9cd382517",
   "directOffers": [
     "onsite",
-    "seat"
+    "seat",
+    "virtual"
   ],
   "onsiteFollowUps": 2,
-  "reviewedCopySource": "ea7c8b320fd173f52899088de1d22e5d7cc80c1b"
+  "reviewedCopySource": "ea7c8b320fd173f52899088de1d22e5d7cc80c1b",
+  "reviewedVirtualEntrySource": "e10bc004c078e63bc553e1ff818ad34d37288659"
 }
