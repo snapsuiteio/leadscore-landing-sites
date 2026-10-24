@@ -17,8 +17,8 @@
         "tracking": "consent-required",
         "staticGoogleTagId": "G-9T3RDM7NKZ",
         "clarityProjectId": "yu2abnu53o",
-        "trackerSha256": "3a15e70855a08be9914397ffa957807807d3923831343d38db13fa9d3048a70e",
-        "configurationSha256": "76fac290e823dd9f31c7fd6c4e7b266f019a35df8b011c9d8cf64beafe9a28a1"
+        "trackerSha256": "a330c7c778bf264ae3f50fad78989e8d0d3fc90a15598db41c437c82c666142f",
+        "configurationSha256": "757680d1521b9b07027f16681f778d135c2b1f0a759f40bbbde2714b76e99a43"
       },
       "files": {
         "assets/antigua-seminar-invite.mp4": "30cf8227966212d4049f3b5906bb1ea2dde6c569ce366ae722f096f166423529",
@@ -46,9 +46,9 @@
       "integration": {
         "configUrl": "https://pages.getleadscore.ai/f/Awj77rpAdQLynS9oATCSLGrb/config",
         "revision": 3,
-        "configurationSha256": "f56881e95d0cf554a16f3da5b8587a1d410a980acc64e95a8491da7de4eb74d0",
+        "configurationSha256": "07c2356fc2028bed50bff77b7f75e26d3ba2479a278de731102a1507d85b128c",
         "tracking": "consent-required",
-        "trackerSha256": "3a15e70855a08be9914397ffa957807807d3923831343d38db13fa9d3048a70e",
+        "trackerSha256": "a330c7c778bf264ae3f50fad78989e8d0d3fc90a15598db41c437c82c666142f",
         "payments": "disabled",
         "automatedOutreach": "disabled"
       },
