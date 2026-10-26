@@ -204,3 +204,16 @@ a.free-choice{text-decoration:none}.free-choice strong{display:block}
 .work-note{border:1px solid var(--rule);border-radius:16px;background:var(--pending);padding:14px 16px;margin:14px 0 0;font-size:15px;line-height:1.45;color:var(--ink)}
 .work-note p{margin:0 0 8px}.work-note p:last-child{margin:0}
 @media(max-width:359px){.entry-peers{grid-template-columns:minmax(0,1fr)}}
+
+/* Guided revision requested by Dwain: only the current one-to-three choices are shown. */
+.guided-header{display:none}.guided-flow .guided-header{display:block;max-width:720px;margin:0 auto;padding:28px 20px 0}
+.guided-brand{color:var(--red);font:600 24px/1.2 var(--serif);margin:0}
+.guided-flow .review-banner,.guided-flow .masthead,.guided-flow .companion,.guided-flow .free-bar{display:none}
+.guided-flow .layout{display:block;max-width:720px;margin:0 auto;padding:20px 20px 48px}
+.guided-flow .journey{padding-bottom:0}.guided-flow .stepbar{margin:0 0 12px;min-height:0}
+.guided-flow #progress:empty{display:none}.guided-flow h1{font-size:28px;letter-spacing:-.4px;margin:0 0 22px}
+.guided-choices{display:grid;gap:14px}.guided-choice{display:flex;flex-direction:column;gap:8px;justify-content:center;width:100%;min-height:108px;border:2px solid var(--red);border-radius:22px;background:var(--card);padding:22px;text-align:left;text-decoration:none;color:var(--ink)}
+.guided-choice strong{font:600 24px/1.15 var(--serif)}.guided-choice b{font-size:19px;line-height:1.35}.guided-choice span{font-size:16px;line-height:1.35;color:var(--muted)}
+.guided-choice:hover{background:#fff8f0}.guided-caption{font-size:16px;color:var(--muted);margin:0 0 16px}
+.guided-consultation-review .guided-header{display:none}.guided-consultation-review h1{color:var(--red);font-size:24px}
+@media(min-width:960px){.guided-flow .layout{padding-top:24px}.guided-header{padding-top:36px}}
