@@ -185,3 +185,13 @@ a.free-choice{text-decoration:none}.free-choice strong{display:block}
 .resource-next .card-cta{margin:12px 0 4px}
 @media(max-width:959px){.resources-page .layout{padding-bottom:40px}.resource-heading{font-size:24px}.live-card{padding:16px 18px}}
 @media(max-width:360px){.follow-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* Price-first Work / Learn entry, using the existing rounded native card controls. */
+.work-options h2{font-family:var(--serif);font-size:28px;margin:16px 0 8px}.work-intro{margin:0 0 16px}
+.work-grid{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+.work-card{min-height:0;justify-content:flex-start;gap:12px;width:100%;border-color:var(--red)}
+.work-card strong{font-size:25px}.entry-price{display:block;font-size:23px;font-weight:750;line-height:1.25;color:var(--ink)}
+.work-sessions{font-size:17px;font-weight:650}.work-card .fit{font-size:16px;line-height:1.45;color:var(--muted)}
+.work-card .entry-note{font-size:14px;line-height:1.45;color:var(--muted)}.entry-action{font-weight:700;color:var(--red);margin-top:auto}
+.learn-card{margin-top:18px;min-height:100px;width:100%}
+@media(min-width:960px){.work-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
