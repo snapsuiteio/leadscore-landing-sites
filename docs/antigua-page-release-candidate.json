@@ -13,8 +13,8 @@
     "collector.mjs": "16844f6e2f9820d2633a7fc2cc3ebf6ad0c6728b6c22d67725f8a1d2adee2e92",
     "connection.mjs": "fd6c3e04169a093696e4e8c9f93897cd4bf01cb7fa141e25500cfcf7326792c7",
     "courses.html": "c84b48fbb3278ad8ddab62d819a4b626128545f2869cabb12043c5a32bc55d0a",
-    "index.html": "d3908694894f6a2e1027ce28a510e80c30a24ea86bfeb27177e3cd99aba2faa2",
-    "journey.mjs": "b0671ff1254531079a2b627fe54266684463f5c17940e0d2a2a3debbdecf6842",
+    "index.html": "c40b018d995fcc21239c1784445bdf45be85e19db631cd1f6ee3ab1cc5a2b2e5",
+    "journey.mjs": "6fb347eeee109e56dbf191b6d3e3e510dfdb1a8d451c3d2451d180e6b331617f",
     "native-offers.mjs": "da3b4ff181c69289ded7cf2d08cee08240e709caea4704faad23ee46f86e4323",
     "offer-entry.mjs": "ba5ceaf3ddf05d6126330625e96f24e8bd226bf48b81dfac81afca50b6502387",
     "organization.mjs": "c216d7870a2e62cc8805b94499d7ac2385c119329e1f30a9e79f8cbe38a8686c",
@@ -25,8 +25,8 @@
     "resources/sales-follow-up.txt": "4bf31a90d5080b0c48ca7717ab95efd9750c89ac1d98edea1c9a924825ab8c36",
     "robots.txt": "331ea9090db0c9f6f597bd9840fd5b171830f6e0b3ba1cb24dfa91f0c95aedc1",
     "submission.mjs": "317e565dbaa4a1bbb69c743ef92d69fd3dd4ff77831f0db7fbc606873eebc70c",
-    "wizard.css": "9df52e9414eab11f543d1815b4e8bc7abf3aba2ac7e98a1ae9a6307e5038c30d",
-    "wizard.mjs": "a10b783b9471749db2c2ce7c1b9578f8b32ac0d2aaab677e4488201a8f0eef36"
+    "wizard.css": "588cf66509e5b2d25707b6da1241c2ebd81d27f20e44752b216f112627e1556e",
+    "wizard.mjs": "8f67412e3cbc5ba684c307f8ed65c37fa692d85438922f2c85f1dd4588b4335a"
   },
   "reviewedDirectOfferSource": "000bffed3418503634ca75a5ba06d1f9cd382517",
   "directOffers": [
@@ -36,5 +36,17 @@
   ],
   "onsiteFollowUps": 2,
   "reviewedCopySource": "ea7c8b320fd173f52899088de1d22e5d7cc80c1b",
-  "reviewedVirtualEntrySource": "e10bc004c078e63bc553e1ff818ad34d37288659"
+  "reviewedVirtualEntrySource": "e10bc004c078e63bc553e1ff818ad34d37288659",
+  "candidateUnifiedOfferSource": "53a7c1fd07dc1916d11dc8237baff6aa20bd0d58",
+  "unifiedConsultation": {
+    "amount": 94900,
+    "currency": "usd",
+    "modes": [
+      "in_person",
+      "zoom"
+    ],
+    "eventId": "204689684",
+    "legacyVirtual479Preserved": true,
+    "groupSubscriptionsUnchanged": true
+  }
 }
