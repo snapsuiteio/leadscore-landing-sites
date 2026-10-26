@@ -193,5 +193,14 @@ a.free-choice{text-decoration:none}.free-choice strong{display:block}
 .work-card strong{font-size:25px}.entry-price{display:block;font-size:23px;font-weight:750;line-height:1.25;color:var(--ink)}
 .work-sessions{font-size:17px;font-weight:650}.work-card .fit{font-size:16px;line-height:1.45;color:var(--muted)}
 .work-card .entry-note{font-size:14px;line-height:1.45;color:var(--muted)}.entry-action{font-weight:700;color:var(--red);margin-top:auto}
-.learn-card{margin-top:18px;min-height:100px;width:100%}
+
 @media(min-width:960px){.work-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.entry-peers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 20px}
+.peer-card{min-height:76px;padding:14px 16px;justify-content:center;gap:4px;text-decoration:none}
+.peer-card strong{font-size:21px}.peer-card small{font-size:14px}
+.peer-card.current{border-color:var(--red);background:#fff8f0}
+.work-options h2{font-size:24px;margin:0 0 6px}
+.work-note{border:1px solid var(--rule);border-radius:16px;background:var(--pending);padding:14px 16px;margin:14px 0 0;font-size:15px;line-height:1.45;color:var(--ink)}
+.work-note p{margin:0 0 8px}.work-note p:last-child{margin:0}
+@media(max-width:359px){.entry-peers{grid-template-columns:minmax(0,1fr)}}
