@@ -35,7 +35,7 @@
     {
       "tenantSlug": "snapsuite-antigua",
       "pageSlug": "antigua-next-step",
-      "sourceCommit": "70e906003ebecfde42bcc683071fd8453d258323",
+      "sourceCommit": "7af5eec54bc5a31152497a8662aafa4b244d8d9b",
       "publicationApproved": true,
       "rightsCleared": true,
       "captureDisabledReviewed": true,
@@ -48,20 +48,21 @@
         "collector.mjs": "16844f6e2f9820d2633a7fc2cc3ebf6ad0c6728b6c22d67725f8a1d2adee2e92",
         "connection.mjs": "fd6c3e04169a093696e4e8c9f93897cd4bf01cb7fa141e25500cfcf7326792c7",
         "courses.html": "c84b48fbb3278ad8ddab62d819a4b626128545f2869cabb12043c5a32bc55d0a",
-        "index.html": "c40b018d995fcc21239c1784445bdf45be85e19db631cd1f6ee3ab1cc5a2b2e5",
-        "journey.mjs": "6fb347eeee109e56dbf191b6d3e3e510dfdb1a8d451c3d2451d180e6b331617f",
-        "native-offers.mjs": "da3b4ff181c69289ded7cf2d08cee08240e709caea4704faad23ee46f86e4323",
-        "offer-entry.mjs": "ba5ceaf3ddf05d6126330625e96f24e8bd226bf48b81dfac81afca50b6502387",
+        "guided-state.mjs": "ec4e49ee7227b7200fefb3fb1931f5285d6d653a74c673599cc9f10761c4b010",
+        "index.html": "40ada7c737a5f208da5de2318848584b07dba1142fea40a0fa11a836928dba50",
+        "journey.mjs": "20714f4a93526bc67b2101ce063cf3f6aecfc9344f5503d6ec35e1bd83b5a0b6",
+        "native-offers.mjs": "7010c946663aacf98196e6f4898ef652a2f202233b0d20fc923f1461b5cb1989",
+        "offer-entry.mjs": "2090beb14fe263165b04a86cb9972da06a41ad1c45d63a74bfe61e38bab5123d",
         "organization.mjs": "c216d7870a2e62cc8805b94499d7ac2385c119329e1f30a9e79f8cbe38a8686c",
-        "resources-back.mjs": "de98af953020997fb0729ecaf9b93ce6e15174afeb90eca38e4033b87401ee11",
-        "resources.html": "500097a281df1f2ec94c87ca95b223514f704b90a31b6c9529adb1d158561cac",
         "resources/job-to-invoice.txt": "a21b544d5c390c4a203a418b2dd755d51ad76bdfe7210a73ecdfde7a970da1f2",
         "resources/practical-ai.txt": "0550af865d3e7a7122a70cc2790c2122fedb7717bc2f111051a8b977b397a830",
         "resources/sales-follow-up.txt": "4bf31a90d5080b0c48ca7717ab95efd9750c89ac1d98edea1c9a924825ab8c36",
+        "resources-back.mjs": "de98af953020997fb0729ecaf9b93ce6e15174afeb90eca38e4033b87401ee11",
+        "resources.html": "500097a281df1f2ec94c87ca95b223514f704b90a31b6c9529adb1d158561cac",
         "robots.txt": "331ea9090db0c9f6f597bd9840fd5b171830f6e0b3ba1cb24dfa91f0c95aedc1",
         "submission.mjs": "317e565dbaa4a1bbb69c743ef92d69fd3dd4ff77831f0db7fbc606873eebc70c",
-        "wizard.css": "9e8a9a35b06796c8b86d18fde6e0953a7ceebe96350dc558209ed1c155bb24dc",
-        "wizard.mjs": "084be8bb6d7acd19acc95c20c65329526e4edaf19084732af41dcfe29d2a1bf1"
+        "wizard.css": "028ad2a39cad52dfe850e655ef48130e5a410cb501e632c71a6be05014d399dc",
+        "wizard.mjs": "7268d6f0e5943ac10240d1ab6065f28fa9a5d3fa75a8b22c4a5f7e8cf41f2eb7"
       }
     }
   ]

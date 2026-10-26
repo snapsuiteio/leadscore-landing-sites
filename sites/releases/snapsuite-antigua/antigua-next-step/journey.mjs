@@ -98,6 +98,16 @@ export const OFFERS = [
     terms: [], status: 'Dinner booking is not open yet. The venue, the meal and drinks, how long the dinner lasts, and the length and booking window of the follow-ups have not been set. The cancellation and refund terms will be shown before you can book.',
     pending: ['Dinner venue and duration', 'Exactly which meal and drinks are included', 'Follow-up lengths and booking window', ...commonPending], productId: 'prod_VUGyJFviXCeOC5' },
 ];
+// A separate evergreen offer. Never repurpose the dated onsite offer or legacy virtual product.
+const { productId: datedProductId, ...consultationBase } = OFFERS.find(item=>item.id==='onsite');
+export const CONSULTATION = {
+ ...consultationBase, id:'consultation', title:'Consultation',
+ lede:'Two hours of one-on-one advice with Dwain, virtually or in person, plus two virtual follow-up meetings.',
+ summary:'A two-hour initial consultation with Dwain, virtually on Zoom or in person at your business in Antigua, plus two virtual follow-up meetings. Bring the business challenge you want to work through.',
+ included:['Two hours one-to-one with Dwain, virtually on Zoom or in person at your business in Antigua','Practical advice on one agreed business priority, with a plan and next steps','Two virtual follow-up meetings with Dwain'],
+ terms:['Available dates, times and the time zone are shown when you book. Choose virtual or in person.','Pay the full US$949 when you book. All taxes and processing fees are included.','You may move to another available time on your booked day without new payment.','If you cancel the appointment or move to another day, your full payment becomes one two-hour private virtual consultation with Dwain on a later date you both agree. There is no extra charge and no expiry date.','That conversion does not give a cash refund or a refund of the price difference.','If Dwain cannot deliver the appointment, you choose either a full refund or a virtual replacement.','Give a phone number when you book. For an in-person meeting, give directions to your business; for Zoom, enter “Virtual meeting” in that question.'],
+ status:'',pending:[]
+};
 // Current policy (Dwain): any business may buy a paid seat. The seat block is still presented on the 10+ path only;
 // that is display targeting, not purchase eligibility.
 export const SEMINAR = {
@@ -168,4 +178,4 @@ export function missingQuestions(state) {
 }
 // Size is the only question before offers; a verified size goes straight to them.
 export function nextAfterProfile(state) { return missingQuestions(state)[0] || 'offers'; }
-export function offer(id) { return id===SEMINAR.id?SEMINAR:id===ORG_INTRO.id?ORG_INTRO:OFFERS.find(item => item.id === id); }
+export function offer(id) { return id===CONSULTATION.id?CONSULTATION:id===SEMINAR.id?SEMINAR:id===ORG_INTRO.id?ORG_INTRO:OFFERS.find(item => item.id === id); }

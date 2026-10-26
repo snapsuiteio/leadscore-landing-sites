@@ -6,12 +6,13 @@
   <title>Your next step · Antigua · Dwain Browne</title>
   <link rel="stylesheet" href="./wizard.css"><script type="module" src="./wizard.mjs"></script>
 </head>
-<body>
+<body class="guided-flow">
   <a class="skip" href="#screen">Skip to your next step</a>
   <div class="review-banner">DRAFT FOR REVIEW · Booking and payment are not open</div>
   <header class="masthead"><a class="brand" href="#" aria-label="Antigua next-step home"><img src="./assets/flag.svg" width="42" height="28" alt=""><span>ANTIGUA<small>YOUR NEXT STEP</small></span></a><span>With Dwain Browne</span></header>
+  <div class="guided-header"><p class="guided-brand">Consultation</p></div>
   <main class="layout">
-    <section class="journey"><div class="stepbar"><button type="button" id="back" class="text-button" hidden>← Back</button><span id="progress">A little clarity. A practical next step.</span></div><div id="screen" data-clarity-mask="true"></div></section>
+    <section class="journey"><div class="stepbar" hidden><button type="button" id="back" class="text-button" hidden>← Back</button><span id="progress"></span></div><div id="screen" data-clarity-mask="true"><h1 tabindex="-1">What would you like to do?</h1><div class="guided-choices"><button type="button" class="guided-choice" data-entry="work"><strong>Work with Dwain</strong></button><button type="button" class="guided-choice" data-entry="learn"><strong>Learn AI on my own</strong></button></div></div></section>
     <aside class="companion"><img class="portrait" src="./assets/dwain-browne.JPG" alt="Dwain Browne" width="240" height="288"><p class="eyebrow">FROM DWAIN</p><h2>Start with the work<br>you want to improve.</h2><p id="companion-copy">Compare the price and support before choosing.</p><div id="summary" data-leadscore-private data-clarity-mask="true"></div><div class="free-card"><strong>There is a free way forward.</strong><p>Practical guides to try at your own pace. No paid purchase required.</p><a class="text-button free-page-link" href="./resources.html" data-free-page>Explore free resources →</a></div><div class="courses-card"><strong>Prefer a course?</strong><p>Two paid AI courses, Part 1 and Part 2, each with a one-time price.</p><a class="text-button courses-link" href="./courses.html" rel="noreferrer">See the AI courses</a></div></aside>
   </main>
   <footer class="free-bar"><a href="./resources.html" data-free-page>Explore free resources <span aria-hidden="true">→</span></a></footer>
