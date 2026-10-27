@@ -142,14 +142,14 @@ function offerCard(item, role='') {
   return `<article class="offer-card${role?' '+role:''}" aria-labelledby="offer-${id}-title"><h3 class="offer-title" id="offer-${id}-title">${title}</h3><p class="offer-lede">${item.lede}</p>${id==='group'?trackChoices(item):''}<div class="card-foot${action?'':' no-action'}"><div><p class="price-line">${item.price&&id!=='group'?`<span class="price">${item.price}</span> `:''}<span class="cadence">${item.billing}</span></p>${item.cardNote?`<p class="card-note">${item.cardNote}</p>`:''}${id==='free'?'':`<p class="card-status">${cardStatus(item)}</p>`}</div>${action}</div></article>`;
 }
 // Seminar: the paid-seat block appears on the 10+ path only; every other path gets one quiet free-attendance line.
-// The paid seat card disappears at the confirmed noon cutoff; the whole section after the seminar ends.
+// The paid seat card disappears at the confirmed 5 p.m. cutoff; the whole section after the seminar ends.
 function seminarSection() {
   const now=Date.now();
   if(now>=SEMINAR_ENDS_AT) return '';
   const when='Tuesday, October 27, 2026 · 7–9 p.m. Antigua time (UTC−4) · Azure Conference Hall, Trade Winds Hotel';
   if(!seatOffered(state.employees)) return `<p class="seminar-quiet"><strong>Free seminar:</strong> ${when}. Free to attend, first come, subject to space.</p>`;
   const open=seatSalesOpen(now);
-  return `<section class="seminar-option" aria-labelledby="seminar-title"><p class="eyebrow">SEMINAR · OCTOBER 27</p><h2 id="seminar-title">Trade Winds Hotel Seminar, October 27th.</h2><p class="seminar-when">${when}</p><p class="seminar-free">The seminar is free to attend, first come, first served, subject to space.${open&&bookable(SEMINAR.id)?' Applications exceed available seating. Reserve a guaranteed seat for US$249.':open?' Paid seat booking is not open on this page right now.':''}</p>${open?offerCard(currentOffer(SEMINAR.id)):'<p class="small">Paid seat reservations closed at noon on October 27, Antigua time. Free attendance is still first come, subject to space.</p>'}</section>`;
+  return `<section class="seminar-option" aria-labelledby="seminar-title"><p class="eyebrow">SEMINAR · OCTOBER 27</p><h2 id="seminar-title">Trade Winds Hotel Seminar, October 27th.</h2><p class="seminar-when">${when}</p><p class="seminar-free">The seminar is free to attend, first come, first served, subject to space.${open&&bookable(SEMINAR.id)?' Applications exceed available seating. Reserve a guaranteed seat for US$249.':open?' Paid seat booking is not open on this page right now.':''}</p>${open?offerCard(currentOffer(SEMINAR.id)):'<p class="small">Paid seat reservations closed at 5 p.m. on October 27, Antigua time. Free attendance is still first come, subject to space.</p>'}</section>`;
 }
 // What it is and what is included come first; then the price; then what is not included and the booking terms.
 // Unsettled facts (item.pending) are guards only and are never listed here.
@@ -236,7 +236,7 @@ function render() {
     screen.innerHTML = head + `<div class="offer-cards path-offers">${cards}</div>${shared}${quiet}${seats?seminar:''}<details class="more-options"><summary>Explore other options</summary><div class="offer-cards compact">${others.map(item=>offerCard(item)).join('')}</div></details>${seats?'':seminar}${known&&p?.email?`<button class="text-button" type="button" data-go="identify" data-leadscore-private data-clarity-mask="true">Not ${escape(p.email)}? Use a different email</button>`:''}`;
   }
   if(state.step==='offers'&&org()){screen.innerHTML=organizationScreen();$('#progress').textContent='Your introduction request';}
-  if(state.step === 'review' && seatClosedNow()) screen.innerHTML = heading('SEMINAR · OCTOBER 27', 'Paid seat reservations have closed.', 'Seat sales closed at noon on October 27, Antigua time. Nothing has been booked or charged on this page. Free attendance remains first come, subject to space.') + `<button class="primary" type="button" data-go="${state.employees||org()?'offers':'entry'}" ${savePayload?'disabled':''}>${state.employees||org()?'See my other options':'See all options'}</button>${helpFootnote}`;
+  if(state.step === 'review' && seatClosedNow()) screen.innerHTML = heading('SEMINAR · OCTOBER 27', 'Paid seat reservations have closed.', 'Seat sales closed at 5 p.m. on October 27, Antigua time. Nothing has been booked or charged on this page. Free attendance remains first come, subject to space.') + `<button class="primary" type="button" data-go="${state.employees||org()?'offers':'entry'}" ${savePayload?'disabled':''}>${state.employees||org()?'See my other options':'See all options'}</button>${helpFootnote}`;
   else if(state.step === 'review') {
     const item = priced(currentOffer(state.selected),state.track), link = bookable(state.selected,state.track), t = state.selected==='group' ? track(state.track) : null;
     const solo = state.selected==='solo';
