@@ -16,7 +16,8 @@ test('US949 appointment supports the verified two delivery modes with preserved 
 test('legacy US479 virtual package and existing group subscription terms are unchanged',()=>{
  // Fingerprints of the complete settled offer objects in the prior live source, not just their prices.
  assert.equal(digest(offer('onsite')),'6f9209c38f8e72dbcfb49049b2c8a41aa13fe971433760c132d28cbbc66627ed');
- assert.equal(digest(offer('seminar_seat')),'03bf79e66cddbdc5f5abc27b29a620ae253fec96238aaa23c35baabe1dd9254d');
+ // Seat fingerprint re-pinned 27 Oct: Dwain extended the seat sales cutoff from noon to 5 p.m. Antigua time and rewrote the seat description; price, cap and terms unchanged.
+ assert.equal(digest(offer('seminar_seat')),'9f2fc3552eeda898158c5eebe82123fc384a05ced06404823bf7836f4a98cf2a');
  assert.equal(digest(offer('virtual')),'45a4cd53459660ed85b11327dba4b8f176f9337515069014c87b97357a7a407b');
  assert.equal(digest(offer('group')),'12f438209ebe93322b283740c9837f2fa7c92b97ff2c0319d1c462bd57ec2f65');
  assert.equal(verifiedProviderLink('virtual').amount,47900);

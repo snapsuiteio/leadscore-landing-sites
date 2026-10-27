@@ -17,13 +17,13 @@ test('only exact approved USD provider destinations activate',()=>{
  assert.match(OFFERS.find(x=>x.id==='onsite').terms.join(' '),/no extra charge and no expiry date/);assert.equal(verifiedProviderLink('virtual').amount,47900);assert.match(OFFERS.find(x=>x.id==='virtual').terms.join(' '),/48 hours/);
 });
 
-test('size paths preserve thresholds and the confirmed noon cutoff',()=>{
+test('size paths preserve thresholds and the confirmed 5 p.m. cutoff',()=>{
  assert.deepEqual(SIZES.map(row=>row[0]),['10_plus','5_9','1_4','solo']);
  assert.deepEqual(sizePath('solo').offers,['solo']);
  assert.deepEqual(sizePath('10_plus').offers,['onsite','virtual']);
  assert.equal(seatSalesOpen(SEAT_SALES_CLOSE_AT-1),true);
  assert.equal(seatSalesOpen(SEAT_SALES_CLOSE_AT),false);
- assert.equal(new Date(SEAT_SALES_CLOSE_AT).toISOString(),'2026-10-27T16:00:00.000Z');
+ assert.equal(new Date(SEAT_SALES_CLOSE_AT).toISOString(),'2026-10-27T21:00:00.000Z');
 });
 
 test('three fixed-date training choices use separate one-time prices and the approved refund cutoff',()=>{
