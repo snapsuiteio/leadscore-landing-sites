@@ -3,8 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test test/build.test.mjs",
+    "test": "node --test test/build.test.mjs test/release-preflight.test.mjs test/private-journey.test.mjs",
     "build": "node scripts/build.mjs"
   },
-  "engines": { "node": ">=22" }
+  "engines": {
+    "node": ">=22"
+  }
 }
