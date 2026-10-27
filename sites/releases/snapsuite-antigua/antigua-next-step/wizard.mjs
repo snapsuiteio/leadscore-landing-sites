@@ -47,7 +47,7 @@ const choiceKey=()=>JSON.stringify([state.selected,state.track,state.course,stat
 const org=()=>state.segment==='organization';
 const publicDetailContext=()=>!!offerReviewState(state.selected)&&!state.employees&&!org()&&!state.verified;
 const directOfferView=()=>state.step==='review'&&publicDetailContext();
-const reviewHeading=()=>state.selected==='consultation'?'Consultation':state.selected===SEMINAR.id?'Nearly 200 applicants. Only 60 seats at the venue.':['onsite','virtual'].includes(state.selected)?'Get an Expert Review of Your Business.':'Everything you need to know before you book.';
+const reviewHeading=()=>state.selected==='consultation'?'Consultation':state.selected===SEMINAR.id?'It’s going to be a packed room. Guarantee your seat.':['onsite','virtual'].includes(state.selected)?'Get an Expert Review of Your Business.':'Everything you need to know before you book.';
 const audienceLabel=()=>org()?'Works for an organization':label(EMPLOYEES,state.employees);
 const knownSize=()=>state.verified&&state.sizeSource==='verified';
 const workStep=()=> 'work'; // All new public work choices are visible without an employee-count gate.

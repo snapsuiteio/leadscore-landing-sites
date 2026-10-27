@@ -35,7 +35,7 @@
     {
       "tenantSlug": "snapsuite-antigua",
       "pageSlug": "antigua-next-step",
-      "sourceCommit": "b5be53efb5b43fc8878a1bd66763eea8fca65208",
+      "sourceCommit": "d1584f6558547df35fac1a8f52e8defa116042d0",
       "publicationApproved": true,
       "rightsCleared": true,
       "captureDisabledReviewed": true,
@@ -50,7 +50,7 @@
         "courses.html": "c84b48fbb3278ad8ddab62d819a4b626128545f2869cabb12043c5a32bc55d0a",
         "guided-state.mjs": "ec4e49ee7227b7200fefb3fb1931f5285d6d653a74c673599cc9f10761c4b010",
         "index.html": "40ada7c737a5f208da5de2318848584b07dba1142fea40a0fa11a836928dba50",
-        "journey.mjs": "3c2fdaaa8cf65d032b8ec149022e0a153ac2581cf58beeae6b298c5fc2e0b6fc",
+        "journey.mjs": "096d0ed0a15c99c8c6a80f92ab0f5f6c22b856e03c07d2789423e0f9a344394d",
         "native-offers.mjs": "7010c946663aacf98196e6f4898ef652a2f202233b0d20fc923f1461b5cb1989",
         "offer-entry.mjs": "2090beb14fe263165b04a86cb9972da06a41ad1c45d63a74bfe61e38bab5123d",
         "organization.mjs": "c216d7870a2e62cc8805b94499d7ac2385c119329e1f30a9e79f8cbe38a8686c",
@@ -62,7 +62,7 @@
         "robots.txt": "331ea9090db0c9f6f597bd9840fd5b171830f6e0b3ba1cb24dfa91f0c95aedc1",
         "submission.mjs": "317e565dbaa4a1bbb69c743ef92d69fd3dd4ff77831f0db7fbc606873eebc70c",
         "wizard.css": "028ad2a39cad52dfe850e655ef48130e5a410cb501e632c71a6be05014d399dc",
-        "wizard.mjs": "a9445402a77f821eb280fab7ad846c83e3bf0d4a3de28ccc44f97b488fd32e13"
+        "wizard.mjs": "8a03f30f690f424cf1350ed14e2f0a3c5c3c329b68f9b83b5a60bf0fbd412522"
       }
     }
   ]
