@@ -275,13 +275,13 @@ function render() {
   }));
   screen.querySelector('[data-handoff]')?.addEventListener('click',async event=>{
    const button=event.currentTarget,status=$('#handoff-status'),label=button.textContent;button.disabled=true;button.setAttribute('aria-busy','true');button.textContent='Opening secure booking…';status.textContent='';
-   try{await personalJourney.handoff(state.session,button.dataset.handoff);}catch(error){status.className='notice';status.textContent=error.status===409?'This choice needs confirmation before you pay. Check your existing receipt or contact us; please do not pay again.':error.status===403?'Your private link has timed out. Request a new link before continuing.':'We couldn’t open your personal booking link. No booking or payment was made by this request. Please try again.';button.disabled=false;button.textContent=label;button.removeAttribute('aria-busy');if(error.status===403){const restart=document.createElement('button');restart.type='button';restart.className='text-button';restart.textContent='Send a new link';restart.addEventListener('click',()=>go('identify'));status.append(document.createElement('br'),restart);}}
+   try{await personalJourney.handoff(state.session,button.dataset.handoff);}catch(error){status.className='notice';status.textContent=error.status===409?'This choice needs confirmation before you pay. Check your existing receipt or contact us; please do not pay again.':error.status===403?'Your private link has timed out. Request a new link before continuing.':'We couldn’t open your personal booking link. No booking or payment was made by this request. Please try again.';button.disabled=error.status===409;button.textContent=error.status===409?'Payment needs confirmation':label;button.removeAttribute('aria-busy');if(error.status===403){const restart=document.createElement('button');restart.type='button';restart.className='text-button';restart.textContent='Send a new link';restart.addEventListener('click',()=>go('identify'));status.append(document.createElement('br'),restart);}}
   });
   if(state.verified)void personalJourney.viewed(state.session,state.step+(state.step==='review'?':'+linkIdFor(state.selected,state.track):''));
   screen.querySelectorAll('a[data-provider]').forEach(link=>link.addEventListener('click',event=>followChoice(event,link.hostname==='buy.stripe.com'?'outbound_stripe':'outbound_calendly')));
   // A page left open past the cutoff must not hand off to Stripe from a stale render.
   screen.querySelectorAll('[data-provider="seminar_seat"]').forEach(link=>link.addEventListener('click',event=>{if(!seatSalesOpen()){event.preventDefault();render();screen.querySelector('h1')?.focus();}}));
-  $('#explore-anonymously')?.addEventListener('click',()=>{resetIdentity(true);go(historySteps.findLast(step=>!['identify','checking','emailSent','identityError','ambiguous'].includes(step))||'work',false);});
+  $('#explore-anonymously')?.addEventListener('click',()=>{resetIdentity(true);go(historySteps.findLast(step=>!['identify','checking','emailSent','identityError','ambiguous'].includes(step))||'entry',false);});
   $('#retry-identity')?.addEventListener('click',redeem);
   $('#course')?.addEventListener('change',e=>{void recordChoice(e.target.checked?'solo_course_added':'solo_course_removed');state.course=e.target.checked;$('#course-status').textContent=state.course?'Course added on this page only: first payment US$146, then US$49 a month. Nothing has been charged and no course email has been sent.':'Course not added.';});
   $('#organization-form')?.addEventListener('input',event=>{const input=event.target;if(input.name)orgDraft[input.name]=input.type==='checkbox'?input.checked:input.value;input.setCustomValidity('');input.removeAttribute('aria-invalid');input.removeAttribute('aria-describedby');document.querySelector('#org-contact-guard')?.remove();});
@@ -308,11 +308,11 @@ function render() {
     if(savePayload&&securityCheck?.getToken())savePayload.turnstileToken=securityCheck.getToken();
     button.disabled=true;button.textContent='Saving…';form.setAttribute('aria-busy','true');form.querySelectorAll('input,select,textarea').forEach(input=>input.disabled=true);$('#back').disabled=true;screen.querySelectorAll('[data-go]').forEach(control=>control.disabled=true);
     try{const result=await api('submit',{session:state.session,submission:savePayload});if(result.resources?.enquiryStatus!=='saved'||!result.resources.id)throw Error('Unconfirmed receipt');savedReceipt=result.resources;savedChoice=savePayloadChoice;savePayload=null;try{const refreshed=await api('profile',{session:state.session});if(refreshed.profile)state.profile=refreshed.profile;state.matchStatus=refreshed.status;}catch{}render();$('#saved-details-summary')?.focus();}
-    catch(error){securityCheck?.reset();if(savePayload)delete savePayload.turnstileToken;status.className='error';status.setAttribute('role','alert');status.textContent=error.status===403?'Your private session is unavailable or has expired. Your result may already have been saved. Open a fresh private link and retry the same details to recover the saved result.':"We could not confirm your choice was saved. Your details are still here. Please try again.";button.disabled=false;button.textContent='Try saving again';form.removeAttribute('aria-busy');if(error.status===403){const restart=document.createElement('button');restart.type='button';restart.className='text-button';restart.textContent='Continue with my email';restart.addEventListener('click',()=>{savePayload=null;go('identify');});status.append(document.createElement('br'),restart);}}
+    catch(error){securityCheck?.reset();if(savePayload)delete savePayload.turnstileToken;status.className='error';status.setAttribute('role','alert');status.textContent=error.status===403?'Your private session is unavailable or has expired. Your result may already have been saved. Open a fresh private link and retry the same details to recover the saved result.':"We could not confirm your details were saved. They are still here. Please try again.";button.disabled=false;button.textContent='Try saving again';form.removeAttribute('aria-busy');if(error.status===403){const restart=document.createElement('button');restart.type='button';restart.className='text-button';restart.textContent='Continue with my email';restart.addEventListener('click',()=>{savePayload=null;go('identify');});status.append(document.createElement('br'),restart);}}
   });
   $('#identify-form')?.addEventListener('submit',async e=>{
     e.preventDefault();resetIdentity(true);state.email=new FormData(e.target).get('email').trim();const button=e.target.querySelector('button');button.disabled=true;
-    try { await api('request',{email:state.email,requestId:crypto.randomUUID()});go('emailSent'); }
+    try { await api('request',{email:state.email,requestId:crypto.randomUUID(),intent:bookable(state.selected,state.track)?linkIdFor(state.selected,state.track):null});go('emailSent'); }
     catch(error) { const prior=$('#identity-request-error');prior?.remove();const message=error.status===429?'Please wait before requesting another private link.':'Your verification request could not be confirmed. Check your inbox before requesting another link, or explore the offers below.';e.target.insertAdjacentHTML('afterend',`<div id="identity-request-error" class="error" role="alert">${message}</div>`);button.disabled=false; }
   });
 }
@@ -363,7 +363,12 @@ async function redeem() {
       state.profile=result.profile;state.email=result.profile?.email||'';state.session=result.session;state.matchStatus=result.status;state.verified=true;
       // Only an explicit verified band skips the question; nothing is guessed from partial ranges.
       Object.assign(state,profileAnswers(result.profile));state.sizeSource=state.employees?'verified':null;
-      historySteps=[];go('entry',false);
+      historySteps=[];
+      // Return intent comes from the recipient-bound server row, never an arbitrary URL destination.
+      const intent=result.offer,groupTrack=typeof intent==='string'&&intent.startsWith('group_')?intent.slice(6):'';
+      if(['operations','sales','both'].includes(groupTrack)&&bookable('group',groupTrack)){state.path='work';state.selected='group';state.track=groupTrack;go('review',false);}
+      else if(['seminar_seat','consultation','onsite','virtual'].includes(intent)&&bookable(intent)){state.path='work';state.selected=intent;state.track='';go('review',false);}
+      else go('entry',false);
     }
   } catch(error) {if(attempt===identityAttempt)go('identityError',true,[403,410].includes(error.status)?'expired':'unavailable');}
 }
@@ -376,3 +381,4 @@ addEventListener('hashchange',()=>{
 });
 if(accessToken&&identityConfigured) await redeem();
 else if(!identityConfigured)accessToken=null;
+else if(!privateVisit&&!publicOfferId&&!restoredGuided&&wizardAttribution.utm_source==='qr')go('identify',false);
