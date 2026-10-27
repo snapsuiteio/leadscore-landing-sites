@@ -49,7 +49,7 @@ const choiceKey=()=>JSON.stringify([state.selected,state.track,state.course,stat
 const org=()=>state.segment==='organization';
 const publicDetailContext=()=>!!offerReviewState(state.selected)&&!state.employees&&!org()&&!state.verified;
 const directOfferView=()=>state.step==='review'&&publicDetailContext();
-const reviewHeading=()=>state.selected==='consultation'?'Consultation':state.selected===SEMINAR.id?'It’s going to be a packed room. Guarantee your seat.':['onsite','virtual'].includes(state.selected)?'Get an Expert Review of Your Business.':'Everything you need to know before you book.';
+const reviewHeading=()=>state.selected==='consultation'?'One-on-one consultation':state.selected==='group'?'Guided setup and group training':state.selected===SEMINAR.id?'It’s going to be a packed room. Guarantee your seat.':['onsite','virtual'].includes(state.selected)?'Get an Expert Review of Your Business.':'Everything you need to know before you book.';
 const audienceLabel=()=>org()?'Works for an organization':label(EMPLOYEES,state.employees);
 const knownSize=()=>state.verified&&state.sizeSource==='verified';
 const workStep=()=> 'work'; // All new public work choices are visible without an employee-count gate.
@@ -123,7 +123,7 @@ function cardStatus(item) {
 // Approved button labels (no "terms" in labels; the full terms still show on the details page before any payment).
 const ctaLabel = item => bookable(item.id) ? (item.id===SEMINAR.id ? 'Reserve Seat' : 'See Details and Book Now') : 'See full details';
 // Final provider button on the details page: appointments pick a time slot; the seat and the fixed-date group cohort do not.
-const providerLabel = id => id===SEMINAR.id ? 'Reserve Seat' : id==='group' ? 'Book and Pay Now' : 'Choose Your Appointment Time and Pay';
+const providerLabel = id => id===SEMINAR.id ? 'Reserve Seat' : id==='group' ? 'Book and Pay Now' : id==='consultation' ? 'Choose How to Pay' : 'Choose Your Appointment Time and Pay';
 // Group training leads with the benefit; the software name is secondary. Each choice opens review (data-review="group:<track>").
 // Operations and Sales are large red-bordered panels; Both is an explicit third choice. Each shows its own flat price after its explanation.
 const trackChoices = item => `<div class="track-choices" role="group" aria-labelledby="offer-${item.id}-choose"><p class="track-prompt" id="offer-${item.id}-choose">What would help your business most?</p>${TRACKS.map(([key,name,text,software,price])=>`<button class="track-choice${key==='both'?'':' track-main'}" type="button" data-review="group:${key}"><strong>${name} →</strong><span>${text}</span><small>Software: ${software}</small><b class="track-price">${price}</b></button>`).join('')}</div>`;
@@ -162,6 +162,8 @@ function offerDetail(item) {
   const price=`<p class="detail-price">${item.price?`<span class="price">${item.price}</span>`:''}<span class="billing">${item.billing}</span></p>`;
   // Paid-seat review is deliberately concise; the underlying policies and checkout guards stay intact.
   if(item.id===SEMINAR.id)return `<div class="detail"><h3 class="detail-title">${item.title}</h3><p>${item.summary}</p>${price}</div>`;
+  if(item.id==='consultation')return consultationDetail(item);
+  if(item.id==='group'&&track(state.track))return groupDetail(item,track(state.track));
   return `<div class="detail">${item.id==='consultation'?'':`<h3 class="detail-title">${item.title}</h3>`}<p>${item.summary}</p><h4 class="detail-sub">What is included</h4>${list(item.included)}${price}${item.excluded.length?`<h4 class="detail-sub">What is not included</h4>${list(item.excluded)}`:''}${item.terms?.length?`<h4 class="detail-sub">Before you book</h4>${list(item.terms)}`:''}</div>`;
 }
 function organizationScreen(){
@@ -177,10 +179,53 @@ function organizationScreen(){
  const send=orgStep===2?`${contact}${ack?`<label class="check"><input name="acknowledgement" type="checkbox" ${ack.required?'required':''} ${orgDraft.acknowledgement?'checked':''} ${orgPending?'disabled':''}><span>${escape(ack.text)}</span></label>`:''}${ready?`<button class="primary" type="submit" ${orgPending?.sending?'disabled':''}>${orgPending?.sending?'Sending…':orgPending?'Try sending again':'Send my request'}</button><p class="small">This saves your request for our team to review. It doesn't book a call or take payment, and we won't contact anyone else at your organization.</p>`:`<div class="notice"><strong>Requests can't be sent from this page yet</strong><p>Nothing has been sent or saved.</p></div><button class="primary" type="button" disabled>Sending isn't available yet</button>`}`:'<button class="primary" type="submit">Continue</button>';
  return `<p class="eyebrow">I WORK FOR AN ORGANIZATION</p><h1 tabindex="-1">Bring practical AI and business tools to your organization</h1><p>Answer a few short questions. If it's a good fit, our team will be in touch to arrange a discovery call. Nothing is booked automatically.</p><section ${privateAttrs}><p class="org-step" aria-live="polite">Step ${orgStep+1} of 3</p><h2 tabindex="-1">${titles[orgStep]}</h2>${state.verified&&orgStep===0?`<div class="detail"><dl class="profile-grid"><dt>Name</dt><dd>${escape(profile.name||'Not provided')}</dd><dt>Email · Verified</dt><dd>${escape(profile.email)}</dd></dl><button class="text-button" data-go="identify">Not you? Start with your email to get a fresh private link.</button><p class="small">Leaving this page clears your answers.</p></div>`:''}<form id="organization-form" class="org-form" ${privateAttrs} ${orgPending?'aria-busy="true"':''}><div id="org-error" class="error" role="alert" ${orgError?'':'hidden'}>${escape(orgError)}</div>${ORGANIZATION_QUESTIONS.slice(...ranges[orgStep]).map(field).join('')}${send}${orgStep?'<button class="secondary" type="button" data-org-back>Back</button>':''}<p class="small">Your answers stay on this page only while it's open. If you leave or refresh, they're cleared. Copy your notes first if you need to step away.</p><button class="text-button" type="button" data-org-clear ${orgPending?'disabled':''}>Clear my answers</button></form></section>`;
 }
+// Guided tiles (Dwain, 27 Oct): large square buttons with a line icon, a red capitals title and one short line.
+// Icons are inline lucide paths, so there is no extra request or icon font.
+const GUIDED_ICONS={
+ work:'<path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/>',
+ learn:'<path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>',
+ group:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+ consultation:'<path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/>',
+ operations:'<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/>',
+ sales:'<path d="M22 7 13.5 15.5 8.5 10.5 2 17"/><path d="M16 7h6v6"/>',
+ both:'<path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/>',
+ intro:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+ org:'<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>',
+ free:'<path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>',
+ walkthrough:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+ steps:'<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
+ followup:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+ clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>'
+};
+const guidedIcon=name=>`<svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${GUIDED_ICONS[name]}</svg>`;
+// The accessible name is the title alone; price and line are its description.
+function guidedTile(key,attrs,title,text,price='',href=''){
+ const id='tile-'+key,describedBy=(price?id+'-price ':'')+id+'-text';
+ const body=`<span class="tile-icon-wrap">${guidedIcon(key)}</span><strong id="${id}">${title}</strong>${price?`<b id="${id}-price">${price}</b>`:''}<span class="tile-text" id="${id}-text">${text}</span>`;
+ return href?`<a class="guided-tile" href="${href}" ${attrs} aria-labelledby="${id}" aria-describedby="${describedBy}">${body}</a>`:`<button type="button" class="guided-tile" ${attrs} aria-labelledby="${id}" aria-describedby="${describedBy}">${body}</button>`;
+}
+function guidedEntryTiles(){return `<div class="guided-tiles">${guidedTile('work','data-entry="work"','Work with Dwain','Setup, group training or a one-on-one consultation.')}${guidedTile('learn','data-entry="learn"','Learn AI on my own','Courses and free guides at your own pace.')}</div>`;}
+function guidedLearnTiles(){return `<div class="guided-tiles guided-tiles-three">${guidedTile('intro','data-course-details="intro"','Learn the AI basics','Part 1 of the AI course. One-time price.','US$49','./courses.html#intro')}${guidedTile('org','data-course-details="org"','Build your first AI team','Part 2 of the AI course. One-time price.','US$97','./courses.html#org')}${guidedTile('free','data-free-page','Start with free guides','Practical guides to try at your own pace.','Free','./resources.html')}</div>`;}
+// One-on-one consultation: what you get first, then the price, the limit and how it works. Every booking term is kept, one tap away.
+const CONSULTATION_VALUE=[
+ ['consultation','A two-hour virtual meeting with Dwain','One-on-one on Zoom. Prefer to meet in person at your business in Antigua? Choose that when you book.'],
+ ['walkthrough','A walk-through of your business','How the work really happens today and the challenges you are facing.'],
+ ['steps','Practical steps and guidance','Where AI and software can help, and clear first steps to make your business more efficient.'],
+ ['followup','Two virtual follow-up meetings','More time with Dwain after the consultation, as you put the steps to work.']
+];
+// Group training: same simplified layout. The full billing, terms and refund policy stay one tap away.
+function groupDetail(item,[id,,,software]){
+ const list=rows=>`<ul>${rows.map(s=>`<li>${s}</li>`).join('')}</ul>`,icons=['steps','group','followup'];
+ return `<div class="value-offer"><p class="value-lede">${item.lede}</p><div class="value-price"><span class="price-label">One-time training fee</span><span class="price">${item.price}</span><small>All taxes and processing fees included. The software is a separate subscription after the training: ${id==='both'?'US$349':'US$179'} a month for ${software}.</small></div><h2 class="value-heading">What you get</h2><ul class="value-list">${item.included.map((text,i)=>`<li><span class="tile-icon-wrap">${guidedIcon(icons[i]||'steps')}</span><span><strong>${text}</strong></span></li>`).join('')}</ul><details class="value-terms"><summary>Full terms, refunds and what is not included</summary><p class="small">${item.billing}</p><h3>Before you book</h3>${list(item.terms)}${item.excluded.length?`<h3>What is not included</h3>${list(item.excluded)}`:''}</details></div>`;
+}
+function consultationDetail(item){
+ const list=rows=>`<ul>${rows.map(s=>`<li>${s}</li>`).join('')}</ul>`;
+ return `<div class="value-offer"><p class="value-lede">Two hours one-on-one with Dwain in a virtual meeting. Walk through how your business runs, and leave with practical steps and clear guidance on what to do next.</p><div class="value-price"><span class="price-label">Initial consultation fee</span><span class="price">${item.price}</span><small>One-time. All taxes and processing fees included.</small></div><p class="value-limit">${guidedIcon('clock')}<span><strong>Limited availability.</strong> Consultation times are first come, first served.</span></p><h2 class="value-heading">What you get</h2><ul class="value-list">${CONSULTATION_VALUE.map(([key,title,text])=>`<li><span class="tile-icon-wrap">${guidedIcon(key)}</span><span><strong>${title}</strong><span class="value-text">${text}</span></span></li>`).join('')}</ul><h2 class="value-heading">How it works</h2><ol class="value-steps"><li><span><strong>Choose how to pay</strong> and pick an available time.</span></li><li><span><strong>Meet Dwain</strong> for two hours, virtually on Zoom.</span></li><li><span><strong>Leave with practical next steps</strong>, then use your two follow-up meetings.</span></li></ol><details class="value-terms"><summary>Booking terms and what is not included</summary><h3>Before you book</h3>${list(item.terms)}${item.excluded.length?`<h3>What is not included</h3>${list(item.excluded)}`:''}</details></div>`;
+}
 // Progressive choices: prices appear only after the visitor chooses to work with Dwain.
 const guidedTrainingLabel=id=>({operations:'Help with paperwork',sales:'Help with sales',both:'I need help with both'})[id];
-function guidedWorkChoices(){return `<div class="guided-choices"><button type="button" class="guided-choice" data-work="group"><strong>Guided setup and group training</strong><span>Four sessions</span><b>From US$249 onboarding, then US$179/month</b></button><button type="button" class="guided-choice" data-review="consultation"><strong>One-on-one consultation</strong><b>US$949 initial consultation</b><span>Virtual or in person</span></button></div>`;}
-function guidedTrainingChoices(){return `<p class="guided-caption">Four guided setup and group-training sessions.</p><div class="guided-choices">${TRACKS.map(([id,,,software,price])=>`<button type="button" class="guided-choice" data-review="group:${id}"><strong>${guidedTrainingLabel(id)}</strong><b>${price} onboarding</b><span>Then ${id==='both'?'US$349':'US$179'}/month for ${software}</span></button>`).join('')}</div>`;}
+function guidedWorkChoices(){return `<div class="guided-tiles">${guidedTile('group','data-work="group"','Guided setup and group training','Four sessions to set up your software and learn it. Then from US$179/month.','From US$249')}${guidedTile('consultation','data-review="consultation"','One-on-one consultation','A two-hour virtual meeting with Dwain and a practical plan.','US$949')}</div>`;}
+function guidedTrainingChoices(){return `<p class="guided-caption">Four guided setup and group-training sessions.</p><div class="guided-tiles guided-tiles-three">${TRACKS.map(([id,,,software,price])=>guidedTile(id,`data-review="group:${id}"`,guidedTrainingLabel(id),`Then ${id==='both'?'US$349':'US$179'}/month for ${software}.`,`${price} onboarding`)).join('')}</div>`;}
 const helpFootnote = '<p class="small help-footnote">Already paid somewhere else? Please do not pay again. Use the contact details on your receipt and we will help. If a payment is still being checked, it must be sorted out before any new charge.</p>';
 function render() {
   securityCheck?.dispose();securityCheck=null;
@@ -190,6 +235,7 @@ function render() {
   const legacyReview=state.step==='review'&&['onsite','virtual','seminar_seat'].includes(state.selected);
   document.body.classList.toggle('guided-flow',!legacyReview);
   document.body.classList.toggle('guided-consultation-review',state.step==='review'&&state.selected==='consultation');
+  document.body.classList.toggle('guided-offer-review',state.step==='review'&&!legacyReview);
   if(state.verified)suspendPrivateAnalytics();
   $('#back').hidden = !historySteps.length;$('#back').disabled=!!savePayload||!!orgPending;
   // The first screen's step label repeats the question below it; drop the row unless Back is needed.
@@ -201,10 +247,10 @@ function render() {
   const sizeTitle = '<h1 tabindex="-1" id="size-question" class="size-title">How many employees are in your business?</h1>';
   // QR / anonymous entry. The email option only appears when the verified email adapter is connected,
   // and it only ever sends a private link; typing an email never reveals or skips anything.
-  if(state.step==='entry')screen.innerHTML=(state.verified&&state.profile?.name?`<p class="guided-known" data-leadscore-private data-clarity-mask="true">Welcome back, ${escape(state.profile.name.split(' ')[0])}. Your saved details are ready.</p><p class="small" data-leadscore-private>This private link connects your visit and confirmed bookings and payments to your LeadScore record.</p>`:'')+'<h1 tabindex="-1">What would you like to do?</h1><div class="guided-choices"><button type="button" class="guided-choice" data-entry="work"><strong>Work with Dwain</strong></button><button type="button" class="guided-choice" data-entry="learn"><strong>Learn AI on my own</strong></button></div>';
+  if(state.step==='entry')screen.innerHTML=(state.verified&&state.profile?.name?`<p class="guided-known" data-leadscore-private data-clarity-mask="true">Welcome back, ${escape(state.profile.name.split(' ')[0])}. Your saved details are ready.</p><p class="small" data-leadscore-private>This private link connects your visit and confirmed bookings and payments to your LeadScore record.</p>`:'')+'<h1 tabindex="-1">What would you like to do?</h1>'+guidedEntryTiles();
   if(state.step==='work')screen.innerHTML=heading('','How would you like help?')+guidedWorkChoices()+(identityConfigured&&!state.verified?'<p class="guided-aside">Shared your details before? <button type="button" class="text-button" data-go="identify">Continue with email</button> so you don’t re-enter them.</p>':'');
   if(state.step==='training')screen.innerHTML=heading('','What do you need help with?')+guidedTrainingChoices();
-  if(state.step==='learn')screen.innerHTML=heading('','How would you like to learn?')+`<div class="guided-choices"><a class="guided-choice" href="./courses.html#intro" data-course-details="intro"><strong>Learn the AI basics</strong><span>Part 1 · US$49 one-time</span></a><a class="guided-choice" href="./courses.html#org" data-course-details="org"><strong>Build your first AI team</strong><span>Part 2 · US$97 one-time</span></a><a class="guided-choice" href="./resources.html" data-free-page><strong>Start with free guides</strong></a></div>`;
+  if(state.step==='learn')screen.innerHTML=heading('','How would you like to learn?')+guidedLearnTiles();
   if(state.step==='intro')screen.innerHTML=sizeTitle+sizeCards()+learnLine;
   if(state.step === 'identify') screen.innerHTML = heading('', 'Continue with your email', 'We’ll email you a private link. Open it on this device to bring your saved details. Nothing is shown until you open that link.') + `<form id="identify-form"><label class="field"><span>Your email address</span><input name="email" type="email" autocomplete="email" value="${escape(state.email)}" required maxlength="254"></label><p class="small">We verify the email before showing any saved business information.</p><button class="primary" type="submit">Send my private link →</button></form>${!identityConfigured?'<div class="notice"><strong>Identity connection is pending</strong><p>This draft cannot send verification emails or load real LeadScore records yet.</p></div>':''}<button class="text-button" type="button" id="explore-anonymously">Continue without saved details</button>`;
   if(state.step === 'checking') screen.innerHTML = heading('', 'Opening your private link…', 'We’re loading your saved details.');
